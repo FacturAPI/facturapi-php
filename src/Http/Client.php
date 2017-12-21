@@ -1,97 +1,387 @@
 <?php
 
-require ‘vendor / autoload . php’;
+namespace Facturapi\Client;
 
-use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Psr7\Request;
-use Exceptions\BadRequest;
-use Exceptions\InvalidArgument;
+use Facturapi\Exceptions\Facturapi_Exception;
 
-class Client
-{
-    const BASE_URL = "https://www.facturapi.io/v1";
+class BaseClient {
+	// BaseClient class to be extended by specific clients
+	protected $FACTURAPI_KEY;
+	protected $API_PATH;
+	protected $API_VERSION;
+	protected $BASE_URL = 'https://www.facturapi.io/v1';
+	/**
+	 * The HTTP status of the most recent request
+	 *
+	 * @var integer
+	 */
+	protected $lastStatus;
+	/**
+	 * The HTTP code for a successful request
+	 */
+	const STATUS_OK = 200;
+	/**
+	 * The HTTP code for bad request
+	 */
+	const STATUS_BAD_REQUEST = 400;
+	/**
+	 * The HTTP code for unauthorized
+	 */
+	const STATUS_UNAUTHORIZED = 401;
+	/**
+	 * The HTTP code for resource not found
+	 */
+	const STATUS_NOT_FOUND = 404;
 
-    /** @var \GuzzleHttp\Client */
-    private $client = null;
+	/**
+	 * Constructor.
+	 *
+	 * @param $FACTURAPI_KEY : String value of Facturapi API Key for requests
+	 */
+	public function __construct( $FACTURAPI_KEY ) {
+		$this->FACTURAPI_KEY = base64_encode( $FACTURAPI_KEY . ":" );
+	}
 
-    /** @var string */
-    public $api_key;
+	/**
+	 * Gets the status code from the most recent curl request
+	 *
+	 * @return integer
+	 */
+	public function getLastStatus() {
+		return (int) $this->lastStatus;
+	}
 
-    /**
-     * Guzzle allows options into its request method. Prepare for some defaults
-     * @var array
-     */
-    protected $clientOptions = [];
-    /**
-     * if set to false, no Response object is created, but the one from Guzzle is directly returned
-     * comes in handy own error handling
-     *
-     * @var bool
-     */
-    protected $wrapResponse = true;
+	/**
+	 * Returns API_PATH that is set in specific hapi clients.  All
+	 * clients that extend Facturapi_BaseClient should set $API_PATH to the
+	 * base path for the API (e.g.: the leads api sets the value to
+	 * 'leads')
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function get_api() {
+		if ( empty( $this->API_PATH ) ) {
+			throw new Facturapi_Exception( 'API_PATH must be defined' );
+		} else {
+			return $this->API_PATH;
+		}
+	}
 
-    /**
-     * Make it, baby.
-     *
-     * @param string $key Facturapi valid api key
-     * @param GuzzleClient $client The Http Client (Defaults to Guzzle)
-     * @param array $clientOptions options to be passed to Guzzle upon each request
-     * @param bool $wrapResponse wrap request response in own Response object
-     */
-    public function __construct($key, $client = null, $clientOptions = [], $wrapResponse = true)
-    {
+	/**
+	 * Returns API_VERSION that is set in specific hapi clients. All
+	 * clients that extend Facturapi_BaseClient should set $API_VERSION to the
+	 * version that the client is developed for (e.g.: the leads v1
+	 * client sets the value to 'v1')
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function get_api_version() {
+		if ( empty( $this->API_VERSION ) ) {
+			throw new Facturapi_Exception( 'API_VERSION must be defined' );
+		} else {
+			return $this->API_VERSION;
+		}
+	}
 
-        $this->clientOptions = $clientOptions;
-        $this->wrapResponse = $wrapResponse;
+	/**
+	 * Creates the url to be used for the api request
+	 *
+	 * @param endpoint : String value for the endpoint to be used (appears after version in url)
+	 * @param params : Array containing query parameters and values
+	 *
+	 * @returns String
+	 */
+	protected function get_request_url( $endpoint, $params ) {
+		$param_string = $this->array_to_params( $params );
 
-        $this->api_key = isset($key) ? $key : getenv("FACTURAPI_KEY");
-        if (empty($this->key)) {
-            throw new InvalidArgument("You must provide a Facturapi api key.");
-        }
+		return $this->BASE_URL . "/" . $this->get_api() . "/" . $this->get_api_version() . "/" . $endpoint . "?" . $this->FACTURAPI_KEY . $param_string;
+	}
 
-        $this->client = $client ?: new GuzzleClient();
+	/**
+	 * Creates the url to be used for the api request for Forms API
+	 *
+	 * @param endpoint : String value for the endpoint to be used (appears after version in url)
+	 * @param params : Array containing query parameters and values
+	 *
+	 * @return String
+	 */
+	protected function get_forms_request_url( $url_base, $params ) {
+		$param_string = $this->array_to_params( $params );
 
-    }
+		return $url_base . "?" . $this->FACTURAPI_KEY . $param_string;
+	}
 
-    /**
-     * Send the request...
-     *
-     * @param  string $method The HTTP request verb
-     * @param  string $endpoint The Facturapi API endpoint
-     * @param  array $options An array of options to send with the request
-     * @param  string $query_string A query string to send with the request
-     * @return Response|ResponseInterface
-     * @throws BadRequest
-     */
-    public function request($method, $endpoint, $options = [], $query_string = null)
-    {
-        $url = $this->generateUrl($endpoint, $query_string, $requires_auth);
-        $options = array_merge($this->clientOptions, $options);
-        $options["headers"]["Authorization"] = "Basic " . base64_encode($this->key.":");
+	/**
+	 * Executes HTTP GET request
+	 *
+	 * @param URL : String value for the URL to GET
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_get_request( $url ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 
-        try {
-            if ($this->wrapResponse === false) {
-                return $this->client->request($method, $url, $options);
-            }
-            return new Response($this->client->request($method, $url, $options));
-        } catch (\GuzzleHttp\Exception\BadResponseException $e) {
-            throw new BadRequest(\GuzzleHttp\Psr7\str($e->getResponse()), $e->getCode(), $e);
-        } catch (\Exception $e) {
-            throw new BadRequest($e->getMessage(), $e->getCode(), $e);
-        }
-    }
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_ENCODING, "gzip" );
+
+		$output = curl_exec( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $output;
+		}
+	}
+
+	/**
+	 * Executes HTTP POST request
+	 *
+	 * @param URL : String value for the URL to POST to
+	 * @param fields : Array containing names and values for fields to post
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_post_request( $url, $body, $formenc = false ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		if ( $formenc ) {
+			$headers[] = 'Content-Type: application/x-www-form-urlencoded';
+		}
+		// initialize cURL and send POST data
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_POST, true );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 
 
-    /**
-     * Generate the full endpoint url, including query string.
-     *
-     * @param  string  $endpoint      The HubSpot API endpoint.
-     * @param  string  $query_string  The query string to send to the endpoint.
-     * @return string
-     */
-    protected function generateUrl($endpoint, $query_string = null)
-    {
-        return BASE_URL.$endpoint."?".$query_string;
-    }
+		$output = curl_exec( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $output;
+		}
+	}
 
+	/**
+	 * Executes HTTP POST request with JSON as the POST body
+	 *
+	 * @param URL String value for the URL to POST to
+	 * @param fields array containing names and values for fields to post
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_JSON_post_request( $url, $body ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		$headers[] = 'Content-Type: application/json';
+
+		// initialize cURL and send POST data
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_POST, true );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+
+		$output = curl_exec( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $output;
+		}
+	}
+
+	/**
+	 * Executes HTTP POST request with XML as the POST body
+	 *
+	 * @param URL String value for the URL to POST to
+	 * @param fields array containing names and values for fields to post
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_xml_post_request( $url, $body ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		$headers[] = 'Content-Type: application/atom+xml';
+
+		// initialize cURL and send POST data
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_POST, true );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+
+		$output = curl_exec( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $output;
+		}
+	}
+
+	/**
+	 * Executes HTTP PUT request
+	 *
+	 * @param URL String value for the URL to PUT to
+	 * @param String $body
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_put_request( $url, $body ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		$headers[] = 'Content-Type: application/json';
+		$headers[] = 'Content-Length: ' . strlen( $body );
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+
+		$result = curl_exec( $ch );
+		$errno = curl_errno( $ch );
+		$error = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $result;
+		}
+	}
+
+	/**
+	 * Executes HTTP PUT request with XML as the PUT body
+	 *
+	 * @param URL String value for the URL to PUT to
+	 * @param String $body
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_xml_put_request( $url, $body ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		$headers[] = 'Content-Type: application/atom+xml';
+		$headers[] = 'Content-Length: ' . strlen( $body );
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+
+		$result = curl_exec( $ch );
+		$errno = curl_errno( $ch );
+		$error = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $result;
+		}
+	}
+
+	/**
+	 * Executes HTTP DELETE request
+	 *
+	 * @param URL String value for the URL to DELETE to
+	 * @param String $body
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_delete_request( $url, $body ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		$headers[] = 'Content-Type: application/json';
+		$headers[] = 'Content-Length: ' . strlen( $body );
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "DELETE" );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+
+		$result = curl_exec( $ch );
+		$errno = curl_errno( $ch );
+		$error = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $result;
+		}
+	}
+
+	/**
+	 * Converts an array into url friendly list of parameters
+	 *
+	 * @param array params Multidimensional array of parameters (name=>value)
+	 *
+	 * @return String of url friendly parameters (&name=value&foo=bar)
+	 */
+	protected function array_to_params( $params ) {
+		$param_string = '';
+		if ( $params != null ) {
+			foreach ( $params as $parameter => $value ) {
+				if ( is_array( $value ) ) {
+					foreach ( $value as $sub_param ) {
+						$param_string = $param_string . '&' . $parameter . '=' . urlencode( $sub_param );
+					}
+				} else {
+					$param_string = $param_string . '&' . $parameter . '=' . urlencode( $value );
+				}
+			}
+		}
+
+		return $param_string;
+	}
+
+	/**
+	 * Sets the status code from a curl request
+	 *
+	 * @param resource $ch
+	 */
+	protected function setLastStatusFromCurl( $ch ) {
+		$info             = curl_getinfo( $ch );
+		$this->lastStatus = ( isset( $info['http_code'] ) ) ? $info['http_code'] : null;
+	}
 }
