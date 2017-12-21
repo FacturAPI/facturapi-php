@@ -1,6 +1,6 @@
 <?php
 
-namespace Facturapi\Client;
+namespace Facturapi\Http;
 
 use Facturapi\Exceptions\Facturapi_Exception;
 
@@ -9,7 +9,7 @@ class BaseClient {
 	protected $FACTURAPI_KEY;
 	protected $API_PATH;
 	protected $API_VERSION;
-	protected $BASE_URL = 'https://www.facturapi.io/v1';
+	protected $BASE_URL = 'https://www.facturapi.io/';
 	/**
 	 * The HTTP status of the most recent request
 	 *
@@ -52,10 +52,10 @@ class BaseClient {
 	}
 
 	/**
-	 * Returns API_PATH that is set in specific hapi clients.  All
-	 * clients that extend Facturapi_BaseClient should set $API_PATH to the
-	 * base path for the API (e.g.: the leads api sets the value to
-	 * 'leads')
+	 * Returns API_PATH that is set in specific api clients.  All
+	 * clients that extend BaseClient should set $API_PATH to the
+	 * base path for the API (e.g.: the customers api sets the value to
+	 * 'customers')
 	 *
 	 * @throws Facturapi_Exception
 	 */
@@ -68,9 +68,9 @@ class BaseClient {
 	}
 
 	/**
-	 * Returns API_VERSION that is set in specific hapi clients. All
-	 * clients that extend Facturapi_BaseClient should set $API_VERSION to the
-	 * version that the client is developed for (e.g.: the leads v1
+	 * Returns API_VERSION that is set in specific api clients. All
+	 * clients that extend BaseClient should set $API_VERSION to the
+	 * version that the client is developed for (e.g.: the customers v1
 	 * client sets the value to 'v1')
 	 *
 	 * @throws Facturapi_Exception
@@ -94,7 +94,7 @@ class BaseClient {
 	protected function get_request_url( $endpoint, $params ) {
 		$param_string = $this->array_to_params( $params );
 
-		return $this->BASE_URL . "/" . $this->get_api() . "/" . $this->get_api_version() . "/" . $endpoint . "?" . $this->FACTURAPI_KEY . $param_string;
+		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_api()  . "/" . $endpoint . "?" . $param_string;
 	}
 
 	/**
