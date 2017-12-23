@@ -2,12 +2,14 @@
 
 namespace Facturapi\Http;
 
+require_once '../Exceptions/Facturapi_Exception.php';
+
 use Facturapi\Exceptions\Facturapi_Exception;
 
 class BaseClient {
 	// BaseClient class to be extended by specific clients
 	protected $FACTURAPI_KEY;
-	protected $API_PATH;
+	protected $ENDPOINT;
 	protected $API_VERSION;
 	protected $BASE_URL = 'https://www.facturapi.io/';
 	/**
@@ -53,17 +55,17 @@ class BaseClient {
 
 	/**
 	 * Returns API_PATH that is set in specific api clients.  All
-	 * clients that extend BaseClient should set $API_PATH to the
+	 * clients that extend BaseClient should set $ENDPOINT to the
 	 * base path for the API (e.g.: the customers api sets the value to
 	 * 'customers')
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function get_api() {
-		if ( empty( $this->API_PATH ) ) {
+	protected function get_endpoint() {
+		if ( empty( $this->ENDPOINT ) ) {
 			throw new Facturapi_Exception( 'API_PATH must be defined' );
 		} else {
-			return $this->API_PATH;
+			return $this->ENDPOINT;
 		}
 	}
 
@@ -86,29 +88,14 @@ class BaseClient {
 	/**
 	 * Creates the url to be used for the api request
 	 *
-	 * @param endpoint : String value for the endpoint to be used (appears after version in url)
 	 * @param params : Array containing query parameters and values
 	 *
 	 * @returns String
 	 */
-	protected function get_request_url( $endpoint, $params ) {
-		$param_string = $this->array_to_params( $params );
+	protected function get_request_url( $params = null ) {
+		$param_string = is_string( $params ) ? $params : $this->array_to_params( $params );
 
-		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_api()  . "/" . $endpoint . "?" . $param_string;
-	}
-
-	/**
-	 * Creates the url to be used for the api request for Forms API
-	 *
-	 * @param endpoint : String value for the endpoint to be used (appears after version in url)
-	 * @param params : Array containing query parameters and values
-	 *
-	 * @return String
-	 */
-	protected function get_forms_request_url( $url_base, $params ) {
-		$param_string = $this->array_to_params( $params );
-
-		return $url_base . "?" . $this->FACTURAPI_KEY . $param_string;
+		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_endpoint() . "/" . $param_string;
 	}
 
 	/**
@@ -195,7 +182,7 @@ class BaseClient {
 		// initialize cURL and send POST data
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_POST, true );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
 		curl_setopt( $ch, CURLOPT_URL, $url );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
@@ -250,28 +237,27 @@ class BaseClient {
 	 * Executes HTTP PUT request
 	 *
 	 * @param URL String value for the URL to PUT to
-	 * @param String $body
+	 * @param array $body
 	 *
 	 * @return Body of request result
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_put_request( $url, $body ) {
+	protected function execute_JSON_put_request( $url, $body ) {
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 		$headers[] = 'Content-Type: application/json';
-		$headers[] = 'Content-Length: ' . strlen( $body );
 
 		$ch = curl_init();
 		curl_setopt( $ch, CURLOPT_URL, $url );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
 		$result = curl_exec( $ch );
-		$errno = curl_errno( $ch );
-		$error = curl_error( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
 		$this->setLastStatusFromCurl( $ch );
 		curl_close( $ch );
 		if ( $errno > 0 ) {
@@ -305,8 +291,8 @@ class BaseClient {
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
 		$result = curl_exec( $ch );
-		$errno = curl_errno( $ch );
-		$error = curl_error( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
 		$this->setLastStatusFromCurl( $ch );
 		curl_close( $ch );
 		if ( $errno > 0 ) {
@@ -340,8 +326,8 @@ class BaseClient {
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
 		$result = curl_exec( $ch );
-		$errno = curl_errno( $ch );
-		$error = curl_error( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
 		$this->setLastStatusFromCurl( $ch );
 		curl_close( $ch );
 		if ( $errno > 0 ) {
@@ -359,7 +345,7 @@ class BaseClient {
 	 * @return String of url friendly parameters (&name=value&foo=bar)
 	 */
 	protected function array_to_params( $params ) {
-		$param_string = '';
+		$param_string = '?';
 		if ( $params != null ) {
 			foreach ( $params as $parameter => $value ) {
 				if ( is_array( $value ) ) {
