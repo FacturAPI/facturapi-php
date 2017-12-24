@@ -1,8 +1,8 @@
 <?php
 
 namespace Facturapi\Resources;
-require_once '../Http/BaseClient.php';
-require_once '../Exceptions/Facturapi_Exception.php';
+require_once './Http/BaseClient.php';
+require_once './Exceptions/Facturapi_Exception.php';
 
 use Facturapi\Http\BaseClient;
 use Facturapi\Exceptions\Facturapi_Exception;

@@ -2,7 +2,7 @@
 
 namespace Facturapi\Http;
 
-require_once '../Exceptions/Facturapi_Exception.php';
+require_once './Exceptions/Facturapi_Exception.php';
 
 use Facturapi\Exceptions\Facturapi_Exception;
 
