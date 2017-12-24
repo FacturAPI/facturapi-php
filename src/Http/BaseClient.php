@@ -54,7 +54,7 @@ class BaseClient {
 	}
 
 	/**
-	 * Returns API_PATH that is set in specific api clients.  All
+	 * Returns ENDPOINT that is set in specific api clients.  All
 	 * clients that extend BaseClient should set $ENDPOINT to the
 	 * base path for the API (e.g.: the customers api sets the value to
 	 * 'customers')
@@ -63,7 +63,7 @@ class BaseClient {
 	 */
 	protected function get_endpoint() {
 		if ( empty( $this->ENDPOINT ) ) {
-			throw new Facturapi_Exception( 'API_PATH must be defined' );
+			throw new Facturapi_Exception( 'ENDPOINT must be defined' );
 		} else {
 			return $this->ENDPOINT;
 		}
@@ -200,40 +200,6 @@ class BaseClient {
 	}
 
 	/**
-	 * Executes HTTP POST request with XML as the POST body
-	 *
-	 * @param URL String value for the URL to POST to
-	 * @param fields array containing names and values for fields to post
-	 *
-	 * @return Body of request result
-	 *
-	 * @throws Facturapi_Exception
-	 */
-	protected function execute_xml_post_request( $url, $body ) {
-		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
-		$headers[] = 'Content-Type: application/atom+xml';
-
-		// initialize cURL and send POST data
-		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_POST, true );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-
-		$output = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
-		} else {
-			return $output;
-		}
-	}
-
-	/**
 	 * Executes HTTP PUT request
 	 *
 	 * @param URL String value for the URL to PUT to
@@ -253,41 +219,6 @@ class BaseClient {
 		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
 		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
 		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
-
-		$result = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
-		} else {
-			return $result;
-		}
-	}
-
-	/**
-	 * Executes HTTP PUT request with XML as the PUT body
-	 *
-	 * @param URL String value for the URL to PUT to
-	 * @param String $body
-	 *
-	 * @return Body of request result
-	 *
-	 * @throws Facturapi_Exception
-	 */
-	protected function execute_xml_put_request( $url, $body ) {
-		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
-		$headers[] = 'Content-Type: application/atom+xml';
-		$headers[] = 'Content-Length: ' . strlen( $body );
-
-		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
 
 		$result = curl_exec( $ch );

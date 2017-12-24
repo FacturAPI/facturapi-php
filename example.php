@@ -8,7 +8,7 @@ require_once 'src/Facturapi.php';
 $facturapi = new Facturapi( FACTURAPI_KEY );
 
 
-var_dump($facturapi->Invoices->get_by_id("5a3f54cff508333611ad6b40"));
+var_dump($facturapi->Invoices->retrieve("5a3f54cff508333611ad6b40"));
 
 $invoice = array(
 	"customer"     => "5a3ff03bf508333611ad6b44",
@@ -32,14 +32,14 @@ $invoice = array(
 	"series"       => "F"
 );
 
-//var_dump( $facturapi->Invoices->create( $invoice ) );
+var_dump( $facturapi->Invoices->create( $invoice ) );
 
-var_dump( $facturapi->Invoices->get_by_id( "59914af9b1bece552fcaaafd" ) );
+var_dump( $facturapi->Invoices->retrieve( "59914af9b1bece552fcaaafd" ) );
 
-var_dump($facturapi->Invoices->get_all());
+var_dump($facturapi->Invoices->all());
 
 
-var_dump( $facturapi->Products->get_all() );
+var_dump( $facturapi->Products->all() );
 
 $product = array(
 	"description" => "Hukulele",
@@ -48,21 +48,21 @@ $product = array(
 	"sku"         => "ABC1234"
 );
 
-//var_dump( $facturapi->Products->create( $product ) );
+var_dump( $facturapi->Products->create( $product ) );
 
 $product = array(
 	"description" => "Guitarra"
 );
 
-//$updated_product = $facturapi->Products->update("5a3f3e35f508333611ad6b3e",$product);
-//var_dump($updated_product);
+$updated_product = $facturapi->Products->update("5a3f3e35f508333611ad6b3e",$product);
+var_dump($updated_product);
 
-//$facturapi->Products->delete( "5a3f3e35f508333611ad6b3e" );
+$facturapi->Products->delete( "5a3f3e35f508333611ad6b3e" );
 
-var_dump( $facturapi->Customers->get_all() );
+var_dump( $facturapi->Customers->all() );
 
 
-var_dump( $facturapi->Customers->get_by_id("5a3ee743f508333611ad6b3c") );
+var_dump( $facturapi->Customers->retrieve("5a3ee743f508333611ad6b3c") );
 
 
 $customer = array(
@@ -75,8 +75,8 @@ $customer = array(
 	)
 );
 
-//$new_customer = $facturapi->Customers->create($customer);
-//var_dump($new_customer);
+$new_customer = $facturapi->Customers->create($customer);
+var_dump($new_customer);
 
 
 $customer = array(
@@ -84,8 +84,8 @@ $customer = array(
 	"legal_name" => "Testa Mesta Papa",
 );
 
-//$updated_customer = $facturapi->Customers->update("5a3ee743f508333611ad6b3c",$customer);
-//var_dump($updated_customer);
+$updated_customer = $facturapi->Customers->update("5a3ee743f508333611ad6b3c",$customer);
+var_dump($updated_customer);
 
 
-//$facturapi->Customers->delete("5a3fefd9f508333611ad6b43");
+$facturapi->Customers->delete("5a3fefd9f508333611ad6b43");

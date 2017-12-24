@@ -20,7 +20,7 @@ class Customers extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function get_all( $params = null ) {
+	public function all( $params = null ) {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
@@ -37,7 +37,7 @@ class Customers extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function get_by_id( $id ) {
+	public function retrieve( $id ) {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {

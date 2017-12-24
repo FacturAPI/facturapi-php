@@ -1,8 +1,8 @@
 <?php
 
 namespace Facturapi\Resources;
-require_once 'src//Http/BaseClient.php';
-require_once 'src//Exceptions/Facturapi_Exception.php';
+require_once 'src/Http/BaseClient.php';
+require_once 'src/Exceptions/Facturapi_Exception.php';
 
 use Facturapi\Http\BaseClient;
 use Facturapi\Exceptions\Facturapi_Exception;
@@ -21,7 +21,7 @@ class Invoices extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function get_all( $params = null ) {
+	public function all( $params = null ) {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
@@ -38,7 +38,7 @@ class Invoices extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function get_by_id( $id ) {
+	public function retrieve( $id ) {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {
