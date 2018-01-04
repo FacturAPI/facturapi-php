@@ -1,0 +1,31 @@
+{
+  "name": "facturapi/facturapi-php",
+  "type": "library",
+  "description": "Facturapi's PHP client library",
+  "keywords": [
+    "facturapi",
+    "api"
+  ],
+  "homepage": "https://www.facturapi.io/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jhonatan Laguna",
+      "email": "hola@jhonatanlaguna.com",
+      "homepage": "http://jhonatanlaguna.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.5.0"
+  },
+  "require-dev": {
+    "phpspec/phpspec": "~2.0",
+    "phpunit/phpunit": "~4.0"
+  },
+  "autoload": {
+    "classmap": [
+      "/src"
+    ]
+  },
+  "minimum-stability": "stable"
+}
