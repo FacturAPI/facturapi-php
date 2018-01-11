@@ -58,8 +58,8 @@ $product = array(
   // By default, taxes are calculated from the price with IVA 16%
   // But again, you can override that by explicitly providing a taxes array
   // "taxes" => array(
-  //   array ( "type" => Facturapi::IVA, "rate" => 0.16 ),
-  //   array ( "type" => Facturapi::ISR, "rate" => 0.03666, "withholding" => true )
+  //   array ( "type" => \Facturapi\Constants\TaxType::IVA, "rate" => 0.16 ),
+  //   array ( "type" => \Facturapi\Constants\TaxType::ISR, "rate" => 0.03666, "withholding" => true )
   // )
 );
 
@@ -88,7 +88,7 @@ $invoice = array(
       )
     ) // Add as many products as you want to include in your invoice
   ),
-  "payment_form" => Facturapi::TARJETA_DE_CREDITO,
+  "payment_form" => \Facturapi\Constants\PaymentForm::EFECTIVO,
   "folio_number" => "581",
   "series"       => "F"
 );
