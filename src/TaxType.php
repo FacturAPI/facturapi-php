@@ -1,6 +1,6 @@
 <?php
 
-namespace Facturapi\Constants;
+namespace Facturapi;
 
 class TaxType {
 	const IVA = 'IVA';
