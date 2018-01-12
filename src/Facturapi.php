@@ -4,8 +4,6 @@ namespace Facturapi;
 require_once 'Resources/Customers.php';
 require_once 'Resources/Products.php';
 require_once 'Resources/Invoices.php';
-require_once 'Constants/PaymentForm.php';
-require_once 'Constants/TaxType.php';
 
 use Facturapi\Resources\Customers;
 use Facturapi\Resources\Products;
