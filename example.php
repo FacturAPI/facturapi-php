@@ -30,7 +30,7 @@ $invoice = array(
 	),
 	"payment_form" => \Facturapi\PaymentForm::EFECTIVO,
 	"relation"     => \Facturapi\InvoiceRelation::DEVOLUCION,
-	"related"      => ['UUID_de_factura_relacionada'],
+	"related"      => [ 'UUID_de_factura_relacionada' ],
 	"folio_number" => "581",
 	"series"       => "F"
 );
