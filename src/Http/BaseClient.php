@@ -2,8 +2,6 @@
 
 namespace Facturapi\Http;
 
-require_once 'src/Exceptions/Facturapi_Exception.php';
-
 use Facturapi\Exceptions\Facturapi_Exception;
 
 class BaseClient {
