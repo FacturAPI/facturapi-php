@@ -232,6 +232,48 @@ class BaseClient {
 	}
 
 	/**
+	 * Executes HTTP PUT request
+	 *
+	 * @param URL String value for the URL to PUT to
+	 * @param array $body
+	 *
+	 * @return Body of request result
+	 *
+	 * @throws Facturapi_Exception
+	 */
+	protected function execute_data_put_request( $url, $body ) {
+		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
+		$headers[] = 'Content-Type: multipart/form-data';
+
+		$data = is_array( $body ) ? array(
+			'cer' => new \CURLFile($body['cerFile']),
+			'key' => new \CURLFile($body['keyFile']),
+			'password' => $body['password']
+		) : array(
+			'file' => new \CURLFile($body)
+		);
+
+		$ch = curl_init();
+		curl_setopt( $ch, CURLOPT_URL, $url );
+		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
+		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
+		curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
+		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+
+		$result = curl_exec( $ch );
+		$errno  = curl_errno( $ch );
+		$error  = curl_error( $ch );
+		$this->setLastStatusFromCurl( $ch );
+		curl_close( $ch );
+		if ( $errno > 0 ) {
+			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		} else {
+			return $result;
+		}
+	}
+	
+	/**
 	 * Executes HTTP DELETE request
 	 *
 	 * @param URL String value for the URL to DELETE to
