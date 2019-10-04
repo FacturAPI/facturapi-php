@@ -89,9 +89,12 @@ class Invoices extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function send_by_email( $id ) {
+	public function send_by_email( $id, $email = null ) {
 		try {
-			return json_decode( $this->execute_post_request( $this->get_request_url( $id ) . "/email", null ) );
+			return json_decode( $this->execute_JSON_post_request(
+				$this->get_request_url($id) . "/email",
+				array("email" => $email)
+			));
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to send Invoice: ' . $e );
 		}
