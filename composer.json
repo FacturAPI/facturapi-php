@@ -3,6 +3,10 @@
   "type": "library",
   "description": "Facturapi's PHP client library",
   "keywords": [
+    "mexico",
+    "sat",
+    "cfdi",
+    "factura",
     "facturapi",
     "api"
   ],
