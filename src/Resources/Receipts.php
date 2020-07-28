@@ -78,7 +78,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id ) . "/invoice", $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to update receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to invoice receipt: ' . $e );
 		}
 	}
 
@@ -95,7 +95,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to delete receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to cancel receipt: ' . $e );
 		}
 	}
 

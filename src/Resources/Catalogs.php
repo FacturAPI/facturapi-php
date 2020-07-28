@@ -27,7 +27,7 @@ class Catalogs extends BaseClient {
         )
       );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get receipts: ' . $e );
+			throw new Facturapi_Exception( 'Unable to search products: ' . $e );
 		}
 	}
 
@@ -44,11 +44,11 @@ class Catalogs extends BaseClient {
 		try {
 			return json_decode(
         $this->execute_get_request(
-          $this->get_request_url( "products" ) . $this->array_to_params($params)
+          $this->get_request_url( "units" ) . $this->array_to_params($params)
         )
       );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get receipts: ' . $e );
+			throw new Facturapi_Exception( 'Unable to search unit keys: ' . $e );
 		}
 	}
 
