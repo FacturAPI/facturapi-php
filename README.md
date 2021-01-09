@@ -19,10 +19,20 @@ Make sure you have created your free account on [FacturAPI](https://www.facturap
 
 ## Getting started
 
+### Import the library
+
+Don't forget to reference the library at the top of your code:
+
+```php
+use Facturapi\Facturapi;
+```
+
 ### Create a customer
 
 ```php
 
+// Create an instance of the client.
+// You can use different instances for uusing different API Keys
 $facturapi = new Facturapi( FACTURAPI_KEY );
 
 $customer = array(
