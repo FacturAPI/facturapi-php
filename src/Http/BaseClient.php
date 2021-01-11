@@ -114,6 +114,7 @@ class BaseClient {
 		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
 		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
 		curl_setopt( $ch, CURLOPT_ENCODING, "gzip" );
+		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );
 
 		$output = curl_exec( $ch );
 		$errno  = curl_errno( $ch );
