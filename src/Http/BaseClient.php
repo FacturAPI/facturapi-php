@@ -91,9 +91,13 @@ class BaseClient {
 	 * @returns String
 	 */
 	protected function get_request_url( $params = null ) {
-		$param_string = is_string( $params ) ? $params : $this->array_to_params( $params );
+		$param_string = $params == null ? "" : (
+			is_string( $params )
+				? $params
+				: $this->array_to_params( $params )
+		);
 
-		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_endpoint() . "/" . $param_string;
+		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_endpoint() . $param_string;
 	}
 
 	/**
@@ -335,8 +339,6 @@ class BaseClient {
 
 	/**
 	 * Sets the status code from a curl request
-	 *
-	 * @param resource $ch
 	 */
 	protected function setLastStatusFromCurl( $ch ) {
 		$info             = curl_getinfo( $ch );
