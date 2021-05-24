@@ -93,7 +93,7 @@ class BaseClient {
 	protected function get_request_url( $params = null ) {
 		$param_string = $params == null ? "" : (
 			is_string( $params )
-				? $params
+				? "/" . $params
 				: $this->array_to_params( $params )
 		);
 
