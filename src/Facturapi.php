@@ -1,6 +1,12 @@
 <?php
 
 namespace Facturapi;
+require_once 'Http/BaseClient.php';
+require_once 'Exceptions/Facturapi_Exception.php';
+require_once 'InvoiceRelation.php';
+require_once 'InvoiceType.php';
+require_once 'PaymentForm.php';
+require_once 'TaxType.php';
 require_once 'Resources/Customers.php';
 require_once 'Resources/Organizations.php';
 require_once 'Resources/Products.php';
