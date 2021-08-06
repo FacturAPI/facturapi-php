@@ -14,6 +14,7 @@ require_once 'Resources/Invoices.php';
 require_once 'Resources/Receipts.php';
 require_once 'Resources/Catalogs.php';
 require_once 'Resources/Retentions.php';
+require_once 'Resources/Tools.php';
 
 use Facturapi\Resources\Customers;
 use Facturapi\Resources\Organizations;
@@ -22,6 +23,7 @@ use Facturapi\Resources\Invoices;
 use Facturapi\Resources\Receipts;
 use Facturapi\Resources\Catalogs;
 use Facturapi\Resources\Retentions;
+use Facturapi\Resources\Tools;
 
 class Facturapi {
 
@@ -32,6 +34,7 @@ class Facturapi {
 	public $Receipts;
 	public $Catalogs;
 	public $Retentions;
+	public $Tools;
 
 	public function __construct( $api_key ) {
 		$this->Customers     = new Customers( $api_key );
@@ -41,5 +44,6 @@ class Facturapi {
 		$this->Receipts      = new Receipts( $api_key );
 		$this->Catalogs      = new Catalogs( $api_key );
 		$this->Retentions    = new Retentions( $api_key );
+		$this->Tools    		 = new Tools( $api_key );
 	}
 }

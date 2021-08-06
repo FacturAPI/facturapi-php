@@ -15,7 +15,7 @@ class Catalogs extends BaseClient {
 	 *
    * @param $params Search parameters
    *
-   * @return JSON objects for all Receipts
+   * @return JSON objects search result
 	 *
 	 * @throws Facturapi_Exception
 	 **/
@@ -36,7 +36,7 @@ class Catalogs extends BaseClient {
 	 *
    * @param $params Search parameters
    *
-   * @return JSON objects for all Receipts
+   * @return JSON search result
 	 *
 	 * @throws Facturapi_Exception
 	 **/
