@@ -105,7 +105,7 @@ class BaseClient {
 	 *
 	 * @param URL : String value for the URL to GET
 	 *
-	 * @return Body of request result
+	 * @return String Body of request result
 	 *
 	 * @throws Facturapi_Exception
 	 */
@@ -174,7 +174,7 @@ class BaseClient {
 	 * @param URL String value for the URL to POST to
 	 * @param fields array containing names and values for fields to post
 	 *
-	 * @return Body of request result
+	 * @return String Body of request result
 	 *
 	 * @throws Facturapi_Exception
 	 */
@@ -208,7 +208,7 @@ class BaseClient {
 	 * @param URL String value for the URL to PUT to
 	 * @param array $body
 	 *
-	 * @return Body of request result
+	 * @return String Body of request result
 	 *
 	 * @throws Facturapi_Exception
 	 */
@@ -242,7 +242,7 @@ class BaseClient {
 	 * @param URL String value for the URL to PUT to
 	 * @param array $body
 	 *
-	 * @return Body of request result
+	 * @return String Body of request result
 	 *
 	 * @throws Facturapi_Exception
 	 */
@@ -284,7 +284,7 @@ class BaseClient {
 	 * @param URL String value for the URL to DELETE to
 	 * @param String $body
 	 *
-	 * @return Body of request result
+	 * @return String Body of request result
 	 *
 	 * @throws Facturapi_Exception
 	 */
