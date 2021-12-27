@@ -90,11 +90,13 @@ class BaseClient {
 	 *
 	 * @returns String
 	 */
-	protected function get_request_url( $params = null ) {
+	protected function get_request_url( $params = null, $query = null ) {
 		$param_string = $params == null ? "" : (
 			is_string( $params )
+				? ($query == null 
 				? "/" . $params
-				: $this->array_to_params( $params )
+					: "/" . $params . "/" . $this->array_to_params($query)
+			) : $this->array_to_params( $params )
 		);
 
 		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_endpoint() . $param_string;

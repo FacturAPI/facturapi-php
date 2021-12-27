@@ -13,7 +13,7 @@ class Invoices extends BaseClient {
 	/**
 	 * Get all Invoices
 	 *
-	 * @param Search parameters
+	 * @param Search params
 	 *
 	 * @return JSON objects for all Invoices
 	 *
@@ -67,14 +67,16 @@ class Invoices extends BaseClient {
 	 * Cancel an Invoice in your organization
 	 *
 	 * @param id : Unique ID for the Invoice
+	 * 
+	 * @param Search params
 	 *
 	 * @return Response body from HTTP POST request
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function cancel( $id ) {
+	public function cancel( $id, $params ) {
 		try {
-			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
+			return json_decode( $this->execute_delete_request( $this->get_request_url( $id, $params ), null ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to cancel Invoice: ' . $e );
 		}
