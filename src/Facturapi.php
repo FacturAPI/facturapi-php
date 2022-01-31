@@ -36,14 +36,14 @@ class Facturapi {
 	public $Retentions;
 	public $Tools;
 
-	public function __construct( $api_key ) {
-		$this->Customers     = new Customers( $api_key );
-		$this->Organizations = new Organizations( $api_key );
-		$this->Products      = new Products( $api_key );
-		$this->Invoices      = new Invoices( $api_key );
-		$this->Receipts      = new Receipts( $api_key );
-		$this->Catalogs      = new Catalogs( $api_key );
-		$this->Retentions    = new Retentions( $api_key );
-		$this->Tools    		 = new Tools( $api_key );
+	public function __construct( $api_key, $api_version = 'v2' ) {
+		$this->Customers     = new Customers( $api_key, $api_version );
+		$this->Organizations = new Organizations( $api_key, $api_version );
+		$this->Products      = new Products( $api_key, $api_version );
+		$this->Invoices      = new Invoices( $api_key, $api_version );
+		$this->Receipts      = new Receipts( $api_key, $api_version );
+		$this->Catalogs      = new Catalogs( $api_key, $api_version );
+		$this->Retentions    = new Retentions( $api_key, $api_version );
+		$this->Tools    		 = new Tools( $api_key, $api_version );
 	}
 }

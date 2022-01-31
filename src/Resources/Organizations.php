@@ -8,7 +8,6 @@ use Facturapi\Exceptions\Facturapi_Exception;
 class Organizations extends BaseClient
 {
   protected $ENDPOINT = 'organizations';
-  protected $API_VERSION = 'v1';
 
 
   /**
@@ -211,20 +210,66 @@ class Organizations extends BaseClient
   }
 
   /**
-   * Get the Api Keys for an Organization
+   * Get the Test Api Key for an Organization
    *
    * @param id : Unique ID for Organization
    *
-   * @return JSON object for requested Organization
+   * @return String Test Api Key
    *
    * @throws Facturapi_Exception
    **/
-  public function getApiKeys($id)
+  public function getTestApiKey($id)
   {
     try {
-      return json_decode($this->execute_get_request($this->get_request_url($id) . "/apikeys"));
+      return json_decode($this->execute_get_request($this->get_request_url($id) . "/apikeys/test"));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organization\'s api keys: ' . $e);
+      throw new Facturapi_Exception('Unable to get organization\'s test key: ' . $e);
+    }
+  }
+  
+  /**
+   * Renews the Test Api Key for an Organization and makes the previous one inactive
+   *
+   * @param id : Unique ID for Organization
+   *
+   * @return String Test Api Key
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function renewTestApiKey($id)
+  {
+    try {
+      return json_decode(
+        $this->execute_JSON_put_request(
+          $this->get_request_url($id) . "/apikeys/test",
+          []
+        )
+      );
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to renew organization\'s test key: ' . $e);
+    }
+  }
+  
+  /**
+   * Renews the Test Api Key for an Organization and makes the previous one inactive
+   *
+   * @param id : Unique ID for Organization
+   *
+   * @return String Live Api Key
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function renewLiveApiKey($id)
+  {
+    try {
+      return json_decode(
+        $this->execute_JSON_put_request(
+          $this->get_request_url($id) . "/apikeys/live",
+          []
+        )
+      );
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to renew organization\'s live key: ' . $e);
     }
   }
 

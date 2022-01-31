@@ -7,7 +7,6 @@ use Facturapi\Exceptions\Facturapi_Exception;
 
 class Products extends BaseClient {
 	protected $ENDPOINT = 'products';
-	protected $API_VERSION = 'v1';
 
 
 	/**

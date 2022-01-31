@@ -7,7 +7,6 @@ use Facturapi\Exceptions\Facturapi_Exception;
 
 class Tools extends BaseClient {
 	protected $ENDPOINT = 'tools';
-	protected $API_VERSION = 'v1';
 
 
 	/**

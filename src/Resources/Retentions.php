@@ -7,7 +7,6 @@ use Facturapi\Exceptions\Facturapi_Exception;
 
 class Retentions extends BaseClient {
 	protected $ENDPOINT = 'retentions';
-	protected $API_VERSION = 'v1';
 
 
 	/**

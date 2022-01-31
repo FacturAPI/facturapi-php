@@ -8,7 +8,7 @@ class BaseClient {
 	// BaseClient class to be extended by specific clients
 	protected $FACTURAPI_KEY;
 	protected $ENDPOINT;
-	protected $API_VERSION;
+	protected $API_VERSION = 'v2';
 	protected $BASE_URL = 'https://www.facturapi.io/';
 	/**
 	 * The HTTP status of the most recent request
@@ -38,8 +38,9 @@ class BaseClient {
 	 *
 	 * @param $FACTURAPI_KEY : String value of Facturapi API Key for requests
 	 */
-	public function __construct( $FACTURAPI_KEY ) {
+	public function __construct( $FACTURAPI_KEY, $API_VERSION = 'v2' ) {
 		$this->FACTURAPI_KEY = base64_encode( $FACTURAPI_KEY . ":" );
+		$this->API_VERSION = $API_VERSION;
 	}
 
 	/**

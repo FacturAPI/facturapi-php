@@ -7,8 +7,6 @@ use Facturapi\Exceptions\Facturapi_Exception;
 
 class Catalogs extends BaseClient {
 	protected $ENDPOINT = 'catalogs';
-	protected $API_VERSION = 'v1';
-
 
 	/**
 	 * Search a product key in SAT's catalog

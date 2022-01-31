@@ -7,7 +7,6 @@ use Facturapi\Exceptions\Facturapi_Exception;
 
 class Customers extends BaseClient {
 	protected $ENDPOINT = 'customers';
-	protected $API_VERSION = 'v1';
 
 	/**
 	 * Get all Customers
