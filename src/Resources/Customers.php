@@ -96,5 +96,22 @@ class Customers extends BaseClient {
 			throw new Facturapi_Exception( 'Unable to delete customer: ' . $e );
 		}
 	}
+	
+	/**
+	 * Validates that a Customer's tax info is still valid
+	 *
+	 * @param id : Unique ID for the customer
+	 *
+	 * @return Response body from HTTP POST request
+	 *
+	 * @throws Facturapi_Exception
+	 **/
+	public function validateTaxInfo( $id ) {
+		try {
+			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) . "/tax-info-validation" ) );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to validate customer\'s tax info: ' . $e );
+		}
+	}
 
 }

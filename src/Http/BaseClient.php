@@ -328,8 +328,8 @@ class BaseClient {
 		if ( $params != null ) {
 			foreach ( $params as $parameter => $value ) {
 				if ( is_array( $value ) ) {
-					foreach ( $value as $sub_param ) {
-						$param_string = $param_string . '&' . $parameter . '=' . urlencode( $sub_param );
+					foreach ( $value as $key => $sub_param ) {
+						$param_string = $param_string . '&' . $parameter.'['.$key.']' . '=' . urlencode( $sub_param );
 					}
 				} else {
 					$param_string = $param_string . '&' . $parameter . '=' . urlencode( $value );
