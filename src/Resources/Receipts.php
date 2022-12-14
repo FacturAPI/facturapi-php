@@ -115,4 +115,40 @@ class Receipts extends BaseClient {
 		}
 	}
 
+	/**
+	 * Sends the receipt to the customer's email
+	 *
+	 * @param id : Unique ID for Receipt
+	 *
+	 * @return JSON object for requested Receipt
+	 *
+	 * @throws Facturapi_Exception
+	 **/
+	public function send_by_email( $id, $email = null ) {
+		try {
+			return json_decode( $this->execute_JSON_post_request(
+				$this->get_request_url($id) . "/email",
+				$email == null ? array() : array("email" => $email)
+			));
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to send Receipt: ' . $e );
+		}
+	}
+
+	/**
+	 * Downloads the specified receipt in a PDF file
+	 *
+	 * @param id : Unique ID for Receipt
+	 *
+	 * @return PDF file in a stream
+	 *
+	 * @throws Facturapi_Exception
+	 **/
+	public function download_pdf( $id ) {
+		try {
+			return $this->execute_get_request( $this->get_request_url( $id ) . "/pdf" );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e );
+		}
+	}
 }
