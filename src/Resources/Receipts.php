@@ -128,7 +128,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request(
 				$this->get_request_url($id) . "/email",
-				$email == null ? array() : array("email" => $email)
+				$email == null ? null : array("email" => $email)
 			));
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to send Receipt: ' . $e );
