@@ -196,11 +196,17 @@ class BaseClient {
 		$output = curl_exec( $ch );
 		$errno  = curl_errno( $ch );
 		$error  = curl_error( $ch );
+		//Get response code, only numbers in range from 200 to 299 are valid
+		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 		$this->setLastStatusFromCurl( $ch );
 		curl_close( $ch );
 		if ( $errno > 0 ) {
 			throw new Facturapi_Exception( 'cURL error: ' . $error );
-		} else {
+		} elseif ($responseCode < 200 || $responseCode > 299) {
+		    //Decode response body to get error message from API
+	            $outputDecoded = json_decode($output, true);
+	            throw new Facturapi_Exception($outputDecoded['message']);
+        	}else {
 			return $output;
 		}
 	}
