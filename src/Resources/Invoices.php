@@ -168,4 +168,21 @@ class Invoices extends BaseClient {
 			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e );
 		}
 	}
+
+		/**
+	 * Downloads the cancellation receipt of a canceled invoice in PDF format
+	 *
+	 * @param id : Unique ID for Invoice
+	 *
+	 * @return XML file in a stream
+	 *
+	 * @throws Facturapi_Exception
+	 **/
+	public function download_cancellation_receipt_pdf( $id ) {
+		try {
+			return $this->execute_get_request( $this->get_request_url( $id ) . "/cancellation_receipt/pdf" );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e );
+		}
+	}
 }
