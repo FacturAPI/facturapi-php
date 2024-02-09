@@ -290,4 +290,22 @@ class Organizations extends BaseClient
       throw new Facturapi_Exception('Unable to delete organization: ' . $e);
     }
   }
+
+    /**
+   * Delete a Organization's Certificate
+   *
+   * @param id : Unique ID for the Organization
+   *
+   * @return Response body from HTTP DELETE request
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function deleteCertificate($id)
+  {
+    try {
+      return json_decode($this->execute_delete_request($this->get_request_url($id) .  "/certificate", null));
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to delete organization: ' . $e);
+    }
+  }
 }
