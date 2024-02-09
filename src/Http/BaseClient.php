@@ -338,7 +338,8 @@ class BaseClient {
 						$param_string = $param_string . '&' . $parameter.'['.$key.']' . '=' . urlencode( $sub_param );
 					}
 				} else {
-					$param_string = $param_string . '&' . $parameter . '=' . urlencode( $value );
+					$param = gettype($value) == 'boolean' ? json_encode($value) : urlencode( $value );
+					$param_string = $param_string . '&' . $parameter . '=' . $param;
 				}
 			}
 		}
