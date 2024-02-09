@@ -170,11 +170,11 @@ class Invoices extends BaseClient {
 	}
 
 		/**
-	 * Downloads the cancellation receipt of a canceled invoice in XML format
+	 * Downloads the cancellation receipt of a canceled invoice in PDF format
 	 *
 	 * @param id : Unique ID for Invoice
 	 *
-	 * @return PDF file in a stream
+	 * @return XML file in a stream
 	 *
 	 * @throws Facturapi_Exception
 	 **/
