@@ -47,15 +47,15 @@ class Invoices extends BaseClient {
 	 * Create an Invoice in your organization
 	 *
 	 * @param params : array of properties and property values for new Invoice
-	 *
+	 * @param query : array of query parameters
 	 * @return Response body with JSON object
 	 * for created Invoice from HTTP POST request
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function create( $params ) {
+	public function create( $params, $query = null) {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
+			return json_decode( $this->execute_JSON_post_request( $this->get_request_url($query), $params) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to create Invoice: ' . $e );
 		}
