@@ -22,7 +22,7 @@ class Products extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get products: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get products: ' . $e->getMessage() );
 		}
 	}
 
@@ -39,7 +39,7 @@ class Products extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get product: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get product: ' . $e->getMessage() );
 		}
 	}
 
@@ -57,7 +57,7 @@ class Products extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create product: ' . $e );
+			throw new Facturapi_Exception( 'Unable to create product: ' . $e->getMessage() );
 		}
 	}
 
@@ -77,7 +77,7 @@ class Products extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to update product: ' . $e );
+			throw new Facturapi_Exception( 'Unable to update product: ' . $e->getMessage() );
 		}
 	}
 
@@ -94,7 +94,7 @@ class Products extends BaseClient {
 		try {
 			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to delete product: ' . $e );
+			throw new Facturapi_Exception( 'Unable to delete product: ' . $e->getMessage() );
 		}
 	}
 

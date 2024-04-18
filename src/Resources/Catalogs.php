@@ -25,7 +25,7 @@ class Catalogs extends BaseClient {
         )
       );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to search products: ' . $e );
+			throw new Facturapi_Exception( 'Unable to search products: ' . $e->getMessage() );
 		}
 	}
 
@@ -46,7 +46,7 @@ class Catalogs extends BaseClient {
         )
       );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to search unit keys: ' . $e );
+			throw new Facturapi_Exception( 'Unable to search unit keys: ' . $e->getMessage() );
 		}
 	}
 

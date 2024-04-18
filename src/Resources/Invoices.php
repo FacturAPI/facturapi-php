@@ -22,7 +22,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get Invoices: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get Invoices: ' . $e->getMessage() );
 		}
 	}
 
@@ -39,7 +39,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get Invoice: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get Invoice: ' . $e->getMessage());
 		}
 	}
 
@@ -57,7 +57,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url($query), $params) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create Invoice: ' . $e );
+			throw new Facturapi_Exception( 'Unable to create Invoice: ' . $e->getMessage());
 		}
 	}
 
@@ -77,7 +77,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_delete_request( $this->get_request_url( $id, $params ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to cancel Invoice: ' . $e );
+			throw new Facturapi_Exception( 'Unable to cancel Invoice: ' . $e->getMessage());
 		}
 	}
 
@@ -97,7 +97,7 @@ class Invoices extends BaseClient {
 				array("email" => $email)
 			));
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to send Invoice: ' . $e );
+			throw new Facturapi_Exception( 'Unable to send Invoice: ' . $e->getMessage());
 		}
 	}
 
@@ -114,7 +114,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/zip" );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download ZIP file: ' . $e );
+			throw new Facturapi_Exception( 'Unable to download ZIP file: ' . $e->getMessage());
 		}
 	}
 
@@ -131,7 +131,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/pdf" );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e );
+			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e->getMessage());
 		}
 	}
 
@@ -148,7 +148,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/xml" );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download XML file: ' . $e );
+			throw new Facturapi_Exception( 'Unable to download XML file: ' . $e->getMessage());
 		}
 	}
 
@@ -165,7 +165,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/cancellation_receipt/xml" );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e->getMessage());
 		}
 	}
 
@@ -182,7 +182,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/cancellation_receipt/pdf" );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e->getMessage());
 		}
 	}
 }

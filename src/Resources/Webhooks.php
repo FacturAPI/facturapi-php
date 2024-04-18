@@ -21,7 +21,7 @@ class Webhooks extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get webhooks: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get webhooks: ' . $e->getMessage() );
 		}
 	}
 
@@ -38,7 +38,7 @@ class Webhooks extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get webhook: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get webhook: ' . $e->getMessage() );
 		}
 	}
 
@@ -56,7 +56,7 @@ class Webhooks extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create webhook: ' . $e );
+			throw new Facturapi_Exception( 'Unable to create webhook: ' . $e->getMessage() );
 		}
 	}
 
@@ -76,7 +76,7 @@ class Webhooks extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to update webhook: ' . $e );
+			throw new Facturapi_Exception( 'Unable to update webhook: ' . $e->getMessage() );
 		}
 	}
 
@@ -93,7 +93,7 @@ class Webhooks extends BaseClient {
 		try {
 			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to delete webhook: ' . $e );
+			throw new Facturapi_Exception( 'Unable to delete webhook: ' . $e->getMessage() );
 		}
 	}
 

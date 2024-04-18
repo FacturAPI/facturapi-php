@@ -21,7 +21,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get customers: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get customers: ' . $e->getMessage() );
 		}
 	}
 
@@ -38,7 +38,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get customer: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get customer: ' . $e->getMessage() );
 		}
 	}
 
@@ -56,7 +56,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create customer: ' . $e );
+			throw new Facturapi_Exception( 'Unable to create customer: ' . $e->getMessage() );
 		}
 	}
 
@@ -76,7 +76,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to update customer: ' . $e );
+			throw new Facturapi_Exception( 'Unable to update customer: ' . $e->getMessage() );
 		}
 	}
 
@@ -93,7 +93,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to delete customer: ' . $e );
+			throw new Facturapi_Exception( 'Unable to delete customer: ' . $e->getMessage() );
 		}
 	}
 	
@@ -110,7 +110,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) . "/tax-info-validation" ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to validate customer\'s tax info: ' . $e );
+			throw new Facturapi_Exception( 'Unable to validate customer\'s tax info: ' . $e->getMessage() );
 		}
 	}
 
