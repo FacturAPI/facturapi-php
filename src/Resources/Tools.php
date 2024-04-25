@@ -30,7 +30,7 @@ class Tools extends BaseClient {
         )
       );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Failed to validate tax id: ' . $e );
+			throw new Facturapi_Exception( 'Failed to validate tax id: ' .$e->getMessage() );
 		}
 	}
 

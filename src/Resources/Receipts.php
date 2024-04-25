@@ -22,7 +22,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get receipts: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get receipts: ' . $e->getMessage() );
 		}
 	}
 
@@ -39,7 +39,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to get receipt: ' . $e->getMessage() );
 		}
 	}
 
@@ -56,7 +56,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to create receipt: ' . $e->getMessage() );
 		}
 	}
 
@@ -76,7 +76,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id ) . "/invoice", $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to invoice receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to invoice receipt: ' . $e->getMessage() );
 		}
 	}
 	
@@ -94,7 +94,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url() . "/global-invoice", $params ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create global invoice: ' . $e );
+			throw new Facturapi_Exception( 'Unable to create global invoice: ' . $e->getMessage() );
 		}
 	}
 
@@ -111,7 +111,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to cancel receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to cancel receipt: ' . $e->getMessage() );
 		}
 	}
 
@@ -131,7 +131,7 @@ class Receipts extends BaseClient {
 				$email == null ? null : array("email" => $email)
 			));
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to send Receipt: ' . $e );
+			throw new Facturapi_Exception( 'Unable to send Receipt: ' . $e->getMessage() );
 		}
 	}
 
@@ -148,7 +148,7 @@ class Receipts extends BaseClient {
 		try {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/pdf" );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e );
+			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e->getMessage() );
 		}
 	}
 }

@@ -24,7 +24,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_get_request($this->get_request_url($params)));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organizations: ' . $e);
+      throw new Facturapi_Exception('Unable to get organizations: ' . $e->getMessage());
     }
   }
 
@@ -42,7 +42,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_get_request($this->get_request_url($id)));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organization: ' . $e);
+      throw new Facturapi_Exception('Unable to get organization: ' . $e->getMessage());
     }
   }
 
@@ -61,7 +61,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_post_request($this->get_request_url(), $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create organization: ' . $e);
+      throw new Facturapi_Exception('Unable to create organization: ' . $e->getMessage());
     }
   }
 
@@ -81,7 +81,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/legal", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s legal information: ' . $e);
+      throw new Facturapi_Exception('Unable to update organization\'s legal information: ' . $e->getMessage());
     }
   }
 
@@ -101,7 +101,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/customization", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s customization information: ' . $e);
+      throw new Facturapi_Exception('Unable to update organization\'s customization information: ' . $e->getMessage());
     }
   }
 
@@ -121,7 +121,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/receipts", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s receipt settings: ' . $e);
+      throw new Facturapi_Exception('Unable to update organization\'s receipt settings: ' . $e->getMessage());
     }
   }
 
@@ -141,7 +141,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/domain", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s domain: ' . $e);
+      throw new Facturapi_Exception('Unable to update organization\'s domain: ' . $e->getMessage());
     }
   }
 
@@ -165,7 +165,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to check domain\'s availability: ' . $e);
+      throw new Facturapi_Exception('Unable to check domain\'s availability: ' . $e->getMessage());
     }
   }
 
@@ -185,7 +185,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_data_put_request($this->get_request_url($id) . "/logo", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to upload organization\'s logo: ' . $e);
+      throw new Facturapi_Exception('Unable to upload organization\'s logo: ' . $e->getMessage());
     }
   }
 
@@ -205,7 +205,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_data_put_request($this->get_request_url($id) . "/certificate", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to upload organization\'s certificate (CSD): ' . $e);
+      throw new Facturapi_Exception('Unable to upload organization\'s certificate (CSD): ' . $e->getMessage());
     }
   }
 
@@ -223,7 +223,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_get_request($this->get_request_url($id) . "/apikeys/test"));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organization\'s test key: ' . $e);
+      throw new Facturapi_Exception('Unable to get organization\'s test key: ' . $e->getMessage());
     }
   }
   
@@ -246,7 +246,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to renew organization\'s test key: ' . $e);
+      throw new Facturapi_Exception('Unable to renew organization\'s test key: ' . $e->getMessage());
     }
   }
   
@@ -269,7 +269,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to renew organization\'s live key: ' . $e);
+      throw new Facturapi_Exception('Unable to renew organization\'s live key: ' . $e->getMessage());
     }
   }
 
@@ -287,7 +287,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_delete_request($this->get_request_url($id), null));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to delete organization: ' . $e);
+      throw new Facturapi_Exception('Unable to delete organization: ' . $e->getMessage());
     }
   }
 
@@ -305,7 +305,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_delete_request($this->get_request_url($id) .  "/certificate", null));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to delete organization: ' . $e);
+      throw new Facturapi_Exception('Unable to delete organization: ' . $e->getMessage());
     }
   }
 }
