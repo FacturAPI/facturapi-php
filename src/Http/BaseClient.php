@@ -202,7 +202,7 @@ class BaseClient {
 		curl_close( $ch );
 		if ( $errno > 0 ) {
 			throw new Facturapi_Exception( 'cURL error: ' . $error );
-        	}else {
+		} else {
 			return $output;
 		}
 	}
