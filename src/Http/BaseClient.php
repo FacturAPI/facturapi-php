@@ -202,10 +202,6 @@ class BaseClient {
 		curl_close( $ch );
 		if ( $errno > 0 ) {
 			throw new Facturapi_Exception( 'cURL error: ' . $error );
-		} elseif ($responseCode < 200 || $responseCode > 299) {
-		    //Decode response body to get error message from API
-	            $outputDecoded = json_decode($output, true);
-	            throw new Facturapi_Exception($outputDecoded['message']);
         	}else {
 			return $output;
 		}
