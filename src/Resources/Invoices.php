@@ -164,7 +164,8 @@ class Invoices extends BaseClient {
 	 * Updates the status of an Invoice with the latest information from the SAT.
 	 * In Test mode, this method will simulate a status update to a "canceled" status.
 	 * @param id : Unique ID for Invoice
-	 * @return JSON object for updated Invoice
+	 * @return JSON Updated Invoice object
+	 * @throws Facturapi_Exception
 	 */
 	public function update_status( $id ) {
 		try {
@@ -179,7 +180,7 @@ class Invoices extends BaseClient {
 	 * 
 	 * @param id : Unique ID for Invoice
 	 * @param body : array of properties and property values for the fields to edit
-	 * @return JSON object for edited draft Invoice
+	 * @return JSON Edited draft Invoice object
 	 * @throws Facturapi_Exception
 	 */
 	public function edit_draft( $id, $body ) {
@@ -195,7 +196,7 @@ class Invoices extends BaseClient {
 	 * 
 	 * @param id : Unique ID for Invoice
 	 * @param query : URL query params
-	 * @return JSON object for stamped Invoice
+	 * @return JSON Stamped Invoice object
 	 * @throws Facturapi_Exception
 	 */
 	public function stamp_draft( $id, $query ) {
@@ -203,6 +204,20 @@ class Invoices extends BaseClient {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/stamp", $query ), null ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to stamp draft: ' . $e );
+		}
+	}
+
+	/**
+	 * Creates a new draft Invoice copying the information from the specified Invoice
+	 * @param id : Unique ID for Invoice
+	 * @return JSON Copied draft Invoice object
+	 * @throws Facturapi_Exception
+	 */
+	public function copy( $id ) {
+		try {
+			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/copy" ), null ) );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to copy draft: ' . $e );
 		}
 	}
 }
