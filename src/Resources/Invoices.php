@@ -11,16 +11,13 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Get all Invoices
-	 *
-	 * @param Search params
-	 *
+	 * @param query Array of query parameters for the search
 	 * @return JSON objects for all Invoices
-	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function all( $params = null ) {
+	public function all( $query = null ) {
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
+			return json_decode( $this->execute_get_request( $this->get_request_url( $query ) ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to get Invoices: ' . $e->getMessage() );
 		}
@@ -28,11 +25,8 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Get an Invoice by ID
-	 *
 	 * @param id : Unique ID for Invoice
-	 *
 	 * @return JSON object for requested Invoice
-	 *
 	 * @throws Facturapi_Exception
 	 **/
 	public function retrieve( $id ) {
@@ -46,16 +40,15 @@ class Invoices extends BaseClient {
 	/**
 	 * Create an Invoice in your organization
 	 *
-	 * @param params : array of properties and property values for new Invoice
+	 * @param body : array of properties and property values for new Invoice
 	 * @param query : array of query parameters
 	 * @return Response body with JSON object
 	 * for created Invoice from HTTP POST request
-	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function create( $params, $query = null) {
+	public function create( $body, $query = null) {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url($query), $params) );
+			return json_decode( $this->execute_JSON_post_request( $this->get_request_url($query), $body) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to create Invoice: ' . $e->getMessage());
 		}
@@ -64,18 +57,14 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Cancel an Invoice in your organization
-	 *
 	 * @param id : Unique ID for the Invoice
-	 * 
-	 * @param Search params
-	 *
+	 * @param query URL query params
 	 * @return Response body from HTTP POST request
-	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function cancel( $id, $params ) {
+	public function cancel( $id, $query ) {
 		try {
-			return json_decode( $this->execute_delete_request( $this->get_request_url( $id, $params ), null ) );
+			return json_decode( $this->execute_delete_request( $this->get_request_url( $id, $query ), null ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to cancel Invoice: ' . $e->getMessage());
 		}
@@ -83,11 +72,8 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Sends the invoice to the customer's email
-	 *
 	 * @param id : Unique ID for Invoice
-	 *
 	 * @return JSON object for requested Invoice
-	 *
 	 * @throws Facturapi_Exception
 	 **/
 	public function send_by_email( $id, $email = null ) {
@@ -103,11 +89,8 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Downloads the specified invoice in a ZIP package containing both PDF and XML files
-	 *
 	 * @param id : Unique ID for Invoice
-	 *
 	 * @return ZIP file in a stream
-	 *
 	 * @throws Facturapi_Exception
 	 **/
 	public function download_zip( $id ) {
@@ -120,11 +103,8 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Downloads the specified invoice in a PDF file
-	 *
 	 * @param id : Unique ID for Invoice
-	 *
 	 * @return PDF file in a stream
-	 *
 	 * @throws Facturapi_Exception
 	 **/
 	public function download_pdf( $id ) {
@@ -137,11 +117,8 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Downloads the specified invoice in a XML file
-	 *
 	 * @param id : Unique ID for Invoice
-	 *
 	 * @return XML file in a stream
-	 *
 	 * @throws Facturapi_Exception
 	 **/
 	public function download_xml( $id ) {
@@ -154,16 +131,13 @@ class Invoices extends BaseClient {
 
 	/**
 	 * Downloads the cancellation receipt of a canceled invoice in XML format
-	 *
 	 * @param id : Unique ID for Invoice
-	 *
 	 * @return XML file in a stream
-	 *
 	 * @throws Facturapi_Exception
 	 **/
 	public function download_cancellation_receipt_xml( $id ) {
 		try {
-			return $this->execute_get_request( $this->get_request_url( $id ) . "/cancellation_receipt/xml" );
+			return $this->execute_get_request( $this->get_request_url( $id . "/cancellation_receipt/xml" ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e->getMessage());
 		}
@@ -183,6 +157,52 @@ class Invoices extends BaseClient {
 			return $this->execute_get_request( $this->get_request_url( $id ) . "/cancellation_receipt/pdf" );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to download cancellation receipt: ' . $e->getMessage());
+		}
+	}
+
+	/**
+	 * Updates the status of an Invoice with the latest information from the SAT.
+	 * In Test mode, this method will simulate a status update to a "canceled" status.
+	 * @param id : Unique ID for Invoice
+	 * @return JSON object for updated Invoice
+	 */
+	public function update_status( $id ) {
+		try {
+			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id . "/status" ), null ) );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to update status: ' . $e );
+		}
+	}
+
+	/**
+	 * Edits an Invoice with "draft" status
+	 * 
+	 * @param id : Unique ID for Invoice
+	 * @param body : array of properties and property values for the fields to edit
+	 * @return JSON object for edited draft Invoice
+	 * @throws Facturapi_Exception
+	 */
+	public function edit_draft( $id, $body ) {
+		try {
+			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $body ) );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to edit draft: ' . $e );
+		}
+	}
+
+	/**
+	 * Stamps a draft invoice
+	 * 
+	 * @param id : Unique ID for Invoice
+	 * @param query : URL query params
+	 * @return JSON object for stamped Invoice
+	 * @throws Facturapi_Exception
+	 */
+	public function stamp_draft( $id, $query ) {
+		try {
+			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/stamp", $query ), null ) );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to stamp draft: ' . $e );
 		}
 	}
 }
