@@ -176,14 +176,14 @@ class Invoices extends BaseClient {
 	}
 
 	/**
-	 * Edits an Invoice with "draft" status
+	 * Updates an Invoice with "draft" status
 	 * 
 	 * @param id : Unique ID for Invoice
 	 * @param body : array of properties and property values for the fields to edit
 	 * @return JSON Edited draft Invoice object
 	 * @throws Facturapi_Exception
 	 */
-	public function edit_draft( $id, $body ) {
+	public function update_draft( $id, $body ) {
 		try {
 			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $body ) );
 		} catch ( Facturapi_Exception $e ) {
@@ -213,7 +213,7 @@ class Invoices extends BaseClient {
 	 * @return JSON Copied draft Invoice object
 	 * @throws Facturapi_Exception
 	 */
-	public function copy( $id ) {
+	public function copy_to_draft( $id ) {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/copy" ), null ) );
 		} catch ( Facturapi_Exception $e ) {
