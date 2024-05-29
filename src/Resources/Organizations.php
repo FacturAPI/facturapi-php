@@ -308,4 +308,91 @@ class Organizations extends BaseClient
       throw new Facturapi_Exception('Unable to delete organization: ' . $e->getMessage());
     }
   }
+
+  /**
+   * Get the series of an Organization
+   *
+   * @param id : Unique ID for the Organization
+   *
+   * @return Response body from HTTP GET request
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function getSeriesGroup($id)
+  {
+    try {
+      return json_decode($this->execute_get_request($this->get_request_url($id) . "/series-group"));
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to find series: ' . $e);
+    }
+  }
+
+  /**
+   * Create a Series Organization
+   * 
+   * @param id : Unique ID for the Organization
+   * 
+   *
+   * @param params : object of properties and property values for new Series Organization
+   *
+   * @return Response body with JSON object
+   * for created Organization from HTTP POST request
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function createSeriesGroup($id, $params)
+  {
+    try {
+      return json_decode($this->execute_JSON_post_request($this->get_request_url($id) . "/series-group", $params));
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to create series: ' . $e);
+    }
+  }
+
+  /**
+   * Update a Series Organization
+   * 
+   * @param id : Unique ID for the Organization
+   * 
+   * @param series_name: Name of the series to update
+   *
+   * @param params : object of properties and property values for updated Series Organization
+   *
+   * @return Response body with JSON object
+   * for updated Series Organization from HTTP POST request
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function updateSeriesGroup($id, $series_name, $params)
+  {
+    try {
+      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/series-group" . "/" . $series_name, $params));
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to create series: ' . $e);
+    }
+  }
+
+  /**
+   * Delete a Series Organization
+   * 
+   * @param id : Unique ID for the Organization
+   * 
+   * @param series_name: Name of the series to update
+   *
+   * @param params : object of properties and property values for new Series Organization
+   *
+   * @return Response body with JSON object
+   * for delete Series Organization from HTTP DELETE request
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function deleteSeriesGroup($id, $series_name)
+  {
+    try {
+      return json_decode($this->execute_delete_request($this->get_request_url($id) . "/series-group" . "/" . $series_name, null));
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to create series: ' . $e);
+    }
+  }
+
 }
