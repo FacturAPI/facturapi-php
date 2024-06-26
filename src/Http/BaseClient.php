@@ -4,7 +4,8 @@ namespace Facturapi\Http;
 
 use Facturapi\Exceptions\Facturapi_Exception;
 
-class BaseClient {
+class BaseClient
+{
 	// BaseClient class to be extended by specific clients
 	protected $FACTURAPI_KEY;
 	protected $ENDPOINT;
@@ -38,8 +39,9 @@ class BaseClient {
 	 *
 	 * @param $FACTURAPI_KEY : String value of Facturapi API Key for requests
 	 */
-	public function __construct( $FACTURAPI_KEY, $API_VERSION = 'v2' ) {
-		$this->FACTURAPI_KEY = base64_encode( $FACTURAPI_KEY . ":" );
+	public function __construct($FACTURAPI_KEY, $API_VERSION = 'v2')
+	{
+		$this->FACTURAPI_KEY = base64_encode($FACTURAPI_KEY . ":");
 		$this->API_VERSION = $API_VERSION;
 	}
 
@@ -48,7 +50,8 @@ class BaseClient {
 	 *
 	 * @return integer
 	 */
-	public function getLastStatus() {
+	public function getLastStatus()
+	{
 		return (int) $this->lastStatus;
 	}
 
@@ -60,9 +63,10 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function get_endpoint() {
-		if ( empty( $this->ENDPOINT ) ) {
-			throw new Facturapi_Exception( 'ENDPOINT must be defined' );
+	protected function get_endpoint()
+	{
+		if (empty($this->ENDPOINT)) {
+			throw new Facturapi_Exception('ENDPOINT must be defined');
 		} else {
 			return $this->ENDPOINT;
 		}
@@ -76,9 +80,10 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function get_api_version() {
-		if ( empty( $this->API_VERSION ) ) {
-			throw new Facturapi_Exception( 'API_VERSION must be defined' );
+	protected function get_api_version()
+	{
+		if (empty($this->API_VERSION)) {
+			throw new Facturapi_Exception('API_VERSION must be defined');
 		} else {
 			return $this->API_VERSION;
 		}
@@ -91,13 +96,14 @@ class BaseClient {
 	 *
 	 * @returns String
 	 */
-	protected function get_request_url( $params = null, $query = null ) {
+	protected function get_request_url($params = null, $query = null)
+	{
 		$param_string = $params == null ? "" : (
-			is_string( $params )
-				? ($query == null 
+			is_string($params)
+			? ($query == null
 				? "/" . $params
-					: "/" . $params . "/" . $this->array_to_params($query)
-			) : $this->array_to_params( $params )
+				: "/" . $params . "/" . $this->array_to_params($query)
+			) : $this->array_to_params($params)
 		);
 
 		return $this->BASE_URL . $this->get_api_version() . "/" . $this->get_endpoint() . $param_string;
@@ -112,24 +118,28 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_get_request( $url ) {
+	protected function execute_get_request($url)
+	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-		curl_setopt( $ch, CURLOPT_ENCODING, "gzip" );
-		curl_setopt( $ch, CURLOPT_FOLLOWLOCATION, 1 );
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_ENCODING, "gzip");
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
 
-		$output = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		$output = curl_exec($ch);
+		$errno  = curl_errno($ch);
+		$error  = curl_error($ch);
+		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$this->setLastStatusFromCurl($ch);
+		curl_close($ch);
+		if ($errno > 0) {
+			throw new Facturapi_Exception('cURL error: ' . $error);
+		} elseif ($responseCode < 200 || $responseCode > 299) {
+			throw new Facturapi_Exception($output);
 		} else {
 			return $output;
 		}
@@ -145,27 +155,31 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_post_request( $url, $body, $formenc = false ) {
+	protected function execute_post_request($url, $body, $formenc = false)
+	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
-		if ( $formenc ) {
+		if ($formenc) {
 			$headers[] = 'Content-Type: application/x-www-form-urlencoded';
 		}
 		// initialize cURL and send POST data
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_POST, true );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
 
-		$output = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		$output = curl_exec($ch);
+		$errno  = curl_errno($ch);
+		$error  = curl_error($ch);
+		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$this->setLastStatusFromCurl($ch);
+		curl_close($ch);
+		if ($errno > 0) {
+			throw new Facturapi_Exception('cURL error: ' . $error);
+		} elseif ($responseCode < 200 || $responseCode > 299) {
+			throw new Facturapi_Exception($output);
 		} else {
 			return $output;
 		}
@@ -181,32 +195,31 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_JSON_post_request( $url, $body ) {
+	protected function execute_JSON_post_request($url, $body)
+	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 		$headers[] = 'Content-Type: application/json';
 
 		// initialize cURL and send POST data
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_POST, true );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
+		curl_setopt($ch, CURLOPT_POST, true);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-		$output = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
+		$output = curl_exec($ch);
+		$errno  = curl_errno($ch);
+		$error  = curl_error($ch);
 		//Get response code, only numbers in range from 200 to 299 are valid
 		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		$this->setLastStatusFromCurl($ch);
+		curl_close($ch);
+		if ($errno > 0) {
+			throw new Facturapi_Exception('cURL error: ' . $error);
 		} elseif ($responseCode < 200 || $responseCode > 299) {
-		    //Decode response body to get error message from API
-	            $outputDecoded = json_decode($output, true);
-	            throw new Facturapi_Exception($outputDecoded['message']);
-        	}else {
+			throw new Facturapi_Exception($output);
+		} else {
 			return $output;
 		}
 	}
@@ -221,25 +234,29 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_JSON_put_request( $url, $body ) {
+	protected function execute_JSON_put_request($url, $body)
+	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 		$headers[] = 'Content-Type: application/json';
 
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode( $body ) );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
-		$result = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		$result = curl_exec($ch);
+		$errno  = curl_errno($ch);
+		$error  = curl_error($ch);
+		$responseCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+		$this->setLastStatusFromCurl($ch);
+		curl_close($ch);
+		if ($errno > 0) {
+			throw new Facturapi_Exception('cURL error: ' . $error);
+		} elseif ($responseCode < 200 || $responseCode > 299) {
+			throw new Facturapi_Exception($result);
 		} else {
 			return $result;
 		}
@@ -255,11 +272,12 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_data_put_request( $url, $body ) {
+	protected function execute_data_put_request($url, $body)
+	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 		$headers[] = 'Content-Type: multipart/form-data';
 
-		$data = is_array( $body ) ? array(
+		$data = is_array($body) ? array(
 			'cer' => new \CURLFile($body['cerFile']),
 			'key' => new \CURLFile($body['keyFile']),
 			'password' => $body['password']
@@ -268,25 +286,25 @@ class BaseClient {
 		);
 
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "PUT" );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $data );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
-		$result = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		$result = curl_exec($ch);
+		$errno  = curl_errno($ch);
+		$error  = curl_error($ch);
+		$this->setLastStatusFromCurl($ch);
+		curl_close($ch);
+		if ($errno > 0) {
+			throw new Facturapi_Exception('cURL error: ' . $error);
 		} else {
 			return $result;
 		}
 	}
-	
+
 	/**
 	 * Executes HTTP DELETE request
 	 *
@@ -297,26 +315,27 @@ class BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_delete_request( $url, $body ) {
+	protected function execute_delete_request($url, $body)
+	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 		$headers[] = 'Content-Type: application/json';
-		$headers[] = 'Content-Length: ' . strlen( $body );
+		$headers[] = 'Content-Length: ' . strlen($body);
 
 		$ch = curl_init();
-		curl_setopt( $ch, CURLOPT_URL, $url );
-		curl_setopt( $ch, CURLOPT_HTTPHEADER, $headers );
-		curl_setopt( $ch, CURLOPT_RETURNTRANSFER, true );
-		curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, "DELETE" );
-		curl_setopt( $ch, CURLOPT_POSTFIELDS, $body );
-		curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, 0 );
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
-		$result = curl_exec( $ch );
-		$errno  = curl_errno( $ch );
-		$error  = curl_error( $ch );
-		$this->setLastStatusFromCurl( $ch );
-		curl_close( $ch );
-		if ( $errno > 0 ) {
-			throw new Facturapi_Exception( 'cURL error: ' . $error );
+		$result = curl_exec($ch);
+		$errno  = curl_errno($ch);
+		$error  = curl_error($ch);
+		$this->setLastStatusFromCurl($ch);
+		curl_close($ch);
+		if ($errno > 0) {
+			throw new Facturapi_Exception('cURL error: ' . $error);
 		} else {
 			return $result;
 		}
@@ -329,16 +348,17 @@ class BaseClient {
 	 *
 	 * @return String of url friendly parameters (&name=value&foo=bar)
 	 */
-	protected function array_to_params( $params ) {
+	protected function array_to_params($params)
+	{
 		$param_string = '?';
-		if ( $params != null ) {
-			foreach ( $params as $parameter => $value ) {
-				if ( is_array( $value ) ) {
-					foreach ( $value as $key => $sub_param ) {
-						$param_string = $param_string . '&' . $parameter.'['.$key.']' . '=' . urlencode( $sub_param );
+		if ($params != null) {
+			foreach ($params as $parameter => $value) {
+				if (is_array($value)) {
+					foreach ($value as $key => $sub_param) {
+						$param_string = $param_string . '&' . $parameter . '[' . $key . ']' . '=' . urlencode($sub_param);
 					}
 				} else {
-					$param = gettype($value) == 'boolean' ? json_encode($value) : urlencode( $value );
+					$param = gettype($value) == 'boolean' ? json_encode($value) : urlencode($value);
 					$param_string = $param_string . '&' . $parameter . '=' . $param;
 				}
 			}
@@ -350,8 +370,9 @@ class BaseClient {
 	/**
 	 * Sets the status code from a curl request
 	 */
-	protected function setLastStatusFromCurl( $ch ) {
-		$info             = curl_getinfo( $ch );
-		$this->lastStatus = ( isset( $info['http_code'] ) ) ? $info['http_code'] : null;
+	protected function setLastStatusFromCurl($ch)
+	{
+		$info             = curl_getinfo($ch);
+		$this->lastStatus = (isset($info['http_code'])) ? $info['http_code'] : null;
 	}
 }
