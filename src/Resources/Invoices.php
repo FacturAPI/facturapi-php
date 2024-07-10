@@ -169,9 +169,9 @@ class Invoices extends BaseClient {
 	 */
 	public function update_status( $id ) {
 		try {
-			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id . "/status" ), null ) );
+			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id . "/status" ), []) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to update status: ' . $e );
+			throw new Facturapi_Exception( 'Unable to update status: ' . $e->getMessage());
 		}
 	}
 
@@ -187,7 +187,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $body ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to edit draft: ' . $e );
+			throw new Facturapi_Exception( 'Unable to edit draft: ' . $e->getMessage());
 		}
 	}
 
@@ -203,7 +203,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/stamp", $query ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to stamp draft: ' . $e );
+			throw new Facturapi_Exception( 'Unable to stamp draft: ' . $e->getMessage());
 		}
 	}
 
@@ -217,7 +217,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/copy" ), null ) );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to copy draft: ' . $e );
+			throw new Facturapi_Exception( 'Unable to copy draft: ' . $e->getMessage());
 		}
 	}
 }

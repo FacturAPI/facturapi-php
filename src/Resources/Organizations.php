@@ -323,7 +323,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_get_request($this->get_request_url($id) . "/series-group"));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to find series: ' . $e);
+      throw new Facturapi_Exception('Unable to find series: ' .$e->getMessage());
     }
   }
 
@@ -345,7 +345,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_post_request($this->get_request_url($id) . "/series-group", $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create series: ' . $e);
+      throw new Facturapi_Exception('Unable to create series: ' .$e->getMessage());
     }
   }
 
@@ -368,7 +368,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/series-group" . "/" . $series_name, $params));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create series: ' . $e);
+      throw new Facturapi_Exception('Unable to create series: ' .$e->getMessage());
     }
   }
 
@@ -391,7 +391,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->execute_delete_request($this->get_request_url($id) . "/series-group" . "/" . $series_name, null));
     } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create series: ' . $e);
+      throw new Facturapi_Exception('Unable to create series: ' .$e->getMessage());
     }
   }
 
