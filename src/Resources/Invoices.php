@@ -198,10 +198,10 @@ class Invoices extends BaseClient {
 	 * @param query : URL query params
 	 * @return JSON Stamped Invoice object
 	 * @throws Facturapi_Exception
-	 */
-	public function stamp_draft( $id, $query ) {
+	 */ 
+	public function stamp_draft( $id, $query = null ) {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/stamp", $query ), null ) );
+			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id . "/stamp", $query ) ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to stamp draft: ' . $e );
 		}
