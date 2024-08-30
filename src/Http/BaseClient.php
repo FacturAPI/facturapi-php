@@ -195,7 +195,7 @@ class BaseClient
 	 *
 	 * @throws Facturapi_Exception
 	 */
-	protected function execute_JSON_post_request($url, $body)
+	protected function execute_JSON_post_request($url, $body = null)
 	{
 		$headers[] = 'Authorization: Basic ' . $this->FACTURAPI_KEY;
 		$headers[] = 'Content-Type: application/json';
@@ -203,7 +203,7 @@ class BaseClient
 		// initialize cURL and send POST data
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_POST, true);
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body ? json_encode($body) : null);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
