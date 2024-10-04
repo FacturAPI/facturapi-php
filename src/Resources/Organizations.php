@@ -161,7 +161,7 @@ class Organizations extends BaseClient
     try {
       return json_decode(
         $this->execute_get_request(
-          $this->get_request_url("domain-check" . $this->array_to_params( $params ))
+          $this->get_request_url("domain-check" . $this->array_to_params($params))
         )
       );
     } catch (Facturapi_Exception $e) {
@@ -226,7 +226,7 @@ class Organizations extends BaseClient
       throw new Facturapi_Exception('Unable to get organization\'s test key: ' . $e->getMessage());
     }
   }
-  
+
   /**
    * Renews the Test Api Key for an Organization and makes the previous one inactive
    *
@@ -249,7 +249,31 @@ class Organizations extends BaseClient
       throw new Facturapi_Exception('Unable to renew organization\'s test key: ' . $e->getMessage());
     }
   }
-  
+
+  /**
+   * Renews the Test Api Key for an Organization and makes the previous one inactive
+   *
+   * @param id : Unique ID for Organization
+   *
+   * @return Array Array of object with first_12 characters, created_at field and id field
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function lisLiveApiKeys($id)
+  {
+    try {
+      return json_decode(
+        $this->execute_get_request(
+          $this->get_request_url($id) . "/apikeys/live",
+          []
+        )
+      );
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception($e);
+    }
+  }
+
+
   /**
    * Renews the Test Api Key for an Organization and makes the previous one inactive
    *
@@ -274,6 +298,30 @@ class Organizations extends BaseClient
   }
 
   /**
+   * Deletes the Test Api Key for an Organization and makes the previous one inactive
+   *
+   * @param organizationId : Unique ID for Organization
+   * @param apiKeyId: Unique ID for the Api Key
+   *
+   * @return Array Array of object with first_12 characters, created_at field and id field
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function deleteLiveApiKey($organizationId, $apiKeyId)
+  {
+    try {
+      return json_decode(
+        $this->execute_JSON_put_request(
+          $this->get_request_url($organizationId) . "/apikeys/live" . "/" . $apiKeyId,
+          []
+        )
+      );
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception($e);
+    }
+  }
+
+  /**
    * Delete a Organization
    *
    * @param id : Unique ID for the Organization
@@ -291,7 +339,7 @@ class Organizations extends BaseClient
     }
   }
 
-    /**
+  /**
    * Delete a Organization's Certificate
    *
    * @param id : Unique ID for the Organization
@@ -394,5 +442,4 @@ class Organizations extends BaseClient
       throw new Facturapi_Exception('Unable to create series: ' . $e);
     }
   }
-
 }
