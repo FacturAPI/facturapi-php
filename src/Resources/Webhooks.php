@@ -5,7 +5,8 @@ namespace Facturapi\Resources;
 use Facturapi\Http\BaseClient;
 use Facturapi\Exceptions\Facturapi_Exception;
 
-class Webhooks extends BaseClient {
+class Webhooks extends BaseClient
+{
 	protected $ENDPOINT = 'webhooks';
 
 	/**
@@ -17,11 +18,12 @@ class Webhooks extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function all( $params = null ) {
+	public function all($params = null)
+	{
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get webhooks: ' . $e->getMessage() );
+			return json_decode($this->execute_get_request($this->get_request_url($params)));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to get webhooks: ' . $e->getMessage());
 		}
 	}
 
@@ -34,11 +36,12 @@ class Webhooks extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function retrieve( $id ) {
+	public function retrieve($id)
+	{
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get webhook: ' . $e->getMessage() );
+			return json_decode($this->execute_get_request($this->get_request_url($id)));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to get webhook: ' . $e->getMessage());
 		}
 	}
 
@@ -52,11 +55,12 @@ class Webhooks extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function create( $params ) {
+	public function create($params)
+	{
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create webhook: ' . $e->getMessage() );
+			return json_decode($this->execute_JSON_post_request($this->get_request_url(), $params));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to create webhook: ' . $e->getMessage());
 		}
 	}
 
@@ -72,11 +76,12 @@ class Webhooks extends BaseClient {
 	 * @throws Facturapi_Exception
 	 *
 	 */
-	public function update( $id, $params ) {
+	public function update($id, $params)
+	{
 		try {
-			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $params ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to update webhook: ' . $e->getMessage() );
+			return json_decode($this->execute_JSON_put_request($this->get_request_url($id), $params));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to update webhook: ' . $e->getMessage());
 		}
 	}
 
@@ -89,12 +94,26 @@ class Webhooks extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function delete( $id ) {
+	public function delete($id)
+	{
 		try {
-			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to delete webhook: ' . $e->getMessage() );
+			return json_decode($this->execute_delete_request($this->get_request_url($id), null));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to delete webhook: ' . $e->getMessage());
 		}
 	}
 
+	/**
+	 * Validate the response of webhook with the secret and facturapi-secret
+	 * @param data: Array of properties according to the signature body [$secret, $facturapi-secret, $payload]
+	 * @return Response Webhook object
+	 */
+	public function validateSignature($data)
+	{
+		try {
+			return json_decode($this->execute_JSON_post_request($this->get_request_url() . '/validate-signature', $data));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception($e);
+		}
+	}
 }
