@@ -244,7 +244,7 @@ class BaseClient
 		curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
-		curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($body));
+		curl_setopt($ch, CURLOPT_POSTFIELDS, $body ? json_encode($body) : null);
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
 
 		$result = curl_exec($ch);
