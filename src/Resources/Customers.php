@@ -11,7 +11,7 @@ class Customers extends BaseClient {
 	/**
 	 * Get all Customers
 	 *
-	 * @param Search parameters
+	 * @param $params Search parameters
 	 *
 	 * @return JSON objects for all Customers
 	 *
@@ -28,7 +28,7 @@ class Customers extends BaseClient {
 	/**
 	 * Get a Customer by ID
 	 *
-	 * @param id : Unique ID for customer
+	 * @param string $id : Unique ID for customer
 	 *
 	 * @return JSON object for requested Customer
 	 *
@@ -45,16 +45,17 @@ class Customers extends BaseClient {
 	/**
 	 * Create a Customer in your organization
 	 *
-	 * @param params : array of properties and property values for new customer
+	 * @param $data : array of properties and property values for new customer
+	 * @param $params : array of optional query parameters
 	 *
 	 * @return Response body with JSON object
 	 * for created Customer from HTTP POST request
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function create( $params ) {
+	public function create( $data, $params = null ) {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
+			return json_decode( $this->execute_JSON_post_request( $this->get_request_url($params), $data ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to create customer: ' . $e->getMessage() );
 		}
@@ -64,17 +65,18 @@ class Customers extends BaseClient {
 	/**
 	 * Update a Customer in your organization
 	 *
-	 * @param $id
-	 * @param $params array of properties and property values for customer
+	 * @param string $id
+	 * @param $data Array of properties and property values for customer
+	 * @param $params Array of optional query parameters
 	 *
 	 * @return Response body from HTTP POST request
 	 *
 	 * @throws Facturapi_Exception
 	 *
 	 */
-	public function update( $id, $params ) {
+	public function update( $id, $data, $params = null ) {
 		try {
-			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id ), $params ) );
+			return json_decode( $this->execute_JSON_put_request( $this->get_request_url( $id, $params ), $data ) );
 		} catch ( Facturapi_Exception $e ) {
 			throw new Facturapi_Exception( 'Unable to update customer: ' . $e->getMessage() );
 		}
@@ -83,7 +85,7 @@ class Customers extends BaseClient {
 	/**
 	 * Delete a Customer in your organization
 	 *
-	 * @param id : Unique ID for the customer
+	 * @param string $id : Unique ID for the customer
 	 *
 	 * @return Response body from HTTP POST request
 	 *
@@ -100,8 +102,7 @@ class Customers extends BaseClient {
 	/**
 	 * Validates that a Customer's tax info is still valid
 	 *
-	 * @param id : Unique ID for the customer
-	 *
+	 * @param string $id : Unique ID for the customer
 	 * @return Response body from HTTP POST request
 	 *
 	 * @throws Facturapi_Exception
