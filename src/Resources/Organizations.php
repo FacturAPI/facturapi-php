@@ -442,4 +442,23 @@ class Organizations extends BaseClient
       throw new Facturapi_Exception('Unable to create series: ' . $e);
     }
   }
+
+  /**
+   * Update self-invoice settings for an Organization
+   *
+   * @param string $id : Unique ID for the Organization
+   * @param array $params : Properties and values for self-invoice settings
+   *
+   * @return Response body from HTTP PUT request
+   *
+   * @throws Facturapi_Exception
+   **/
+  public function updateSelfInvoiceSettings($id, $params)
+  {
+    try {
+      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/self-invoice", $params));
+    } catch (Facturapi_Exception $e) {
+      throw new Facturapi_Exception('Unable to update organization\'s self-invoice settings: ' . $e->getMessage());
+    }
+  }
 }
