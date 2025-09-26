@@ -224,7 +224,7 @@ class Invoices extends BaseClient {
 	/**
 	 * Generates a preview of an invoice in PDF format without stamping it or saving it
 	 * @param array $body Array of properties and property values for new Invoice
-	 * @return PDF file in a stream
+	 * @return string PDF file contents
 	 * @throws Facturapi_Exception
 	 **/
 	public function preview_pdf( $body ) {
