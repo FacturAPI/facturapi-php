@@ -231,7 +231,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->execute_JSON_post_request( $this->get_request_url( "preview/pdf" ), $body );
 		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to generate preview: ' . $e->getMessage());
+			throw new Facturapi_Exception( 'Unable to generate PDF preview: ' . $e->getMessage());
 		}
 	}
 }
