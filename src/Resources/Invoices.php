@@ -220,4 +220,18 @@ class Invoices extends BaseClient {
 			throw new Facturapi_Exception( 'Unable to copy draft: ' . $e );
 		}
 	}
+
+	/**
+	 * Generates a preview of an invoice in PDF format without stamping it or saving it
+	 * @param array $body Array of properties and property values for new Invoice
+	 * @return string PDF file contents
+	 * @throws Facturapi_Exception
+	 **/
+	public function preview_pdf( $body ) {
+		try {
+			return $this->execute_JSON_post_request( $this->get_request_url( "preview/pdf" ), $body );
+		} catch ( Facturapi_Exception $e ) {
+			throw new Facturapi_Exception( 'Unable to generate PDF preview: ' . $e->getMessage());
+		}
+	}
 }
