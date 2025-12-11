@@ -1,6 +1,7 @@
 <?php
 
 namespace Facturapi;
+
 require_once 'Http/BaseClient.php';
 require_once 'Exceptions/Facturapi_Exception.php';
 require_once 'InvoiceRelation.php';
@@ -13,6 +14,7 @@ require_once 'Resources/Products.php';
 require_once 'Resources/Invoices.php';
 require_once 'Resources/Receipts.php';
 require_once 'Resources/Catalogs.php';
+require_once 'Resources/CartaPorteCatalogs.php';
 require_once 'Resources/Retentions.php';
 require_once 'Resources/Tools.php';
 require_once 'Resources/Webhooks.php';
@@ -23,11 +25,13 @@ use Facturapi\Resources\Products;
 use Facturapi\Resources\Invoices;
 use Facturapi\Resources\Receipts;
 use Facturapi\Resources\Catalogs;
+use Facturapi\Resources\CartaPorteCatalogs;
 use Facturapi\Resources\Retentions;
 use Facturapi\Resources\Tools;
 use Facturapi\Resources\Webhooks;
 
-class Facturapi {
+class Facturapi
+{
 
 	public $Customers;
 	public $Organizations;
@@ -35,18 +39,22 @@ class Facturapi {
 	public $Invoices;
 	public $Receipts;
 	public $Catalogs;
+	public $CartaPorteCatalogs;
 	public $Retentions;
 	public $Tools;
 	public $Webhooks;
 
-	public function __construct( $api_key, $api_version = 'v2' ) {
-		$this->Customers     = new Customers( $api_key, $api_version );
-		$this->Organizations = new Organizations( $api_key, $api_version );
-		$this->Products      = new Products( $api_key, $api_version );
-		$this->Invoices      = new Invoices( $api_key, $api_version );
-		$this->Receipts      = new Receipts( $api_key, $api_version );
-		$this->Catalogs      = new Catalogs( $api_key, $api_version );
-		$this->Retentions    = new Retentions( $api_key, $api_version );
-		$this->Tools    		 = new Tools( $api_key, $api_version );
+	public function __construct($api_key, $api_version = 'v2')
+	{
+		$this->Customers     = new Customers($api_key, $api_version);
+		$this->Organizations = new Organizations($api_key, $api_version);
+		$this->Products      = new Products($api_key, $api_version);
+		$this->Invoices      = new Invoices($api_key, $api_version);
+		$this->Receipts      = new Receipts($api_key, $api_version);
+		$this->Catalogs      = new Catalogs($api_key, $api_version);
+		$this->CartaPorteCatalogs = new CartaPorteCatalogs($api_key, $api_version);
+		$this->Retentions    = new Retentions($api_key, $api_version);
+		$this->Tools    		 = new Tools($api_key, $api_version);
+		$this->Webhooks    	 = new Webhooks($api_key, $api_version);
 	}
 }
