@@ -5,7 +5,8 @@ namespace Facturapi\Resources;
 use Facturapi\Http\BaseClient;
 use Facturapi\Exceptions\Facturapi_Exception;
 
-class Retentions extends BaseClient {
+class Retentions extends BaseClient
+{
 	protected $ENDPOINT = 'retentions';
 
 
@@ -18,11 +19,12 @@ class Retentions extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function all( $params = null ) {
+	public function all($params = null)
+	{
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get Retentions: ' . $e->getMessage() );
+			return json_decode($this->execute_get_request($this->get_request_url($params)));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to get Retentions: ' . $e->getMessage());
 		}
 	}
 
@@ -35,11 +37,12 @@ class Retentions extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function retrieve( $id ) {
+	public function retrieve($id)
+	{
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get Retention: ' . $e->getMessage() );
+			return json_decode($this->execute_get_request($this->get_request_url($id)));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to get Retention: ' . $e->getMessage());
 		}
 	}
 
@@ -52,11 +55,12 @@ class Retentions extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function create( $params ) {
+	public function create($params)
+	{
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create Retention: ' . $e->getMessage() );
+			return json_decode($this->execute_JSON_post_request($this->get_request_url(), $params));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to create Retention: ' . $e->getMessage());
 		}
 	}
 
@@ -65,16 +69,17 @@ class Retentions extends BaseClient {
 	 * Cancels a Retention
 	 *
 	 * @param id : Retention ID
-	 *
+	 * @param query URL query params
 	 * @return Response Updated Retention object
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function cancel( $id ) {
+	public function cancel($id, $query)
+	{
 		try {
-			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to cancel Retention: ' . $e->getMessage() );
+			return json_decode($this->execute_delete_request($this->get_request_url($id, $query), null));
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to cancel Retention: ' . $e->getMessage());
 		}
 	}
 
@@ -82,21 +87,22 @@ class Retentions extends BaseClient {
 	 * Sends the retention to the customer's email
 	 *
 	 * @param id : Retention ID
-   * 
-   * @param email : String or array of strings with email address(es)
+	 * 
+	 * @param email : String or array of strings with email address(es)
 	 *
 	 * @return JSON Result object
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function send_by_email( $id, $email = null ) {
+	public function send_by_email($id, $email = null)
+	{
 		try {
-			return json_decode( $this->execute_JSON_post_request(
+			return json_decode($this->execute_JSON_post_request(
 				$this->get_request_url($id) . "/email",
 				array("email" => $email)
 			));
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to send Retention: ' . $e->getMessage() );
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to send Retention: ' . $e->getMessage());
 		}
 	}
 
@@ -109,11 +115,12 @@ class Retentions extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function download_zip( $id ) {
+	public function download_zip($id)
+	{
 		try {
-			return $this->execute_get_request( $this->get_request_url( $id ) . "/zip" );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download ZIP file: ' . $e->getMessage() );
+			return $this->execute_get_request($this->get_request_url($id) . "/zip");
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to download ZIP file: ' . $e->getMessage());
 		}
 	}
 
@@ -126,11 +133,12 @@ class Retentions extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function download_pdf( $id ) {
+	public function download_pdf($id)
+	{
 		try {
-			return $this->execute_get_request( $this->get_request_url( $id ) . "/pdf" );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e->getMessage() );
+			return $this->execute_get_request($this->get_request_url($id) . "/pdf");
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to download PDF file: ' . $e->getMessage());
 		}
 	}
 
@@ -143,11 +151,12 @@ class Retentions extends BaseClient {
 	 *
 	 * @throws Facturapi_Exception
 	 **/
-	public function download_xml( $id ) {
+	public function download_xml($id)
+	{
 		try {
-			return $this->execute_get_request( $this->get_request_url( $id ) . "/xml" );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download XML file: ' . $e->getMessage() );
+			return $this->execute_get_request($this->get_request_url($id) . "/xml");
+		} catch (Facturapi_Exception $e) {
+			throw new Facturapi_Exception('Unable to download XML file: ' . $e->getMessage());
 		}
 	}
 }
