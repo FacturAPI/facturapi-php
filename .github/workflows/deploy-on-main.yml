@@ -1,0 +1,111 @@
+name: Deploy on main when version increases
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Decide release version
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          if [[ ! -f VERSION ]]; then
+            echo "Missing VERSION file"
+            exit 1
+          fi
+
+          LOCAL_VERSION="$(head -n1 VERSION | tr -d '[:space:]')"
+          RELEASE_BODY="$(tail -n +2 VERSION || true)"
+          if [[ ! "$LOCAL_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$ ]]; then
+            echo "VERSION must be valid semver. Got: $LOCAL_VERSION"
+            exit 1
+          fi
+
+          git fetch --tags origin
+
+          REMOTE_MAX="$(git ls-remote --tags --refs origin \
+            | awk '{print $2}' \
+            | sed 's#refs/tags/##' \
+            | sed 's/^v//' \
+            | grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?(\+[0-9A-Za-z.-]+)?$' \
+            | sort -V \
+            | tail -n1 || true)"
+
+          if [[ -z "$REMOTE_MAX" ]]; then
+            REMOTE_MAX="0.0.0"
+          fi
+
+          echo "Local version:  $LOCAL_VERSION"
+          echo "Remote version: $REMOTE_MAX"
+
+          if [[ "$LOCAL_VERSION" == "$REMOTE_MAX" ]]; then
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          HIGHEST="$(printf '%s\n%s\n' "$REMOTE_MAX" "$LOCAL_VERSION" | sort -V | tail -n1)"
+          if [[ "$HIGHEST" != "$LOCAL_VERSION" ]]; then
+            echo "Local VERSION is not greater than remote max tag"
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! printf '%s' "$RELEASE_BODY" | grep -q '[^[:space:]]'; then
+            echo "VERSION requires release notes after the first line when publishing."
+            echo "Example:"
+            echo "  3.6.1"
+            echo "  ## What changed"
+            echo "  - Added X"
+            exit 1
+          fi
+
+          printf '%s\n' "$RELEASE_BODY" > RELEASE_NOTES.md
+
+          echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+          echo "tag=$LOCAL_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Create and push tag
+        if: steps.version.outputs.should_deploy == 'true'
+        run: |
+          set -euo pipefail
+
+          TAG="${{ steps.version.outputs.tag }}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag already exists locally: $TAG"
+            exit 0
+          fi
+
+          git tag "$TAG"
+          git push origin "$TAG"
+
+      - name: Create GitHub release
+        if: steps.version.outputs.should_deploy == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body_path: RELEASE_NOTES.md
+
+      - name: Deploy skipped
+        if: steps.version.outputs.should_deploy != 'true'
+        run: |
+          echo "Skipping deploy: local VERSION is not greater than remote semver tag."
