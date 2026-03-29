@@ -1,5 +1,18 @@
-3.7.0
+4.0.0
 
-## What changed
-- Added `ComercioExteriorCatalogs::searchTariffFractions` support for Comercio Exterior catalog queries.
-- Added deploy automation from `main` using semver + release notes defined in `VERSION`.
+## Breaking
+- Bumped minimum supported PHP version to `>=8.2`.
+- Simplified SDK constructor to a single optional `config` parameter:
+  - `apiVersion` (defaults to `v2`)
+  - `timeout` (seconds)
+  - `httpClient` (PSR-18 client, advanced)
+- Removed support for the positional `apiVersion` constructor argument.
+
+## Improvements
+- Added camelCase method names for invoice/receipt/retention actions.
+- Kept snake_case aliases for transition compatibility.
+- Enabled strict TLS verification by default for HTTP requests.
+- Added `ComercioExteriorCatalogs` to the main `Facturapi` client.
+- Standardized constructor argument names to camelCase.
+- Standardized internal protected method names to camelCase.
+- Renamed exception class to `FacturapiException` and kept `Facturapi_Exception` as a compatibility alias.
