@@ -8,7 +8,7 @@ Official PHP SDK for [Facturapi](https://www.facturapi.io).
 [![Monthly Downloads](https://img.shields.io/packagist/dm/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 [![License](https://img.shields.io/packagist/l/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 
-## Installation
+## Installation ⚡
 
 ```bash
 composer require facturapi/facturapi-php
@@ -17,7 +17,7 @@ composer require facturapi/facturapi-php
 Requirements:
 - PHP `>=8.2`
 
-## Quick Start
+## Quick Start 🚀
 
 ```php
 <?php
@@ -42,7 +42,7 @@ $customer = $facturapi->Customers->create([
 ]);
 ```
 
-## Client Configuration
+## Client Configuration ⚙️
 
 Constructor signature:
 
@@ -85,7 +85,7 @@ $facturapi = new Facturapi($apiKey, [
 ]);
 ```
 
-## Common Usage
+## Common Usage 🧾
 
 ### Create a Product
 
@@ -142,18 +142,18 @@ $results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
 ]);
 ```
 
-## Migration Notes (v4)
+## Migration Notes (v4) 🔄
 
 - Minimum PHP version is now `>=8.2`.
 - Snake_case method aliases are deprecated in v4 and will be removed in v5.
 - `Facturapi\\Exceptions\\Facturapi_Exception` is deprecated in v4 and will be removed in v5.
 - Use `Facturapi\\Exceptions\\FacturapiException`.
 
-## Documentation
+## Documentation 📚
 
 Full docs: [https://docs.facturapi.io](https://docs.facturapi.io)
 
-## Support
+## Support 💬
 
 - Issues: open a GitHub issue
 - Email: `contacto@facturapi.io`
