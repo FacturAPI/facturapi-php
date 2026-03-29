@@ -3,64 +3,61 @@
 namespace Facturapi\Resources;
 
 use Facturapi\Http\BaseClient;
-use Facturapi\Exceptions\Facturapi_Exception;
+use Facturapi\Exceptions\FacturapiException;
 
 class Retentions extends BaseClient
 {
-	protected $ENDPOINT = 'retentions';
+	protected string $ENDPOINT = 'retentions';
 
 
 	/**
 	 * Search Retentions
 	 *
-	 * @param Search parameters
+	 * @param array|null $params Search parameters.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return JSON search result object
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function all($params = null)
+	 * @throws FacturapiException
+	 */
+	public function all($params = null): mixed
 	{
 		try {
-			return json_decode($this->execute_get_request($this->get_request_url($params)));
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to get Retentions: ' . $e->getMessage());
+			return json_decode($this->executeGetRequest($this->getRequestUrl($params)));
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
 	}
 
 	/**
 	 * Get a Retention by ID
 	 *
-	 * @param id : Retention ID
+	 * @param string $id Retention ID.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return JSON Retention object
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function retrieve($id)
+	 * @throws FacturapiException
+	 */
+	public function retrieve($id): mixed
 	{
 		try {
-			return json_decode($this->execute_get_request($this->get_request_url($id)));
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to get Retention: ' . $e->getMessage());
+			return json_decode($this->executeGetRequest($this->getRequestUrl($id)));
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
 	}
 
 	/**
 	 * Creates a Retention for the organization
 	 *
-	 * @param params : array of properties and property values for new Retention
+	 * @param array $params Retention payload.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return Response body with JSON object with created Retention
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function create($params)
+	 * @throws FacturapiException
+	 */
+	public function create($params): mixed
 	{
 		try {
-			return json_decode($this->execute_JSON_post_request($this->get_request_url(), $params));
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to create Retention: ' . $e->getMessage());
+			return json_decode($this->executeJsonPostRequest($this->getRequestUrl(), $params));
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
 	}
 
@@ -68,95 +65,126 @@ class Retentions extends BaseClient
 	/**
 	 * Cancels a Retention
 	 *
-	 * @param id : Retention ID
-	 * @param query URL query params
-	 * @return Response Updated Retention object
+	 * @param string $id Retention ID.
+	 * @param array $query URL query parameters.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function cancel($id, $query)
+	 * @throws FacturapiException
+	 */
+	public function cancel($id, $query): mixed
 	{
 		try {
-			return json_decode($this->execute_delete_request($this->get_request_url($id, $query), null));
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to cancel Retention: ' . $e->getMessage());
+			return json_decode($this->executeDeleteRequest($this->getRequestUrl($id, $query), null));
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
 	}
 
 	/**
 	 * Sends the retention to the customer's email
 	 *
-	 * @param id : Retention ID
-	 * 
-	 * @param email : String or array of strings with email address(es)
+	 * @param string $id Retention ID.
+	 * @param string|array|null $email Email or list of emails.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return JSON Result object
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function send_by_email($id, $email = null)
+	 * @throws FacturapiException
+	 */
+	public function sendByEmail($id, $email = null): mixed
 	{
 		try {
-			return json_decode($this->execute_JSON_post_request(
-				$this->get_request_url($id) . "/email",
+			return json_decode($this->executeJsonPostRequest(
+				$this->getRequestUrl($id) . "/email",
 				array("email" => $email)
 			));
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to send Retention: ' . $e->getMessage());
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
+	}
+
+	/**
+	 * @deprecated Use sendByEmail() instead. Will be removed in v5.
+	 */
+	public function send_by_email($id, $email = null): mixed
+	{
+		trigger_error('Retentions::send_by_email() is deprecated and will be removed in v5. Use sendByEmail() instead.', E_USER_DEPRECATED);
+		return $this->sendByEmail($id, $email);
 	}
 
 	/**
 	 * Downloads the specified Retention in a ZIP package containing both PDF and XML files
 	 *
-	 * @param id : Retention ID
+	 * @param string $id Retention ID.
+	 * @return string ZIP file contents.
 	 *
-	 * @return ZIP file in a stream
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function download_zip($id)
+	 * @throws FacturapiException
+	 */
+	public function downloadZip($id): string
 	{
 		try {
-			return $this->execute_get_request($this->get_request_url($id) . "/zip");
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to download ZIP file: ' . $e->getMessage());
+			return $this->executeGetRequest($this->getRequestUrl($id) . "/zip");
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
+	}
+
+	/**
+	 * @deprecated Use downloadZip() instead. Will be removed in v5.
+	 */
+	public function download_zip($id): string
+	{
+		trigger_error('Retentions::download_zip() is deprecated and will be removed in v5. Use downloadZip() instead.', E_USER_DEPRECATED);
+		return $this->downloadZip($id);
 	}
 
 	/**
 	 * Downloads the specified Retention in a PDF file
 	 *
-	 * @param id : Retention ID
+	 * @param string $id Retention ID.
+	 * @return string Raw PDF bytes (binary string, not base64-encoded).
 	 *
-	 * @return PDF file in a stream
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function download_pdf($id)
+	 * @throws FacturapiException
+	 */
+	public function downloadPdf($id): string
 	{
 		try {
-			return $this->execute_get_request($this->get_request_url($id) . "/pdf");
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to download PDF file: ' . $e->getMessage());
+			return $this->executeGetRequest($this->getRequestUrl($id) . "/pdf");
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
+	}
+
+	/**
+	 * @deprecated Use downloadPdf() instead. Will be removed in v5.
+	 */
+	public function download_pdf($id): string
+	{
+		trigger_error('Retentions::download_pdf() is deprecated and will be removed in v5. Use downloadPdf() instead.', E_USER_DEPRECATED);
+		return $this->downloadPdf($id);
 	}
 
 	/**
 	 * Downloads the specified Retention in a XML file
 	 *
-	 * @param id : Retention ID
+	 * @param string $id Retention ID.
+	 * @return string XML file contents.
 	 *
-	 * @return XML file in a stream
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function download_xml($id)
+	 * @throws FacturapiException
+	 */
+	public function downloadXml($id): string
 	{
 		try {
-			return $this->execute_get_request($this->get_request_url($id) . "/xml");
-		} catch (Facturapi_Exception $e) {
-			throw new Facturapi_Exception('Unable to download XML file: ' . $e->getMessage());
+			return $this->executeGetRequest($this->getRequestUrl($id) . "/xml");
+		} catch (FacturapiException $e) {
+			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
+	}
+
+	/**
+	 * @deprecated Use downloadXml() instead. Will be removed in v5.
+	 */
+	public function download_xml($id): string
+	{
+		trigger_error('Retentions::download_xml() is deprecated and will be removed in v5. Use downloadXml() instead.', E_USER_DEPRECATED);
+		return $this->downloadXml($id);
 	}
 }

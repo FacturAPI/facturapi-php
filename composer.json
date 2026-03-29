@@ -20,16 +20,17 @@
     }
   ],
   "require": {
-    "php": ">=5.5.0"
+    "php": ">=8.2",
+    "guzzlehttp/guzzle": "^7.9",
+    "psr/http-client": "^1.0"
   },
   "require-dev": {
-    "phpspec/phpspec": "~2.0",
-    "phpunit/phpunit": "~4.0"
+    "phpunit/phpunit": "^11.5"
   },
   "autoload": {
-    "classmap": [
-      "/src"
-    ]
+    "psr-4": {
+      "Facturapi\\": "src/"
+    }
   },
   "minimum-stability": "stable"
 }

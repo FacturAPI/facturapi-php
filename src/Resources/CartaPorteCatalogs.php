@@ -3,172 +3,209 @@
 namespace Facturapi\Resources;
 
 use Facturapi\Http\BaseClient;
-use Facturapi\Exceptions\Facturapi_Exception;
+use Facturapi\Exceptions\FacturapiException;
 
 class CartaPorteCatalogs extends BaseClient
 {
-    protected $ENDPOINT = 'catalogs/cartaporte/3.1';
+    protected string $ENDPOINT = 'catalogs/cartaporte/3.1';
 
     /**
      * Air transport codes (Carta Porte 3.1)
-     * @param $params Search parameters
-     * @return JSON search result
-     * @throws Facturapi_Exception
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchAirTransportCodes($params = null)
+    public function searchAirTransportCodes($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("air-transport-codes") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("air-transport-codes", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search air transport codes: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Auto transport configurations (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchTransportConfigs($params = null)
+    public function searchTransportConfigs($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("transport-configs") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("transport-configs", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search transport configurations: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Rights of passage (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchRightsOfPassage($params = null)
+    public function searchRightsOfPassage($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("rights-of-passage") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("rights-of-passage", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search rights of passage: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Customs documents (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchCustomsDocuments($params = null)
+    public function searchCustomsDocuments($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("customs-documents") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("customs-documents", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search customs documents: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Packaging types (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchPackagingTypes($params = null)
+    public function searchPackagingTypes($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("packaging-types") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("packaging-types", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search packaging types: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Trailer types (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchTrailerTypes($params = null)
+    public function searchTrailerTypes($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("trailer-types") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("trailer-types", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search trailer types: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Hazardous materials (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchHazardousMaterials($params = null)
+    public function searchHazardousMaterials($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("hazardous-materials") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("hazardous-materials", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search hazardous materials: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Naval authorizations (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchNavalAuthorizations($params = null)
+    public function searchNavalAuthorizations($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("naval-authorizations") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("naval-authorizations", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search naval authorizations: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Port stations (air/sea/land) (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchPortStations($params = null)
+    public function searchPortStations($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("port-stations") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("port-stations", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search port stations: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 
     /**
      * Marine containers (Carta Porte 3.1)
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     * @throws FacturapiException
      */
-    public function searchMarineContainers($params = null)
+    public function searchMarineContainers($params = null): mixed
     {
         try {
             return json_decode(
-                $this->execute_get_request(
-                    $this->get_request_url("marine-containers") . $this->array_to_params($params)
+                $this->executeGetRequest(
+                    $this->getRequestUrl("marine-containers", $params)
                 )
             );
-        } catch (Facturapi_Exception $e) {
-            throw new Facturapi_Exception('Unable to search marine containers: ' . $e->getMessage());
+        } catch (FacturapiException $e) {
+            throw new FacturapiException($e->getMessage(), 0, $e);
         }
     }
 }

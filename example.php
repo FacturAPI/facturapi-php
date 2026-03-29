@@ -2,10 +2,11 @@
 
 use Facturapi\Facturapi;
 
-require_once 'src/Facturapi.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 
-$facturapi = new Facturapi( FACTURAPI_KEY );
+$apiKey = getenv('FACTURAPI_KEY') ?: 'YOUR_API_KEY';
+$facturapi = new Facturapi( $apiKey );
 
 
 var_dump( $facturapi->Invoices->retrieve( "5a3f54cff508333611ad6b40" ) );
