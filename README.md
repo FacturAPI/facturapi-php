@@ -2,6 +2,12 @@
 
 Official PHP SDK for [Facturapi](https://www.facturapi.io).
 
+[![Latest Version](https://img.shields.io/packagist/v/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![PHP Version](https://img.shields.io/packagist/php-v/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![Total Downloads](https://img.shields.io/packagist/dt/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![License](https://img.shields.io/packagist/l/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+
 ## Installation
 
 ```bash
