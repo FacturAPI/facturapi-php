@@ -111,4 +111,28 @@ class Webhooks extends BaseClient
 			throw new FacturapiException($e->getMessage(), 0, $e);
 		}
 	}
+
+	/**
+	 * Verifies a webhook signature locally using HMAC-SHA256.
+	 *
+	 * Accepted signature formats:
+	 * - raw hex digest
+	 * - prefixed hex digest (e.g. "sha256=<hex>")
+	 *
+	 * @param string $rawBody Raw webhook request body.
+	 * @param string $signature Signature from webhook headers.
+	 * @param string $webhookSecret Webhook signing secret.
+	 * @return bool True when signature is valid.
+	 */
+	public static function verifySignatureLocally(string $rawBody, string $signature, string $webhookSecret): bool
+	{
+		$normalizedSignature = trim($signature);
+		if (str_starts_with($normalizedSignature, 'sha256=')) {
+			$normalizedSignature = substr($normalizedSignature, 7);
+		}
+
+		$expectedHex = hash_hmac('sha256', $rawBody, $webhookSecret);
+
+		return hash_equals($expectedHex, $normalizedSignature);
+	}
 }
