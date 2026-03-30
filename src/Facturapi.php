@@ -2,6 +2,27 @@
 
 namespace Facturapi;
 
+// Backward-compatible loading path for projects that still include src/Facturapi.php directly.
+// Composer/PSR-4 users can continue relying on autoloading.
+require_once __DIR__ . '/Http/BaseClient.php';
+require_once __DIR__ . '/Exceptions/FacturapiException.php';
+require_once __DIR__ . '/Exceptions/Facturapi_Exception.php';
+require_once __DIR__ . '/InvoiceRelation.php';
+require_once __DIR__ . '/InvoiceType.php';
+require_once __DIR__ . '/PaymentForm.php';
+require_once __DIR__ . '/TaxType.php';
+require_once __DIR__ . '/Resources/Customers.php';
+require_once __DIR__ . '/Resources/Organizations.php';
+require_once __DIR__ . '/Resources/Products.php';
+require_once __DIR__ . '/Resources/Invoices.php';
+require_once __DIR__ . '/Resources/Receipts.php';
+require_once __DIR__ . '/Resources/Catalogs.php';
+require_once __DIR__ . '/Resources/CartaPorteCatalogs.php';
+require_once __DIR__ . '/Resources/ComercioExteriorCatalogs.php';
+require_once __DIR__ . '/Resources/Retentions.php';
+require_once __DIR__ . '/Resources/Tools.php';
+require_once __DIR__ . '/Resources/Webhooks.php';
+
 use Facturapi\Resources\Customers;
 use Facturapi\Resources\Organizations;
 use Facturapi\Resources\Products;

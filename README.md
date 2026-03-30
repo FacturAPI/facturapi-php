@@ -16,6 +16,12 @@ Language: English | [Español](./README.es.md)
 composer require facturapi/facturapi-php
 ```
 
+Without Composer (supported workaround):
+
+```php
+require_once __DIR__ . '/path/to/facturapi-php/src/Facturapi.php';
+```
+
 Requirements:
 - PHP `>=8.2`
 
@@ -170,6 +176,8 @@ try {
 
 - Minimum PHP version is now `>=8.2`.
 - Removed support for the positional `apiVersion` constructor argument.
+- Composer projects: no loader changes needed; keep using `vendor/autoload.php`.
+- Non-Composer projects can keep using the SDK by loading `src/Facturapi.php` directly.
 - Snake_case method aliases are deprecated in v4 and will be removed in v5.
 - `Facturapi\\Exceptions\\Facturapi_Exception` is deprecated in v4 and will be removed in v5.
 - Use `Facturapi\\Exceptions\\FacturapiException`.

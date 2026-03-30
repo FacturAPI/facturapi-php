@@ -1,6 +1,7 @@
 4.0.0
 
-## Breaking
+## 🚨 Breaking Changes
+- Impact: update required only if you use PHP < 8.2 or relied on the positional `apiVersion` constructor argument.
 - Bumped minimum supported PHP version to `>=8.2`.
 - Simplified SDK constructor to a single optional `config` parameter:
   - `apiVersion` (defaults to `v2`)
@@ -12,6 +13,8 @@
 - You can update without code changes if:
   - Your project already runs on PHP `>=8.2`.
   - You instantiate the SDK as `new Facturapi($apiKey)` (single API key argument).
+  - If you use Composer, keep loading `vendor/autoload.php` as usual.
+  - If you do not use Composer, load `src/Facturapi.php` directly.
 
 ## Deprecations (Non-Breaking)
 - Snake_case aliases remain functional in v4, but are deprecated and will be removed in v5.
