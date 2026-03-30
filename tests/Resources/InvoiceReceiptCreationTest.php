@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Facturapi\Tests\Resources;
 
+use Facturapi\Exceptions\FacturapiException;
 use Facturapi\Resources\Invoices;
 use Facturapi\Resources\Receipts;
 use Facturapi\Tests\Support\FakeHttpClient;
@@ -66,5 +67,30 @@ final class InvoiceReceiptCreationTest extends TestCase
             'https://www.facturapi.io/v2/invoices/inv_123?motive=01&substitution=inv_456',
             (string) $request->getUri()
         );
+    }
+
+    public function testInvoicesCancelThrowsOnNon2xxAndPreservesErrorShape(): void
+    {
+        $errorBody = [
+            'message' => 'Cancellation rejected',
+            'code' => 'cancel_error',
+            'details' => [
+                ['path' => 'motive', 'message' => 'Invalid motive'],
+            ],
+        ];
+
+        $httpClient = new FakeHttpClient(
+            new Response(409, ['Content-Type' => 'application/json'], json_encode($errorBody))
+        );
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        try {
+            $invoices->cancel('inv_123', ['motive' => '99']);
+            self::fail('Expected FacturapiException to be thrown.');
+        } catch (FacturapiException $exception) {
+            self::assertSame(409, $exception->getStatusCode());
+            self::assertSame('Cancellation rejected', $exception->getMessage());
+            self::assertSame($errorBody, $exception->getErrorData());
+        }
     }
 }

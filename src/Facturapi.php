@@ -2,24 +2,6 @@
 
 namespace Facturapi;
 
-require_once 'Http/BaseClient.php';
-require_once 'Exceptions/FacturapiException.php';
-require_once 'InvoiceRelation.php';
-require_once 'InvoiceType.php';
-require_once 'PaymentForm.php';
-require_once 'TaxType.php';
-require_once 'Resources/Customers.php';
-require_once 'Resources/Organizations.php';
-require_once 'Resources/Products.php';
-require_once 'Resources/Invoices.php';
-require_once 'Resources/Receipts.php';
-require_once 'Resources/Catalogs.php';
-require_once 'Resources/CartaPorteCatalogs.php';
-require_once 'Resources/ComercioExteriorCatalogs.php';
-require_once 'Resources/Retentions.php';
-require_once 'Resources/Tools.php';
-require_once 'Resources/Webhooks.php';
-
 use Facturapi\Resources\Customers;
 use Facturapi\Resources\Organizations;
 use Facturapi\Resources\Products;

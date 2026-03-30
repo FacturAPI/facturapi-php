@@ -269,7 +269,7 @@ class BaseClient
 			'Content-Type' => 'multipart/form-data; boundary=' . $multipart->getBoundary(),
 		);
 
-		return $this->executeRequest('PUT', $url, $headers, $multipart, false);
+		return $this->executeRequest('PUT', $url, $headers, $multipart, true);
 	}
 
 	/**
@@ -285,7 +285,7 @@ class BaseClient
 	protected function executeDeleteRequest($url, $body): string
 	{
 		$payload = $body === null ? null : (string) $body;
-		return $this->executeRequest('DELETE', $url, array('Content-Type' => 'application/json'), $payload, false);
+		return $this->executeRequest('DELETE', $url, array('Content-Type' => 'application/json'), $payload, true);
 	}
 
 	/**
