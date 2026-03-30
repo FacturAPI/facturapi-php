@@ -9,6 +9,7 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use RuntimeException;
+use GuzzleHttp\Psr7\Utils;
 
 final class FakeHttpClient implements ClientInterface
 {
@@ -25,7 +26,8 @@ final class FakeHttpClient implements ClientInterface
 
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        $this->requests[] = $request;
+        $bodySnapshot = (string) $request->getBody();
+        $this->requests[] = $request->withBody(Utils::streamFor($bodySnapshot));
 
         if ($this->responses === []) {
             throw new FakeHttpClientException('No fake response queued.');

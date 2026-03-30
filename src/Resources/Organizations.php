@@ -136,13 +136,12 @@ class Organizations extends BaseClient
   /**
    * Check domain availability.
    *
-   * @param string $id Organization ID.
    * @param array $params Domain check parameters.
    * @return mixed JSON-decoded response.
    *
    * @throws FacturapiException
    */
-  public function checkDomainIsAvailable($id, $params): mixed
+  public function checkDomainAvailability($params): mixed
   {
     try {
       return json_decode(
@@ -153,6 +152,15 @@ class Organizations extends BaseClient
     } catch (FacturapiException $e) {
       throw $e;
     }
+  }
+
+  /**
+   * @deprecated The $id parameter is ignored. Use checkDomainAvailability($params) instead.
+   */
+  public function checkDomainIsAvailable($id, $params): mixed
+  {
+    trigger_error('Organizations::checkDomainIsAvailable($id, $params) is deprecated and will be removed in v5. Use checkDomainAvailability($params) instead.', E_USER_DEPRECATED);
+    return $this->checkDomainAvailability($params);
   }
 
   /**

@@ -76,11 +76,11 @@ class BaseClient
 	/**
 	 * Gets the status code from the most recent HTTP request.
 	 *
-	 * @return int
+	 * @return int|null
 	 */
-	public function getLastStatus(): int
+	public function getLastStatus(): ?int
 	{
-		return (int) $this->lastStatus;
+		return $this->lastStatus;
 	}
 
 	/**
@@ -234,20 +234,27 @@ class BaseClient
 	 */
 	protected function executeDataPutRequest($url, $body): string
 	{
+		$openStreams = array();
+
 		if (is_array($body)) {
 			if (!isset($body['cerFile'], $body['keyFile'], $body['password'])) {
 				throw new FacturapiException('Invalid certificate payload. Expected cerFile, keyFile and password.');
 			}
 
+			$cerStream = $this->openFileStream($body['cerFile']);
+			$keyStream = $this->openFileStream($body['keyFile']);
+			$openStreams[] = $cerStream;
+			$openStreams[] = $keyStream;
+
 			$multipart = new MultipartStream(array(
 				array(
 					'name' => 'cer',
-					'contents' => Utils::streamFor($this->openFileStream($body['cerFile'])),
+					'contents' => Utils::streamFor($cerStream),
 					'filename' => basename($body['cerFile'])
 				),
 				array(
 					'name' => 'key',
-					'contents' => Utils::streamFor($this->openFileStream($body['keyFile'])),
+					'contents' => Utils::streamFor($keyStream),
 					'filename' => basename($body['keyFile'])
 				),
 				array(
@@ -256,10 +263,12 @@ class BaseClient
 				),
 			));
 		} else {
+			$fileStream = $this->openFileStream($body);
+			$openStreams[] = $fileStream;
 			$multipart = new MultipartStream(array(
 				array(
 					'name' => 'file',
-					'contents' => Utils::streamFor($this->openFileStream($body)),
+					'contents' => Utils::streamFor($fileStream),
 					'filename' => basename($body)
 				),
 			));
@@ -269,7 +278,15 @@ class BaseClient
 			'Content-Type' => 'multipart/form-data; boundary=' . $multipart->getBoundary(),
 		);
 
-		return $this->executeRequest('PUT', $url, $headers, $multipart, true);
+		try {
+			return $this->executeRequest('PUT', $url, $headers, $multipart, true);
+		} finally {
+			foreach ($openStreams as $stream) {
+				if (is_resource($stream)) {
+					fclose($stream);
+				}
+			}
+		}
 	}
 
 	/**

@@ -11,6 +11,14 @@ use PHPUnit\Framework\TestCase;
 
 final class InvoicesTest extends TestCase
 {
+    public function testGetLastStatusIsNullBeforeAnyRequest(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        self::assertNull($invoices->getLastStatus());
+    }
+
     public function testDownloadPdfUsesExpectedPathAndAuthorizationHeader(): void
     {
         $httpClient = new FakeHttpClient(new Response(200, [], 'PDF_BINARY_CONTENT'));
@@ -25,5 +33,6 @@ final class InvoicesTest extends TestCase
         self::assertSame('https://www.facturapi.io/v2/invoices/inv_123/pdf', (string) $request->getUri());
         self::assertSame('Basic ' . base64_encode('sk_test_abc123:'), $request->getHeaderLine('Authorization'));
         self::assertSame('facturapi-php', $request->getHeaderLine('User-Agent'));
+        self::assertSame(200, $invoices->getLastStatus());
     }
 }
