@@ -452,4 +452,327 @@ class Organizations extends BaseClient
       throw $e;
     }
   }
+
+  /**
+   * List users with access to an organization.
+   *
+   * @param string $organizationId Organization ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listTeamAccess($organizationId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team"));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Retrieve one user access entry within an organization.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $accessId Access ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function retrieveTeamAccess($organizationId, $accessId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/" . $accessId));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Reassign a role to a user access entry.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $accessId Access ID.
+   * @param string $role Role ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function updateTeamAccessRole($organizationId, $accessId, $role): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeJsonPutRequest(
+          $this->getRequestUrl($organizationId) . "/team/" . $accessId . "/role",
+          ["role" => $role]
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Remove a user access entry from an organization.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $accessId Access ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function removeTeamAccess($organizationId, $accessId): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeDeleteRequest(
+          $this->getRequestUrl($organizationId) . "/team/" . $accessId,
+          null
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * List sent team invites for an organization.
+   *
+   * @param string $organizationId Organization ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listSentTeamInvites($organizationId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/invites"));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Create or update a team invite for an organization.
+   *
+   * @param string $organizationId Organization ID.
+   * @param array $params Invite payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function inviteUserToTeam($organizationId, $params): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeJsonPostRequest(
+          $this->getRequestUrl($organizationId) . "/team/invites",
+          $params
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Cancel a pending team invite.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $inviteKey Invite key.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function cancelTeamInvite($organizationId, $inviteKey): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeDeleteRequest(
+          $this->getRequestUrl($organizationId) . "/team/invites/" . $inviteKey,
+          null
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * List pending invites received by the authenticated user.
+   *
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listReceivedTeamInvites(): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl("invites/pending")));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Respond to a team invite.
+   *
+   * @param string $inviteKey Invite key.
+   * @param array $params Response payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function respondTeamInvite($inviteKey, $params): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeJsonPostRequest(
+          $this->getRequestUrl("invites/" . $inviteKey . "/response"),
+          $params
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * List organization team roles.
+   *
+   * @param string $organizationId Organization ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listTeamRoles($organizationId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles"));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * List team role templates.
+   *
+   * @param string $organizationId Organization ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listTeamRoleTemplates($organizationId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles/templates"));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * List team role operations.
+   *
+   * @param string $organizationId Organization ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listTeamRoleOperations($organizationId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles/operations"));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Retrieve a team role by ID.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $roleId Role ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function retrieveTeamRole($organizationId, $roleId): mixed
+  {
+    try {
+      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles/" . $roleId));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Create a team role.
+   *
+   * @param string $organizationId Organization ID.
+   * @param array $params Role payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function createTeamRole($organizationId, $params): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeJsonPostRequest(
+          $this->getRequestUrl($organizationId) . "/team/roles",
+          $params
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Update a team role.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $roleId Role ID.
+   * @param array $params Role payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function updateTeamRole($organizationId, $roleId, $params): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeJsonPutRequest(
+          $this->getRequestUrl($organizationId) . "/team/roles/" . $roleId,
+          $params
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Delete a team role.
+   *
+   * @param string $organizationId Organization ID.
+   * @param string $roleId Role ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function deleteTeamRole($organizationId, $roleId): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeDeleteRequest(
+          $this->getRequestUrl($organizationId) . "/team/roles/" . $roleId,
+          null
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
 }
