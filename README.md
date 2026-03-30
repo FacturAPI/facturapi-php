@@ -144,6 +144,27 @@ $results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
 ]);
 ```
 
+## Error Handling ⚠️
+
+On non-2xx responses, the SDK throws `Facturapi\Exceptions\FacturapiException`.
+
+The exception includes:
+- `getMessage()`: API error message when present.
+- `getStatusCode()`: HTTP status code.
+- `getErrorData()`: decoded JSON error payload (full API shape).
+- `getRawBody()`: raw response body string.
+
+```php
+use Facturapi\Exceptions\FacturapiException;
+
+try {
+  $facturapi->Invoices->create($payload);
+} catch (FacturapiException $e) {
+  $status = $e->getStatusCode();
+  $error = $e->getErrorData(); // Includes fields like code, message, path/details when returned by API.
+}
+```
+
 ## Migration Notes (v4) 🔄
 
 - Minimum PHP version is now `>=8.2`.

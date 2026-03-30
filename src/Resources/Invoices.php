@@ -20,7 +20,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $query ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -35,7 +35,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $id ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -51,7 +51,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl($query), $body) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -68,7 +68,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeDeleteRequest( $this->getRequestUrl( $id, $query ), null ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -87,7 +87,7 @@ class Invoices extends BaseClient {
 				array("email" => $email)
 			));
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -110,7 +110,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->executeGetRequest( $this->getRequestUrl( $id ) . "/zip" );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -133,7 +133,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->executeGetRequest( $this->getRequestUrl( $id ) . "/pdf" );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -156,7 +156,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->executeGetRequest( $this->getRequestUrl( $id ) . "/xml" );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -179,7 +179,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->executeGetRequest( $this->getRequestUrl( $id . "/cancellation_receipt/xml" ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -203,7 +203,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->executeGetRequest( $this->getRequestUrl( $id ) . "/cancellation_receipt/pdf" );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -227,7 +227,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPutRequest( $this->getRequestUrl( $id . "/status" ), null ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -251,7 +251,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPutRequest( $this->getRequestUrl( $id ), $body ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -275,7 +275,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl( $id . "/stamp", $query ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -298,7 +298,7 @@ class Invoices extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl( $id . "/copy" ), null ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -321,7 +321,7 @@ class Invoices extends BaseClient {
 		try {
 			return $this->executeJsonPostRequest( $this->getRequestUrl( "preview/pdf" ), $body );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 

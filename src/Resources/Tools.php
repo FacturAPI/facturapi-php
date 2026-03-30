@@ -26,7 +26,7 @@ class Tools extends BaseClient
 				)
 			);
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 }

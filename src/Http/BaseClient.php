@@ -345,10 +345,62 @@ class BaseClient
 		$output = (string) $response->getBody();
 
 		if ($validateStatus && ($this->lastStatus < 200 || $this->lastStatus > 299)) {
-			throw new FacturapiException($output);
+			$decoded = json_decode($output, true);
+			$errorData = is_array($decoded) ? $decoded : null;
+			$message = $this->extractErrorMessage($errorData, $output);
+
+			throw new FacturapiException(
+				$message,
+				0,
+				null,
+				$errorData,
+				$this->lastStatus,
+				$output
+			);
 		}
 
 		return $output;
+	}
+
+	/**
+	 * Extracts a human-readable message from known API error shapes.
+	 *
+	 * @param array|null $errorData Decoded API error payload.
+	 * @param string $rawBody Raw response body.
+	 * @return string
+	 */
+	private function extractErrorMessage(?array $errorData, string $rawBody): string
+	{
+		if ($errorData === null) {
+			return $rawBody;
+		}
+
+		if (isset($errorData['message']) && is_string($errorData['message'])) {
+			return $errorData['message'];
+		}
+
+		if (
+			isset($errorData['error']) &&
+			is_array($errorData['error']) &&
+			isset($errorData['error']['message']) &&
+			is_string($errorData['error']['message'])
+		) {
+			return $errorData['error']['message'];
+		}
+
+		if (
+			isset($errorData['errors']) &&
+			is_array($errorData['errors']) &&
+			isset($errorData['errors'][0]) &&
+			is_array($errorData['errors'][0]) &&
+			isset($errorData['errors'][0]['message']) &&
+			is_string($errorData['errors'][0]['message'])
+		) {
+			return $errorData['errors'][0]['message'];
+		}
+
+		$encoded = json_encode($errorData);
+		return $encoded === false ? $rawBody : $encoded;
 	}
 
 	/**

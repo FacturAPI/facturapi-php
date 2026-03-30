@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Facturapi\Tests\Resources;
 
+use Facturapi\Exceptions\FacturapiException;
 use Facturapi\Resources\Organizations;
 use Facturapi\Tests\Support\FakeHttpClient;
 use GuzzleHttp\Psr7\Response;
@@ -68,5 +69,29 @@ final class OrganizationsMultipartTest extends TestCase
 
         @unlink($tmpCer);
         @unlink($tmpKey);
+    }
+
+    public function testUploadCertificateFailsWhenRequiredFieldsAreMissing(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"ok":true}'));
+        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $this->expectException(FacturapiException::class);
+        $this->expectExceptionMessage('Invalid certificate payload. Expected cerFile, keyFile and password.');
+
+        $organizations->uploadCertificate('org_123', [
+            'cerFile' => '/tmp/cert.cer',
+        ]);
+    }
+
+    public function testUploadLogoFailsWhenFileCannotBeOpened(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"ok":true}'));
+        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $this->expectException(FacturapiException::class);
+        $this->expectExceptionMessage('Unable to open file: /tmp/file_that_does_not_exist.pdf');
+
+        $organizations->uploadLogo('org_123', '/tmp/file_that_does_not_exist.pdf');
     }
 }

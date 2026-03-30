@@ -23,7 +23,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeGetRequest($this->getRequestUrl($params)));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -40,7 +40,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeGetRequest($this->getRequestUrl($id)));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -57,7 +57,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPostRequest($this->getRequestUrl(), $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -75,7 +75,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/legal", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -93,7 +93,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/customization", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -111,7 +111,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/receipts", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -129,7 +129,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/domain", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -151,7 +151,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -169,7 +169,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeDataPutRequest($this->getRequestUrl($id) . "/logo", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -187,7 +187,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeDataPutRequest($this->getRequestUrl($id) . "/certificate", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -204,7 +204,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeGetRequest($this->getRequestUrl($id) . "/apikeys/test"));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -226,7 +226,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -261,7 +261,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -283,7 +283,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -306,7 +306,7 @@ class Organizations extends BaseClient
         )
       );
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -323,7 +323,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeDeleteRequest($this->getRequestUrl($id), null));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -340,7 +340,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeDeleteRequest($this->getRequestUrl($id) .  "/certificate", null));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -357,7 +357,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeGetRequest($this->getRequestUrl($id) . "/series-group"));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -375,7 +375,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPostRequest($this->getRequestUrl($id) . "/series-group", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -394,7 +394,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/series-group" . "/" . $series_name, $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -412,7 +412,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeDeleteRequest($this->getRequestUrl($id) . "/series-group" . "/" . $series_name, null));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 
@@ -430,7 +430,7 @@ class Organizations extends BaseClient
     try {
       return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/self-invoice", $params));
     } catch (FacturapiException $e) {
-      throw new FacturapiException($e->getMessage(), 0, $e);
+      throw $e;
     }
   }
 }

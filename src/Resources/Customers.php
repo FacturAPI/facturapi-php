@@ -20,7 +20,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $params ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -36,7 +36,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $id ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -53,7 +53,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl($params), $data ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -72,7 +72,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPutRequest( $this->getRequestUrl( $id, $params ), $data ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -88,7 +88,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->executeDeleteRequest( $this->getRequestUrl( $id ), null ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -104,7 +104,7 @@ class Customers extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $id ) . "/tax-info-validation" ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 

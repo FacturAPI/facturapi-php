@@ -21,7 +21,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $params ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -37,7 +37,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $id ) ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -53,7 +53,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl(), $params ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -71,7 +71,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl( $id ) . "/invoice", $params ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -87,7 +87,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl() . "/global-invoice", $params ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -103,7 +103,7 @@ class Receipts extends BaseClient {
 		try {
 			return json_decode( $this->executeDeleteRequest( $this->getRequestUrl( $id ), null ) );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -123,7 +123,7 @@ class Receipts extends BaseClient {
 				$email == null ? null : array("email" => $email)
 			));
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -147,7 +147,7 @@ class Receipts extends BaseClient {
 		try {
 			return $this->executeGetRequest( $this->getRequestUrl( $id ) . "/pdf" );
 		} catch ( FacturapiException $e ) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 

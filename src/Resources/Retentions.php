@@ -23,7 +23,7 @@ class Retentions extends BaseClient
 		try {
 			return json_decode($this->executeGetRequest($this->getRequestUrl($params)));
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -40,7 +40,7 @@ class Retentions extends BaseClient
 		try {
 			return json_decode($this->executeGetRequest($this->getRequestUrl($id)));
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -57,7 +57,7 @@ class Retentions extends BaseClient
 		try {
 			return json_decode($this->executeJsonPostRequest($this->getRequestUrl(), $params));
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -76,7 +76,7 @@ class Retentions extends BaseClient
 		try {
 			return json_decode($this->executeDeleteRequest($this->getRequestUrl($id, $query), null));
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -97,7 +97,7 @@ class Retentions extends BaseClient
 				array("email" => $email)
 			));
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -123,7 +123,7 @@ class Retentions extends BaseClient
 		try {
 			return $this->executeGetRequest($this->getRequestUrl($id) . "/zip");
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -149,7 +149,7 @@ class Retentions extends BaseClient
 		try {
 			return $this->executeGetRequest($this->getRequestUrl($id) . "/pdf");
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
@@ -175,7 +175,7 @@ class Retentions extends BaseClient
 		try {
 			return $this->executeGetRequest($this->getRequestUrl($id) . "/xml");
 		} catch (FacturapiException $e) {
-			throw new FacturapiException($e->getMessage(), 0, $e);
+			throw $e;
 		}
 	}
 
