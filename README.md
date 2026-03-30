@@ -161,13 +161,15 @@ try {
   $facturapi->Invoices->create($payload);
 } catch (FacturapiException $e) {
   $status = $e->getStatusCode();
-  $error = $e->getErrorData(); // Includes fields like code, message, path/details when returned by API.
+  $error = $e->getErrorData(); // Full API error shape when body is valid JSON.
+  $firstDetail = $error['details'][0] ?? null; // e.g. ['path' => 'items.0.quantity', 'message' => '...', 'code' => '...']
 }
 ```
 
 ## Migration Notes (v4) 🔄
 
 - Minimum PHP version is now `>=8.2`.
+- Removed support for the positional `apiVersion` constructor argument.
 - Snake_case method aliases are deprecated in v4 and will be removed in v5.
 - `Facturapi\\Exceptions\\Facturapi_Exception` is deprecated in v4 and will be removed in v5.
 - Use `Facturapi\\Exceptions\\FacturapiException`.
