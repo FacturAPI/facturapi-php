@@ -11,7 +11,26 @@ use PHPUnit\Framework\TestCase;
 
 final class WebhooksTest extends TestCase
 {
-    public function testValidateSignatureCallsApiEndpointWithJsonPayload(): void
+    public function testValidateSignatureUsesLocalVerificationByDefault(): void
+    {
+        $httpClient = new FakeHttpClient();
+        $webhooks = new Webhooks('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $rawPayload = '{"id":"evt_123"}';
+        $secret = 'whsec_test_secret';
+        $hex = hash_hmac('sha256', $rawPayload, $secret);
+
+        $result = $webhooks->validateSignature([
+            'body' => $rawPayload,
+            'signature' => 'sha256=' . $hex,
+            'webhookSecret' => $secret,
+        ]);
+
+        self::assertTrue($result->valid);
+        self::assertCount(0, $httpClient->requests());
+    }
+
+    public function testValidateSignatureFallsBackToApiEndpointWhenLocalCannotRun(): void
     {
         $httpClient = new FakeHttpClient(new Response(200, [], '{"valid":true}'));
         $webhooks = new Webhooks('sk_test_abc123', ['httpClient' => $httpClient]);
@@ -19,6 +38,7 @@ final class WebhooksTest extends TestCase
         $payload = [
             'body' => '{"id":"evt_123"}',
             'signature' => 'sha256=fake_signature',
+            // No webhookSecret -> triggers API fallback
         ];
 
         $result = $webhooks->validateSignature($payload);
@@ -32,14 +52,28 @@ final class WebhooksTest extends TestCase
         self::assertSame(json_encode($payload), (string) $request->getBody());
     }
 
-    public function testVerifySignatureLocallyAcceptsHexAndPrefixedSha256Formats(): void
+    public function testValidateSignatureLocalSupportsRawHexAndRejectsInvalidSignatures(): void
     {
-        $rawPayload = '{"id":"evt_123"}';
+        $httpClient = new FakeHttpClient();
+        $webhooks = new Webhooks('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $rawPayload = '{"id":"evt_456"}';
         $secret = 'whsec_test_secret';
         $hex = hash_hmac('sha256', $rawPayload, $secret);
 
-        self::assertTrue(Webhooks::verifySignatureLocally($rawPayload, $hex, $secret));
-        self::assertTrue(Webhooks::verifySignatureLocally($rawPayload, 'sha256=' . $hex, $secret));
-        self::assertFalse(Webhooks::verifySignatureLocally($rawPayload, 'sha256=invalid', $secret));
+        $valid = $webhooks->validateSignature([
+            'payload' => $rawPayload,
+            'signature' => $hex,
+            'secret' => $secret,
+        ]);
+        $invalid = $webhooks->validateSignature([
+            'payload' => $rawPayload,
+            'signature' => 'sha256=invalid',
+            'secret' => $secret,
+        ]);
+
+        self::assertTrue($valid->valid);
+        self::assertFalse($invalid->valid);
+        self::assertCount(0, $httpClient->requests());
     }
 }

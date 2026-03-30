@@ -99,12 +99,27 @@ class Webhooks extends BaseClient
 	/**
 	 * Validates a webhook signature payload.
 	 *
+	 * Local verification is attempted first when `body`, `signature`, and
+	 * `webhookSecret` are provided in `$data`. If local verification cannot be
+	 * performed for any reason, the SDK falls back to the API endpoint.
+	 *
 	 * @param array $data Signature payload.
 	 * @return mixed JSON-decoded response.
 	 * @throws FacturapiException
 	 */
 	public function validateSignature($data): mixed
 	{
+		if (is_array($data)) {
+			try {
+				$localResult = $this->verifySignatureLocallyFromPayload($data);
+				if ($localResult !== null) {
+					return (object) array('valid' => $localResult);
+				}
+			} catch (\Throwable $ignored) {
+				// Fallback to server-side verification.
+			}
+		}
+
 		try {
 			return json_decode($this->executeJsonPostRequest($this->getRequestUrl() . '/validate-signature', $data));
 		} catch (FacturapiException $e) {
@@ -113,18 +128,26 @@ class Webhooks extends BaseClient
 	}
 
 	/**
-	 * Verifies a webhook signature locally using HMAC-SHA256.
-	 *
-	 * Accepted signature formats:
-	 * - raw hex digest
-	 * - prefixed hex digest (e.g. "sha256=<hex>")
-	 *
-	 * @param string $rawBody Raw webhook request body.
-	 * @param string $signature Signature from webhook headers.
-	 * @param string $webhookSecret Webhook signing secret.
-	 * @return bool True when signature is valid.
+	 * Attempts local signature verification when payload has required fields.
+	 * Returns null when local verification cannot be attempted.
 	 */
-	public static function verifySignatureLocally(string $rawBody, string $signature, string $webhookSecret): bool
+	private function verifySignatureLocallyFromPayload(array $data): ?bool
+	{
+		$rawBody = $data['body'] ?? $data['payload'] ?? $data['rawBody'] ?? null;
+		$signature = $data['signature'] ?? $data['x-signature'] ?? $data['x_signature'] ?? null;
+		$webhookSecret = $data['webhookSecret'] ?? $data['webhook_secret'] ?? $data['secret'] ?? null;
+
+		if (!is_string($rawBody) || !is_string($signature) || !is_string($webhookSecret)) {
+			return null;
+		}
+
+		return $this->verifySignatureLocally($rawBody, $signature, $webhookSecret);
+	}
+
+	/**
+	 * Local HMAC-SHA256 signature verification.
+	 */
+	private function verifySignatureLocally(string $rawBody, string $signature, string $webhookSecret): bool
 	{
 		$normalizedSignature = trim($signature);
 		if (str_starts_with($normalizedSignature, 'sha256=')) {
