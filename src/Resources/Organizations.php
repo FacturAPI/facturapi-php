@@ -143,11 +143,13 @@ class Organizations extends BaseClient
    */
   public function checkDomainIsAvailable($idOrParams, $params = null): mixed
   {
+    $argsCount = func_num_args();
     $query = null;
-    if (is_array($idOrParams) && $params === null) {
+    if ($argsCount === 1 && is_array($idOrParams)) {
       $query = $idOrParams;
-    } elseif (is_array($params)) {
-      // Backward compatibility with historical signature: ($id, $params)
+    } elseif ($argsCount >= 2 && is_array($params)) {
+      // Backward compatibility with historical signature: ($id, $params).
+      trigger_error('Organizations::checkDomainIsAvailable($id, $params) is deprecated and will be removed in v5. Use checkDomainIsAvailable($params) instead.', E_USER_DEPRECATED);
       $query = $params;
     } else {
       throw new FacturapiException('checkDomainIsAvailable expects either ($params) or ($id, $params).');

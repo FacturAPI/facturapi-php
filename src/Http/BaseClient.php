@@ -147,7 +147,7 @@ class BaseClient
 	 */
 	protected function executeGetRequest($url): string
 	{
-		return $this->executeRequest('GET', $url, array('Accept-Encoding' => 'gzip'));
+		return $this->executeRequest('GET', $url);
 	}
 
 	/**

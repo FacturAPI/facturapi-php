@@ -35,12 +35,26 @@ final class OrganizationsDomainTest extends TestCase
     {
         $httpClient = new FakeHttpClient(new Response(200, [], '{"available":true}'));
         $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
-        $result = $organizations->checkDomainIsAvailable('org_ignored', [
-            'name' => 'acme',
-            'domain' => 'acme.mx',
-        ]);
+
+        $captured = [];
+        set_error_handler(static function (int $severity, string $message) use (&$captured): bool {
+            $captured[] = ['severity' => $severity, 'message' => $message];
+            return true;
+        });
+
+        try {
+            $result = $organizations->checkDomainIsAvailable('org_ignored', [
+                'name' => 'acme',
+                'domain' => 'acme.mx',
+            ]);
+        } finally {
+            restore_error_handler();
+        }
 
         self::assertTrue($result->available);
+        self::assertNotEmpty($captured);
+        self::assertSame(E_USER_DEPRECATED, $captured[0]['severity']);
+        self::assertStringContainsString('checkDomainIsAvailable($params)', $captured[0]['message']);
     }
 
     public function testCheckDomainAvailabilityAliasDelegatesToCanonicalMethod(): void
