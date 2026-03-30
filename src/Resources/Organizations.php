@@ -141,12 +141,22 @@ class Organizations extends BaseClient
    *
    * @throws FacturapiException
    */
-  public function checkDomainAvailability($params): mixed
+  public function checkDomainIsAvailable($idOrParams, $params = null): mixed
   {
+    $query = null;
+    if (is_array($idOrParams) && $params === null) {
+      $query = $idOrParams;
+    } elseif (is_array($params)) {
+      // Backward compatibility with historical signature: ($id, $params)
+      $query = $params;
+    } else {
+      throw new FacturapiException('checkDomainIsAvailable expects either ($params) or ($id, $params).');
+    }
+
     try {
       return json_decode(
         $this->executeGetRequest(
-          $this->getRequestUrl("domain-check", $params)
+          $this->getRequestUrl("domain-check", $query)
         )
       );
     } catch (FacturapiException $e) {
@@ -155,12 +165,11 @@ class Organizations extends BaseClient
   }
 
   /**
-   * @deprecated The $id parameter is ignored. Use checkDomainAvailability($params) instead.
+   * Alias for consistency with API operation naming.
    */
-  public function checkDomainIsAvailable($id, $params): mixed
+  public function checkDomainAvailability($params): mixed
   {
-    trigger_error('Organizations::checkDomainIsAvailable($id, $params) is deprecated and will be removed in v5. Use checkDomainAvailability($params) instead.', E_USER_DEPRECATED);
-    return $this->checkDomainAvailability($params);
+    return $this->checkDomainIsAvailable($params);
   }
 
   /**
