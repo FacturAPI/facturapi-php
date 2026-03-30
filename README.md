@@ -1,149 +1,192 @@
-Facturapi PHP Library
-=========
+# Facturapi PHP SDK
 
-This is the official PHP wrapper for https://www.facturapi.io
+Official PHP SDK for [Facturapi](https://www.facturapi.io).
 
-FacturAPI makes it easy for developers to generate valid Invoices in Mexico (known as Factura Electrónica or CFDI).
+Language: English | [Español](./README.es.md)
 
-If you've ever used [Stripe](https://stripe.com) or [Conekta](https://conekta.io), you'll find FacturAPI very straightforward to understand and integrate in your server app.
+[![Latest Version](https://img.shields.io/packagist/v/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![PHP Version](https://img.shields.io/packagist/php-v/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![Total Downloads](https://img.shields.io/packagist/dt/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![Monthly Downloads](https://img.shields.io/packagist/dm/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
+[![License](https://img.shields.io/packagist/l/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 
-## Install
+## Installation ⚡
 
 ```bash
-composer require "facturapi/facturapi-php"
+composer require facturapi/facturapi-php
 ```
 
-## Before you begin
+Without Composer (supported workaround):
 
-Make sure you have created your free account on [FacturAPI](https://www.facturapi.io) and that you have your **API Keys**.
+```php
+require_once __DIR__ . '/path/to/facturapi-php/src/Facturapi.php';
+```
 
-## Getting started
+Requirements:
+- PHP `>=8.2`
 
-### Import the library
+## Quick Start 🚀
 
-Don't forget to reference the library at the top of your code:
+```php
+<?php
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+use Facturapi\Facturapi;
+
+$apiKey = getenv('FACTURAPI_KEY') ?: 'YOUR_API_KEY';
+$facturapi = new Facturapi($apiKey);
+
+$customer = $facturapi->Customers->create([
+  'email' => 'walterwhite@gmail.com',
+  'legal_name' => 'Walter White',
+  'tax_id' => 'WIWA761018',
+  'address' => [
+    'zip' => '06800',
+    'street' => 'Av. de los Rosales',
+    'exterior' => '123',
+    'neighborhood' => 'Tepito',
+  ],
+]);
+```
+
+## Client Configuration ⚙️
+
+Constructor signature:
+
+```php
+new Facturapi(string $apiKey, ?array $config = null)
+```
+
+Supported config keys:
+- `apiVersion` (`string`, default: `v2`)
+- `timeout` (`int|float`, default: `360` seconds)
+- `httpClient` (`Psr\Http\Client\ClientInterface`, advanced)
+
+Example:
 
 ```php
 use Facturapi\Facturapi;
+
+$facturapi = new Facturapi($apiKey, [
+  'apiVersion' => 'v2',
+  'timeout' => 420,
+]);
 ```
 
-### Create a customer
+### Custom HTTP Client (Advanced)
+
+The SDK works out of the box with its internal Guzzle-based client.
+
+If you provide `httpClient`, pass any PSR-18 compatible client and configure its timeout values in that client:
 
 ```php
+use Facturapi\Facturapi;
+use GuzzleHttp\Client;
 
-// Create an instance of the client.
-// You can use different instances for uusing different API Keys
-$facturapi = new Facturapi( FACTURAPI_KEY );
+$httpClient = new Client([
+  'timeout' => 420,
+]);
 
-$customer = array(
-  "email" => "walterwhite@gmail.com", //Optional but useful to send invoice by email
-  "legal_name" => "Walter White", // Razón social
-  "tax_id" => "WIWA761018", //RFC
-  "address" => array(
-    "zip"=> "06800",
-    "street" => "Av. de los Rosales",
-    "exterior" => "123",
-    "neighborhood" => "Tepito"
-    // city, municipality and state are filled automatically from the zip code
-    // but if you want to, you can override their values
-    // city: 'México',
-    // municipality: 'Cuauhtémoc',
-    // state: 'Ciudad de México'
-  )
-);
-
-// Remember to store the customer.id in your records.
-// You will need it to create an invoice for this customer.
-$new_customer = $facturapi->Customers->create($customer);
+$facturapi = new Facturapi($apiKey, [
+  'httpClient' => $httpClient,
+]);
 ```
 
-### Create a product
+## Common Usage 🧾
+
+### Create a Product
 
 ```php
-$facturapi = new Facturapi( FACTURAPI_KEY );
-$product = array(
-  "product_key" => "4319150114", // Clave Producto/Servicio from SAT's catalog. Log in to FacturAPI and use our tool to look it up.
-  "description" => "Apple iPhone 8",
-  "price"       => 345.60 // price in MXN.
-  // By default, taxes are calculated from the price with IVA 16%
-  // But again, you can override that by explicitly providing a taxes array
-  // "taxes" => array(
-  //   array ( "type" => \Facturapi\TaxType::IVA, "rate" => 0.16 ),
-  //   array ( "type" => \Facturapi\TaxType::ISR, "rate" => 0.03666, "withholding" => true )
-  // )
-);
-
-$facturapi->Products->create( $product );
+$product = $facturapi->Products->create([
+  'product_key' => '4319150114',
+  'description' => 'Apple iPhone 8',
+  'price' => 345.60,
+]);
 ```
 
-### Create an invoice
+### Create an Invoice
 
 ```php
-$facturapi = new Facturapi( FACTURAPI_KEY );
-
-$invoice = array(
-  "customer"     => "YOUR_CUSTOMER_ID",
-  "items"        => array(
-    array(
-      "quantity" => 1, // Optional. Defaults to 1.
-      "product"  => "YOUR_PRODUCT_ID" // You can also pass a product object instead
-    ),
-    array( 
-      "quantity" => 2,
-        "product"  => array( 
-        "description" => "Guitarra",
-        "product_key" => "01234567",
-        "price"       => 420.69,
-        "sku"         => "ABC4567"
-      )
-    ) // Add as many products as you want to include in your invoice
-  ),
-  "payment_form" => \Facturapi\PaymentForm::EFECTIVO,
-  "folio_number" => "581",
-  "series"       => "F"
-);
-
-$facturapi->Invoices->create( $invoice );
+$invoice = $facturapi->Invoices->create([
+  'customer' => 'YOUR_CUSTOMER_ID',
+  'items' => [[
+    'quantity' => 1,
+    'product' => 'YOUR_PRODUCT_ID',
+  ]],
+  'payment_form' => \Facturapi\PaymentForm::EFECTIVO,
+  'folio_number' => '581',
+  'series' => 'F',
+]);
 ```
 
-#### Download your invoice
+### Download Files
 
 ```php
-// Once you have successfully created your invoice, you can...
-$facturapi = new Facturapi( FACTURAPI_KEY );
-
-$facturapi->Invoices->download_zip("INVOICE_ID") // stream containing the PDF and XML as a ZIP file or
-
-$facturapi->Invoices->download_pdf("INVOICE_ID") // stream containing the PDF file or
-
-$facturapi->Invoices->download_xml("INVOICE_ID") // stream containing the XML file or
+$zipBytes = $facturapi->Invoices->downloadZip('INVOICE_ID');
+$pdfBytes = $facturapi->Invoices->downloadPdf('INVOICE_ID');
+$xmlBytes = $facturapi->Invoices->downloadXml('INVOICE_ID');
 ```
 
-#### Send your invoice by email
+`downloadPdf()` returns raw PDF bytes (binary string), not base64.
 
 ```php
-// Send the invoice to your customer's email (if any)
-$facturapi = new Facturapi( FACTURAPI_KEY );
-
-$facturapi->Invoices->send_by_email("INVOICE_ID");
+file_put_contents('invoice.pdf', $pdfBytes);
 ```
 
-## Documentation
+### Send by Email
 
-There's more you can do with this library: List, retrieve, update, and remove Customers, Products and Invoices.
+```php
+$facturapi->Invoices->sendByEmail('INVOICE_ID');
+```
 
-Visit the full documentation at http://docs.facturapi.io.
+### Comercio Exterior Catalogs
 
-## Help
+```php
+$results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
+  'q' => '0101',
+  'page' => 0,
+  'limit' => 10,
+]);
+```
 
-### Found a bug?
+## Error Handling ⚠️
 
-Please report it on the Issue Tracker
+On non-2xx responses, the SDK throws `Facturapi\Exceptions\FacturapiException`.
 
-### Want to contribute?
+The exception includes:
+- `getMessage()`: API error message when present.
+- `getStatusCode()`: HTTP status code.
+- `getErrorData()`: decoded JSON error payload (full API shape).
+- `getRawBody()`: raw response body string.
 
-Send us your PR! We appreciate your help :)
+```php
+use Facturapi\Exceptions\FacturapiException;
 
-### Contact us!
+try {
+  $facturapi->Invoices->create($payload);
+} catch (FacturapiException $e) {
+  $status = $e->getStatusCode();
+  $error = $e->getErrorData(); // Full API error shape when body is valid JSON.
+  $firstDetail = $error['details'][0] ?? null; // e.g. ['path' => 'items.0.quantity', 'message' => '...', 'code' => '...']
+}
+```
 
-contacto@facturapi.io
+## Migration Notes (v4) 🔄
+
+- Minimum PHP version is now `>=8.2`.
+- Removed support for the positional `apiVersion` constructor argument.
+- Composer projects: no loader changes needed; keep using `vendor/autoload.php`.
+- Non-Composer projects can keep using the SDK by loading `src/Facturapi.php` directly.
+- Snake_case method aliases are deprecated in v4 and will be removed in v5.
+- `Facturapi\\Exceptions\\Facturapi_Exception` is deprecated in v4 and will be removed in v5.
+- Use `Facturapi\\Exceptions\\FacturapiException`.
+
+## Documentation 📚
+
+Full docs: [https://docs.facturapi.io](https://docs.facturapi.io)
+
+## Support 💬
+
+- Issues: open a GitHub issue
+- Email: `contacto@facturapi.io`

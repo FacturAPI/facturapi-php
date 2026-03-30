@@ -2,7 +2,8 @@
 
 namespace Facturapi\Exceptions;
 
+require_once __DIR__ . '/FacturapiException.php';
 
-use Exception;
-
-class Facturapi_Exception extends Exception {}
+if (!class_exists(__NAMESPACE__ . '\\Facturapi_Exception', false)) {
+	class_alias(FacturapiException::class, __NAMESPACE__ . '\\Facturapi_Exception');
+}

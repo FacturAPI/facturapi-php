@@ -1,5 +1,0 @@
-3.7.0
-
-## What changed
-- Added `ComercioExteriorCatalogs::searchTariffFractions` support for Comercio Exterior catalog queries.
-- Added deploy automation from `main` using semver + release notes defined in `VERSION`.

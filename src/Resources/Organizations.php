@@ -3,462 +3,453 @@
 namespace Facturapi\Resources;
 
 use Facturapi\Http\BaseClient;
-use Facturapi\Exceptions\Facturapi_Exception;
+use Facturapi\Exceptions\FacturapiException;
 
 class Organizations extends BaseClient
 {
-  protected $ENDPOINT = 'organizations';
+  protected string $ENDPOINT = 'organizations';
 
 
   /**
    * Get all Organizations
    *
-   * @param Search parameters
+   * @param array|null $params Search parameters.
+   * @return mixed JSON-decoded response.
    *
-   * @return JSON objects for all Organizations
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function all($params = null)
-  {
-    try {
-      return json_decode($this->execute_get_request($this->get_request_url($params)));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organizations: ' . $e->getMessage());
-    }
-  }
-
-  /**
-   * Get a Organization by ID
-   *
-   * @param id : Unique ID for Organization
-   *
-   * @return JSON object for requested Organization
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function retrieve($id)
-  {
-    try {
-      return json_decode($this->execute_get_request($this->get_request_url($id)));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organization: ' . $e->getMessage());
-    }
-  }
-
-  /**
-   * Create a Organization
-   *
-   * @param params : array of properties and property values for new Organization
-   *
-   * @return Response body with JSON object
-   * for created Organization from HTTP POST request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function create($params)
-  {
-    try {
-      return json_decode($this->execute_JSON_post_request($this->get_request_url(), $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create organization: ' . $e->getMessage());
-    }
-  }
-
-  /**
-   * Update a Organization's legal information
-   *
-   * @param $id
-   * @param $params array of properties and property values for Organization's legal information
-   *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function updateLegal($id, $params)
+  public function all($params = null): mixed
   {
     try {
-      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/legal", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s legal information: ' . $e->getMessage());
+      return json_decode($this->executeGetRequest($this->getRequestUrl($params)));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Update a Organization's customization information
+   * Get an Organization by ID.
    *
-   * @param $id
-   * @param $params array of properties and property values for Organization's customization information
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function updateCustomization($id, $params)
+  public function retrieve($id): mixed
   {
     try {
-      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/customization", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s customization information: ' . $e->getMessage());
+      return json_decode($this->executeGetRequest($this->getRequestUrl($id)));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Update a Organization's receipt settings
+   * Create an Organization.
    *
-   * @param $id
-   * @param $params array of properties and property values for Organization's receipt settings
+   * @param array $params Organization payload.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function updateReceiptSettings($id, $params)
+  public function create($params): mixed
   {
     try {
-      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/receipts", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s receipt settings: ' . $e->getMessage());
+      return json_decode($this->executeJsonPostRequest($this->getRequestUrl(), $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Update the Organization's domain
+   * Update an organization's legal information.
    *
-   * @param $id Organization Id
-   * @param $params array of properties and property values for the Organization's domain
+   * @param string $id Organization ID.
+   * @param array $params Legal information payload.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function updateDomain($id, $params)
+  public function updateLegal($id, $params): mixed
   {
     try {
-      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/domain", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s domain: ' . $e->getMessage());
+      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/legal", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Update the Organization's domain
+   * Update an organization's customization information.
    *
-   * @param $id Organization Id
-   * @param $params array of properties and property values for the Organization's domain
+   * @param string $id Organization ID.
+   * @param array $params Customization payload.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function checkDomainIsAvailable($id, $params)
+  public function updateCustomization($id, $params): mixed
   {
+    try {
+      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/customization", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Update an organization's receipt settings.
+   *
+   * @param string $id Organization ID.
+   * @param array $params Receipt settings payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function updateReceiptSettings($id, $params): mixed
+  {
+    try {
+      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/receipts", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Update an organization's domain.
+   *
+   * @param string $id Organization ID.
+   * @param array $params Domain payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function updateDomain($id, $params): mixed
+  {
+    try {
+      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/domain", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
+   * Check domain availability.
+   *
+   * @param array $params Domain check parameters.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function checkDomainIsAvailable($idOrParams, $params = null): mixed
+  {
+    $argsCount = func_num_args();
+    $query = null;
+    if ($argsCount === 1 && is_array($idOrParams)) {
+      $query = $idOrParams;
+    } elseif ($argsCount >= 2 && is_array($params)) {
+      // Backward compatibility with historical signature: ($id, $params).
+      trigger_error('Organizations::checkDomainIsAvailable($id, $params) is deprecated and will be removed in v5. Use checkDomainIsAvailable($params) instead.', E_USER_DEPRECATED);
+      $query = $params;
+    } else {
+      throw new FacturapiException('checkDomainIsAvailable expects either ($params) or ($id, $params).');
+    }
+
     try {
       return json_decode(
-        $this->execute_get_request(
-          $this->get_request_url("domain-check" . $this->array_to_params($params))
+        $this->executeGetRequest(
+          $this->getRequestUrl("domain-check", $query)
         )
       );
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to check domain\'s availability: ' . $e->getMessage());
+    } catch (FacturapiException $e) {
+      throw $e;
     }
+  }
+
+  /**
+   * Alias for consistency with API operation naming.
+   */
+  public function checkDomainAvailability($params): mixed
+  {
+    return $this->checkDomainIsAvailable($params);
   }
 
   /**
    * Uploads the organization's logo
    *
-   * @param $id
-   * @param $params array of properties and property values for Organization's logo
+   * @param string $id Organization ID.
+   * @param string $params Logo file path.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function uploadLogo($id, $params)
+  public function uploadLogo($id, $params): mixed
   {
     try {
-      return json_decode($this->execute_data_put_request($this->get_request_url($id) . "/logo", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to upload organization\'s logo: ' . $e->getMessage());
+      return json_decode($this->executeDataPutRequest($this->getRequestUrl($id) . "/logo", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
    * Uploads the organization's certificate (CSD)
    *
-   * @param $id
-   * @param $params array of properties and property values for organization's certificate (CSD)
+   * @param string $id Organization ID.
+   * @param array $params Certificate payload (`cerFile`, `keyFile`, `password`).
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   *
+   * @throws FacturapiException
    */
-  public function uploadCertificate($id, $params)
+  public function uploadCertificate($id, $params): mixed
   {
     try {
-      return json_decode($this->execute_data_put_request($this->get_request_url($id) . "/certificate", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to upload organization\'s certificate (CSD): ' . $e->getMessage());
+      return json_decode($this->executeDataPutRequest($this->getRequestUrl($id) . "/certificate", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Get the Test Api Key for an Organization
+   * Get the test API key for an organization.
    *
-   * @param id : Unique ID for Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return String Test Api Key
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function getTestApiKey($id)
+   * @throws FacturapiException
+   */
+  public function getTestApiKey($id): mixed
   {
     try {
-      return json_decode($this->execute_get_request($this->get_request_url($id) . "/apikeys/test"));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to get organization\'s test key: ' . $e->getMessage());
+      return json_decode($this->executeGetRequest($this->getRequestUrl($id) . "/apikeys/test"));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Renews the Test Api Key for an Organization and makes the previous one inactive
+   * Renew the test API key for an organization.
    *
-   * @param id : Unique ID for Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return String Test Api Key
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function renewTestApiKey($id)
+   * @throws FacturapiException
+   */
+  public function renewTestApiKey($id): mixed
   {
     try {
       return json_decode(
-        $this->execute_JSON_put_request(
-          $this->get_request_url($id) . "/apikeys/test",
+        $this->executeJsonPutRequest(
+          $this->getRequestUrl($id) . "/apikeys/test",
           []
         )
       );
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to renew organization\'s test key: ' . $e->getMessage());
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Renews the Test Api Key for an Organization and makes the previous one inactive
+   * @deprecated Use listLiveApiKeys() instead. Will be removed in v5.
    *
-   * @param id : Unique ID for Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return Array Array of object with first_12 characters, created_at field and id field
+   * @throws FacturapiException
+   */
+  public function lisLiveApiKeys($id): mixed
+  {
+    trigger_error('Organizations::lisLiveApiKeys() is deprecated and will be removed in v5. Use listLiveApiKeys() instead.', E_USER_DEPRECATED);
+    return $this->listLiveApiKeys($id);
+  }
+
+  /**
+   * List live API keys for an organization.
    *
-   * @throws Facturapi_Exception
-   **/
-  public function lisLiveApiKeys($id)
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function listLiveApiKeys($id): mixed
   {
     try {
       return json_decode(
-        $this->execute_get_request(
-          $this->get_request_url($id) . "/apikeys/live",
-          []
+        $this->executeGetRequest(
+          $this->getRequestUrl($id) . "/apikeys/live"
         )
       );
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception($e);
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
-
   /**
-   * Renews the Test Api Key for an Organization and makes the previous one inactive
+   * Renew the live API key for an organization.
    *
-   * @param id : Unique ID for Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return String Live Api Key
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function renewLiveApiKey($id)
+   * @throws FacturapiException
+   */
+  public function renewLiveApiKey($id): mixed
   {
     try {
       return json_decode(
-        $this->execute_JSON_put_request(
-          $this->get_request_url($id) . "/apikeys/live",
+        $this->executeJsonPutRequest(
+          $this->getRequestUrl($id) . "/apikeys/live",
           []
         )
       );
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to renew organization\'s live key: ' . $e->getMessage());
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Deletes the Test Api Key for an Organization and makes the previous one inactive
+   * Delete one live API key for an organization.
    *
-   * @param organizationId : Unique ID for Organization
-   * @param apiKeyId: Unique ID for the Api Key
+   * @param string $organizationId Organization ID.
+   * @param string $apiKeyId API key ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return Array Array of object with first_12 characters, created_at field and id field
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function deleteLiveApiKey($organizationId, $apiKeyId)
+   * @throws FacturapiException
+   */
+  public function deleteLiveApiKey($organizationId, $apiKeyId): mixed
   {
     try {
       return json_decode(
-        $this->execute_JSON_put_request(
-          $this->get_request_url($organizationId) . "/apikeys/live" . "/" . $apiKeyId,
+        $this->executeJsonPutRequest(
+          $this->getRequestUrl($organizationId) . "/apikeys/live" . "/" . $apiKeyId,
           []
         )
       );
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception($e);
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Delete a Organization
+   * Delete an organization.
    *
-   * @param id : Unique ID for the Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP DELETE request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function delete($id)
+   * @throws FacturapiException
+   */
+  public function delete($id): mixed
   {
     try {
-      return json_decode($this->execute_delete_request($this->get_request_url($id), null));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to delete organization: ' . $e->getMessage());
+      return json_decode($this->executeDeleteRequest($this->getRequestUrl($id), null));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Delete a Organization's Certificate
+   * Delete an organization's certificate.
    *
-   * @param id : Unique ID for the Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP DELETE request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function deleteCertificate($id)
+   * @throws FacturapiException
+   */
+  public function deleteCertificate($id): mixed
   {
     try {
-      return json_decode($this->execute_delete_request($this->get_request_url($id) .  "/certificate", null));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to delete organization: ' . $e->getMessage());
+      return json_decode($this->executeDeleteRequest($this->getRequestUrl($id) .  "/certificate", null));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Get the series of an Organization
+   * Get series groups for an organization.
    *
-   * @param id : Unique ID for the Organization
+   * @param string $id Organization ID.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP GET request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function getSeriesGroup($id)
+   * @throws FacturapiException
+   */
+  public function getSeriesGroup($id): mixed
   {
     try {
-      return json_decode($this->execute_get_request($this->get_request_url($id) . "/series-group"));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to find series: ' . $e);
+      return json_decode($this->executeGetRequest($this->getRequestUrl($id) . "/series-group"));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Create a Series Organization
-   * 
-   * @param id : Unique ID for the Organization
-   * 
+   * Create a series group for an organization.
    *
-   * @param params : object of properties and property values for new Series Organization
+   * @param string $id Organization ID.
+   * @param array $params Series group payload.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body with JSON object
-   * for created Organization from HTTP POST request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function createSeriesGroup($id, $params)
+   * @throws FacturapiException
+   */
+  public function createSeriesGroup($id, $params): mixed
   {
     try {
-      return json_decode($this->execute_JSON_post_request($this->get_request_url($id) . "/series-group", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create series: ' . $e);
+      return json_decode($this->executeJsonPostRequest($this->getRequestUrl($id) . "/series-group", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Update a Series Organization
-   * 
-   * @param id : Unique ID for the Organization
-   * 
-   * @param series_name: Name of the series to update
+   * Update a series group for an organization.
    *
-   * @param params : object of properties and property values for updated Series Organization
+   * @param string $id Organization ID.
+   * @param string $series_name Series name.
+   * @param array $params Series group payload.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body with JSON object
-   * for updated Series Organization from HTTP POST request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function updateSeriesGroup($id, $series_name, $params)
+   * @throws FacturapiException
+   */
+  public function updateSeriesGroup($id, $series_name, $params): mixed
   {
     try {
-      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/series-group" . "/" . $series_name, $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create series: ' . $e);
+      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/series-group" . "/" . $series_name, $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
-   * Delete a Series Organization
-   * 
-   * @param id : Unique ID for the Organization
-   * 
-   * @param series_name: Name of the series to update
+   * Delete a series group for an organization.
    *
-   * @param params : object of properties and property values for new Series Organization
+   * @param string $id Organization ID.
+   * @param string $series_name Series name.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body with JSON object
-   * for delete Series Organization from HTTP DELETE request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function deleteSeriesGroup($id, $series_name)
+   * @throws FacturapiException
+   */
+  public function deleteSeriesGroup($id, $series_name): mixed
   {
     try {
-      return json_decode($this->execute_delete_request($this->get_request_url($id) . "/series-group" . "/" . $series_name, null));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to create series: ' . $e);
+      return json_decode($this->executeDeleteRequest($this->getRequestUrl($id) . "/series-group" . "/" . $series_name, null));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 
   /**
    * Update self-invoice settings for an Organization
    *
-   * @param string $id : Unique ID for the Organization
-   * @param array $params : Properties and values for self-invoice settings
+   * @param string $id Organization ID.
+   * @param array $params Self-invoice settings payload.
+   * @return mixed JSON-decoded response.
    *
-   * @return Response body from HTTP PUT request
-   *
-   * @throws Facturapi_Exception
-   **/
-  public function updateSelfInvoiceSettings($id, $params)
+   * @throws FacturapiException
+   */
+  public function updateSelfInvoiceSettings($id, $params): mixed
   {
     try {
-      return json_decode($this->execute_JSON_put_request($this->get_request_url($id) . "/self-invoice", $params));
-    } catch (Facturapi_Exception $e) {
-      throw new Facturapi_Exception('Unable to update organization\'s self-invoice settings: ' . $e->getMessage());
+      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/self-invoice", $params));
+    } catch (FacturapiException $e) {
+      throw $e;
     }
   }
 }

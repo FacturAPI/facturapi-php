@@ -3,60 +3,57 @@
 namespace Facturapi\Resources;
 
 use Facturapi\Http\BaseClient;
-use Facturapi\Exceptions\Facturapi_Exception;
+use Facturapi\Exceptions\FacturapiException;
 
 class Receipts extends BaseClient {
-	protected $ENDPOINT = 'receipts';
+	protected string $ENDPOINT = 'receipts';
 
 
 	/**
 	 * Search or list all receipts in your organization
 	 *
-   * @param $params Search parameters
-   *
-   * @return JSON a receipt search result object
+	 * @param array|null $params Search parameters.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function all( $params = null ) {
+	 * @throws FacturapiException
+	 */
+	public function all( $params = null ): mixed {
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $params ) ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get receipts: ' . $e->getMessage() );
+			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $params ) ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
 	}
 
 	/**
 	 * Get a Receipt by ID
 	 *
-	 * @param id : Unique ID for Receipt
+	 * @param string $id Receipt ID.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return JSON object for requested Receipt
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function retrieve( $id ) {
+	 * @throws FacturapiException
+	 */
+	public function retrieve( $id ): mixed {
 		try {
-			return json_decode( $this->execute_get_request( $this->get_request_url( $id ) ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to get receipt: ' . $e->getMessage() );
+			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $id ) ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
 	}
 
 	/**
 	 * Create a Receipt in your organization
 	 *
-	 * @param params : array of properties and property values for new Receipt
+	 * @param array $params Receipt payload.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return Response The Receipt object we just created
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function create( $params ) {
+	 * @throws FacturapiException
+	 */
+	public function create( $params ): mixed {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url(), $params ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create receipt: ' . $e->getMessage() );
+			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl(), $params ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
 	}
 
@@ -64,91 +61,101 @@ class Receipts extends BaseClient {
 	/**
 	 * Creates an invoice for a Receipt
 	 *
-	 * @param $id Receipt Id
-	 * @param $params Array of properties and property values for invoicing a receipt
+	 * @param string $id Receipt ID.
+	 * @param array $params Invoice payload.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return Response The Invoice object of the invoice we just created
-	 *
-	 * @throws Facturapi_Exception
-	 *
+	 * @throws FacturapiException
 	 */
-	public function invoice( $id, $params ) {
+	public function invoice( $id, $params ): mixed {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url( $id ) . "/invoice", $params ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to invoice receipt: ' . $e->getMessage() );
+			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl( $id ) . "/invoice", $params ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
 	}
-	
+
 	/**
 	 * Creates a global invoice from the open receipts in the last completed period
 	 *
-	 * @param $params Array of properties and property values for creating a global invoice
+	 * @param array $params Global invoice payload.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return Response the Invoice object of the global invoice we just created
-	 *
-	 * @throws Facturapi_Exception
-	 *
+	 * @throws FacturapiException
 	 */
-	public function createGlobalInvoice( $params ) {
+	public function createGlobalInvoice( $params ): mixed {
 		try {
-			return json_decode( $this->execute_JSON_post_request( $this->get_request_url() . "/global-invoice", $params ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to create global invoice: ' . $e->getMessage() );
+			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl() . "/global-invoice", $params ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
 	}
 
 	/**
 	 * Cancel a Receipt
 	 *
-	 * @param $id : Unique ID for the Receipt
+	 * @param string $id Receipt ID.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return Response the Receipt object
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function cancel( $id ) {
+	 * @throws FacturapiException
+	 */
+	public function cancel( $id ): mixed {
 		try {
-			return json_decode( $this->execute_delete_request( $this->get_request_url( $id ), null ) );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to cancel receipt: ' . $e->getMessage() );
+			return json_decode( $this->executeDeleteRequest( $this->getRequestUrl( $id ), null ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
 	}
 
 	/**
 	 * Sends the receipt to the customer's email
 	 *
-	 * @param id : Unique ID for Receipt
+	 * @param string $id Receipt ID.
+	 * @param string|array|null $email Email or list of emails.
+	 * @return mixed JSON-decoded response.
 	 *
-	 * @return JSON object for requested Receipt
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function send_by_email( $id, $email = null ) {
+	 * @throws FacturapiException
+	 */
+	public function sendByEmail( $id, $email = null ): mixed {
 		try {
-			return json_decode( $this->execute_JSON_post_request(
-				$this->get_request_url($id) . "/email",
+			return json_decode( $this->executeJsonPostRequest(
+				$this->getRequestUrl($id) . "/email",
 				$email == null ? null : array("email" => $email)
 			));
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to send Receipt: ' . $e->getMessage() );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
+	}
+
+	/**
+	 * @deprecated Use sendByEmail() instead. Will be removed in v5.
+	 */
+	public function send_by_email( $id, $email = null ): mixed {
+		trigger_error('Receipts::send_by_email() is deprecated and will be removed in v5. Use sendByEmail() instead.', E_USER_DEPRECATED);
+		return $this->sendByEmail( $id, $email );
 	}
 
 	/**
 	 * Downloads the specified receipt in a PDF file
 	 *
-	 * @param id : Unique ID for Receipt
+	 * @param string $id Receipt ID.
+	 * @return string Raw PDF bytes (binary string, not base64-encoded).
 	 *
-	 * @return PDF file in a stream
-	 *
-	 * @throws Facturapi_Exception
-	 **/
-	public function download_pdf( $id ) {
+	 * @throws FacturapiException
+	 */
+	public function downloadPdf( $id ): string {
 		try {
-			return $this->execute_get_request( $this->get_request_url( $id ) . "/pdf" );
-		} catch ( Facturapi_Exception $e ) {
-			throw new Facturapi_Exception( 'Unable to download PDF file: ' . $e->getMessage() );
+			return $this->executeGetRequest( $this->getRequestUrl( $id ) . "/pdf" );
+		} catch ( FacturapiException $e ) {
+			throw $e;
 		}
+	}
+
+	/**
+	 * @deprecated Use downloadPdf() instead. Will be removed in v5.
+	 */
+	public function download_pdf( $id ): string {
+		trigger_error('Receipts::download_pdf() is deprecated and will be removed in v5. Use downloadPdf() instead.', E_USER_DEPRECATED);
+		return $this->downloadPdf( $id );
 	}
 }
