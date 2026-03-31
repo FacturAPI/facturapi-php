@@ -11,12 +11,12 @@ use PHPUnit\Framework\TestCase;
 
 final class OrganizationsDomainTest extends TestCase
 {
-    public function testCheckDomainIsAvailableUsesExpectedEndpoint(): void
+    public function testCheckDomainAvailabilityUsesExpectedEndpoint(): void
     {
         $httpClient = new FakeHttpClient(new Response(200, [], '{"available":true}'));
         $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
 
-        $result = $organizations->checkDomainIsAvailable([
+        $result = $organizations->checkDomainAvailability([
             'name' => 'acme',
             'domain' => 'acme.mx',
         ]);
@@ -31,12 +31,16 @@ final class OrganizationsDomainTest extends TestCase
         );
     }
 
-    public function testCheckDomainAvailabilityAliasDelegatesToCanonicalMethod(): void
+    public function testCheckDomainIsAvailableAliasIsDeprecatedAndDelegatesToCanonicalMethod(): void
     {
         $httpClient = new FakeHttpClient(new Response(200, [], '{"available":true}'));
         $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
 
-        $result = $organizations->checkDomainAvailability([
+        $this->expectUserDeprecationMessage(
+            'Organizations::checkDomainIsAvailable(...) is deprecated and will be removed in v5. Use checkDomainAvailability($query) instead.'
+        );
+
+        $result = $organizations->checkDomainIsAvailable([
             'name' => 'acme',
             'domain' => 'acme.mx',
         ]);
@@ -50,7 +54,7 @@ final class OrganizationsDomainTest extends TestCase
         $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
 
         $this->expectException(\Facturapi\Exceptions\FacturapiException::class);
-        $this->expectExceptionMessage('checkDomainIsAvailable expects $query to be an array.');
+        $this->expectExceptionMessage('checkDomainIsAvailable expects either ($query) or ($id, $params).');
 
         $organizations->checkDomainIsAvailable('invalid');
     }

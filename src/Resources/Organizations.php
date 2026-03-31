@@ -141,10 +141,10 @@ class Organizations extends BaseClient
    *
    * @throws FacturapiException
    */
-  public function checkDomainIsAvailable($query): mixed
+  public function checkDomainAvailability($query): mixed
   {
     if (!is_array($query)) {
-      throw new FacturapiException('checkDomainIsAvailable expects $query to be an array.');
+      throw new FacturapiException('checkDomainAvailability expects $query to be an array.');
     }
 
     try {
@@ -159,11 +159,32 @@ class Organizations extends BaseClient
   }
 
   /**
-   * Alias for consistency with API operation naming.
+   * @deprecated Use checkDomainAvailability($query) instead. This alias will be removed in v5.
+   *
+   * @param array|string $idOrQuery Domain check query parameters, or legacy organization ID.
+   * @param array|null $query Legacy query parameters when using historical signature.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
    */
-  public function checkDomainAvailability($query): mixed
+  public function checkDomainIsAvailable($idOrQuery, $query = null): mixed
   {
-    return $this->checkDomainIsAvailable($query);
+    trigger_error(
+      'Organizations::checkDomainIsAvailable(...) is deprecated and will be removed in v5. Use checkDomainAvailability($query) instead.',
+      E_USER_DEPRECATED
+    );
+
+    $argsCount = func_num_args();
+    if ($argsCount === 1 && is_array($idOrQuery)) {
+      return $this->checkDomainAvailability($idOrQuery);
+    }
+
+    if ($argsCount >= 2 && is_array($query)) {
+      // Backward compatibility with historical signature: ($id, $params).
+      return $this->checkDomainAvailability($query);
+    }
+
+    throw new FacturapiException('checkDomainIsAvailable expects either ($query) or ($id, $params).');
   }
 
   /**
