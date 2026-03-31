@@ -50,7 +50,7 @@ final class OrganizationsDomainTest extends TestCase
         $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
 
         $this->expectException(\Facturapi\Exceptions\FacturapiException::class);
-        $this->expectExceptionMessage('checkDomainIsAvailable expects $params to be an array.');
+        $this->expectExceptionMessage('checkDomainIsAvailable expects $query to be an array.');
 
         $organizations->checkDomainIsAvailable('invalid');
     }

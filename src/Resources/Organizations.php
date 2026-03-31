@@ -136,21 +136,21 @@ class Organizations extends BaseClient
   /**
    * Check domain availability.
    *
-   * @param array $params Domain check parameters.
+   * @param array $query Domain check query parameters.
    * @return mixed JSON-decoded response.
    *
    * @throws FacturapiException
    */
-  public function checkDomainIsAvailable($params): mixed
+  public function checkDomainIsAvailable($query): mixed
   {
-    if (!is_array($params)) {
-      throw new FacturapiException('checkDomainIsAvailable expects $params to be an array.');
+    if (!is_array($query)) {
+      throw new FacturapiException('checkDomainIsAvailable expects $query to be an array.');
     }
 
     try {
       return json_decode(
         $this->executeGetRequest(
-          $this->getRequestUrl("domain-check", $params)
+          $this->getRequestUrl("domain-check", $query)
         )
       );
     } catch (FacturapiException $e) {
@@ -161,9 +161,9 @@ class Organizations extends BaseClient
   /**
    * Alias for consistency with API operation naming.
    */
-  public function checkDomainAvailability($params): mixed
+  public function checkDomainAvailability($query): mixed
   {
-    return $this->checkDomainIsAvailable($params);
+    return $this->checkDomainIsAvailable($query);
   }
 
   /**
