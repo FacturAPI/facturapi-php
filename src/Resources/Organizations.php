@@ -136,33 +136,21 @@ class Organizations extends BaseClient
   /**
    * Check domain availability.
    *
-   * @param array|string $idOrParams Domain check parameters when called as
-   *        `checkDomainIsAvailable($params)`, or organization id when called
-   *        with the deprecated signature `checkDomainIsAvailable($id, $params)`.
-   * @param array|null $params Domain check parameters for the deprecated
-   *        two-argument signature.
+   * @param array $params Domain check parameters.
    * @return mixed JSON-decoded response.
    *
    * @throws FacturapiException
    */
-  public function checkDomainIsAvailable($idOrParams, $params = null): mixed
+  public function checkDomainIsAvailable($params): mixed
   {
-    $argsCount = func_num_args();
-    $query = null;
-    if ($argsCount === 1 && is_array($idOrParams)) {
-      $query = $idOrParams;
-    } elseif ($argsCount >= 2 && is_array($params)) {
-      // Backward compatibility with historical signature: ($id, $params).
-      trigger_error('Organizations::checkDomainIsAvailable($id, $params) is deprecated and will be removed in v5. Use checkDomainIsAvailable($params) instead.', E_USER_DEPRECATED);
-      $query = $params;
-    } else {
-      throw new FacturapiException('checkDomainIsAvailable expects either ($params) or ($id, $params).');
+    if (!is_array($params)) {
+      throw new FacturapiException('checkDomainIsAvailable expects $params to be an array.');
     }
 
     try {
       return json_decode(
         $this->executeGetRequest(
-          $this->getRequestUrl("domain-check", $query)
+          $this->getRequestUrl("domain-check", $params)
         )
       );
     } catch (FacturapiException $e) {

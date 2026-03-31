@@ -31,32 +31,6 @@ final class OrganizationsDomainTest extends TestCase
         );
     }
 
-    public function testCheckDomainIsAvailableAcceptsLegacyTwoArgumentSignature(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"available":true}'));
-        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
-
-        $captured = [];
-        set_error_handler(static function (int $severity, string $message) use (&$captured): bool {
-            $captured[] = ['severity' => $severity, 'message' => $message];
-            return true;
-        });
-
-        try {
-            $result = $organizations->checkDomainIsAvailable('org_ignored', [
-                'name' => 'acme',
-                'domain' => 'acme.mx',
-            ]);
-        } finally {
-            restore_error_handler();
-        }
-
-        self::assertTrue($result->available);
-        self::assertNotEmpty($captured);
-        self::assertSame(E_USER_DEPRECATED, $captured[0]['severity']);
-        self::assertStringContainsString('checkDomainIsAvailable($params)', $captured[0]['message']);
-    }
-
     public function testCheckDomainAvailabilityAliasDelegatesToCanonicalMethod(): void
     {
         $httpClient = new FakeHttpClient(new Response(200, [], '{"available":true}'));
@@ -68,5 +42,16 @@ final class OrganizationsDomainTest extends TestCase
         ]);
 
         self::assertTrue($result->available);
+    }
+
+    public function testCheckDomainIsAvailableThrowsWhenParamsAreNotArray(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"available":true}'));
+        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $this->expectException(\Facturapi\Exceptions\FacturapiException::class);
+        $this->expectExceptionMessage('checkDomainIsAvailable expects $params to be an array.');
+
+        $organizations->checkDomainIsAvailable('invalid');
     }
 }
