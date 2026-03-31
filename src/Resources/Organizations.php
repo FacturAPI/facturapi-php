@@ -136,7 +136,11 @@ class Organizations extends BaseClient
   /**
    * Check domain availability.
    *
-   * @param array $params Domain check parameters.
+   * @param array|string $idOrParams Domain check parameters when called as
+   *        `checkDomainIsAvailable($params)`, or organization id when called
+   *        with the deprecated signature `checkDomainIsAvailable($id, $params)`.
+   * @param array|null $params Domain check parameters for the deprecated
+   *        two-argument signature.
    * @return mixed JSON-decoded response.
    *
    * @throws FacturapiException

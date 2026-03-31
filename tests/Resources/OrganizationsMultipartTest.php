@@ -17,24 +17,26 @@ final class OrganizationsMultipartTest extends TestCase
         $tmpLogo = tempnam(sys_get_temp_dir(), 'logo_');
         file_put_contents($tmpLogo, 'LOGO_BYTES');
 
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"ok":true}'));
-        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
+        try {
+            $httpClient = new FakeHttpClient(new Response(200, [], '{"ok":true}'));
+            $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
 
-        $result = $organizations->uploadLogo('org_123', $tmpLogo);
+            $result = $organizations->uploadLogo('org_123', $tmpLogo);
 
-        self::assertTrue($result->ok);
+            self::assertTrue($result->ok);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('PUT', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/organizations/org_123/logo', (string) $request->getUri());
-        self::assertStringStartsWith('multipart/form-data; boundary=', $request->getHeaderLine('Content-Type'));
+            $request = $httpClient->requests()[0];
+            self::assertSame('PUT', $request->getMethod());
+            self::assertSame('https://www.facturapi.io/v2/organizations/org_123/logo', (string) $request->getUri());
+            self::assertStringStartsWith('multipart/form-data; boundary=', $request->getHeaderLine('Content-Type'));
 
-        $body = (string) $request->getBody();
-        self::assertStringContainsString('name="file"', $body);
-        self::assertStringContainsString('filename="' . basename($tmpLogo) . '"', $body);
-        self::assertStringContainsString('LOGO_BYTES', $body);
-
-        @unlink($tmpLogo);
+            $body = (string) $request->getBody();
+            self::assertStringContainsString('name="file"', $body);
+            self::assertStringContainsString('filename="' . basename($tmpLogo) . '"', $body);
+            self::assertStringContainsString('LOGO_BYTES', $body);
+        } finally {
+            @unlink($tmpLogo);
+        }
     }
 
     public function testUploadCertificateBuildsMultipartRequestWithCerKeyAndPassword(): void
@@ -44,31 +46,33 @@ final class OrganizationsMultipartTest extends TestCase
         file_put_contents($tmpCer, 'CER_BYTES');
         file_put_contents($tmpKey, 'KEY_BYTES');
 
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"ok":true}'));
-        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
+        try {
+            $httpClient = new FakeHttpClient(new Response(200, [], '{"ok":true}'));
+            $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
 
-        $result = $organizations->uploadCertificate('org_123', [
-            'cerFile' => $tmpCer,
-            'keyFile' => $tmpKey,
-            'password' => 'secret_password',
-        ]);
+            $result = $organizations->uploadCertificate('org_123', [
+                'cerFile' => $tmpCer,
+                'keyFile' => $tmpKey,
+                'password' => 'secret_password',
+            ]);
 
-        self::assertTrue($result->ok);
+            self::assertTrue($result->ok);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('PUT', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/organizations/org_123/certificate', (string) $request->getUri());
+            $request = $httpClient->requests()[0];
+            self::assertSame('PUT', $request->getMethod());
+            self::assertSame('https://www.facturapi.io/v2/organizations/org_123/certificate', (string) $request->getUri());
 
-        $body = (string) $request->getBody();
-        self::assertStringContainsString('name="cer"', $body);
-        self::assertStringContainsString('name="key"', $body);
-        self::assertStringContainsString('name="password"', $body);
-        self::assertStringContainsString('CER_BYTES', $body);
-        self::assertStringContainsString('KEY_BYTES', $body);
-        self::assertStringContainsString('secret_password', $body);
-
-        @unlink($tmpCer);
-        @unlink($tmpKey);
+            $body = (string) $request->getBody();
+            self::assertStringContainsString('name="cer"', $body);
+            self::assertStringContainsString('name="key"', $body);
+            self::assertStringContainsString('name="password"', $body);
+            self::assertStringContainsString('CER_BYTES', $body);
+            self::assertStringContainsString('KEY_BYTES', $body);
+            self::assertStringContainsString('secret_password', $body);
+        } finally {
+            @unlink($tmpCer);
+            @unlink($tmpKey);
+        }
     }
 
     public function testUploadCertificateFailsWhenRequiredFieldsAreMissing(): void
