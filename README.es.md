@@ -7,7 +7,6 @@ Idioma: Español | [English](./README.md)
 [![Última Versión](https://img.shields.io/packagist/v/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 [![Versión de PHP](https://img.shields.io/packagist/php-v/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 [![Descargas Totales](https://img.shields.io/packagist/dt/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
-[![Descargas Mensuales](https://img.shields.io/packagist/dm/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 [![Licencia](https://img.shields.io/packagist/l/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 
 ## Instalación ⚡
@@ -24,6 +23,13 @@ require_once __DIR__ . '/path/to/facturapi-php/src/Facturapi.php';
 
 Requisitos:
 - PHP `>=8.2`
+
+## Compatibilidad con Versiones Anteriores de PHP
+
+Desde la versión **4.0.0**, el SDK requiere **PHP >= 8.2**.
+
+- Si tu proyecto ya usa PHP 8.2+, no necesitas cambios adicionales.
+- Si tu proyecto está en PHP 8.1 o menor, fija la versión **3.7.0** (última release compatible antes del requisito de PHP 8.2).
 
 ## Inicio Rápido 🚀
 

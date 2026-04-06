@@ -14,11 +14,21 @@
   "license": "MIT",
   "authors": [
     {
-      "name": "Jhonatan Laguna",
-      "email": "hola@jhonatanlaguna.com",
-      "homepage": "http://jhonatanlaguna.com"
+      "name": "Jhonatan Laguna"
+    },
+    {
+      "name": "Javier Rosas"
+    },
+    {
+      "name": "Raúl Sánchez"
     }
   ],
+  "support": {
+    "docs": "https://www.facturapi.io/docs",
+    "issues": "https://github.com/facturapi/facturapi-php/issues",
+    "source": "https://github.com/facturapi/facturapi-php",
+    "email": "contacto@facturapi.io"
+  },
   "require": {
     "php": ">=8.2",
     "guzzlehttp/guzzle": "^7.9",
