@@ -156,6 +156,18 @@ $results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
 ]);
 ```
 
+### Organizations: Set Default Series
+
+```php
+$result = $facturapi->Organizations->updateDefaultSeries(
+  'ORGANIZATION_ID',
+  [
+    'type' => 'I',
+    'series' => 'A',
+  ]
+);
+```
+
 ## Error Handling ⚠️
 
 On non-2xx responses, the SDK throws `Facturapi\Exceptions\FacturapiException`.
