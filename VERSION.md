@@ -1,6 +1,7 @@
-4.1.0
+4.2.0
 
 ## Added
+- `organizations.updateDefaultSeries($id, $params)` method to update an organization's default series.
 - Organization team/access management methods:
   - `listTeamAccess`, `retrieveTeamAccess`, `removeTeamAccess`
   - `listSentTeamInvites`, `inviteUserToTeam`, `cancelTeamInvite`
