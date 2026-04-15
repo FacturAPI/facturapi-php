@@ -431,6 +431,29 @@ class Organizations extends BaseClient
   }
 
   /**
+   * Update default series for an organization.
+   *
+   * @param string $id Organization ID.
+   * @param array $params Default series payload.
+   * @return mixed JSON-decoded response.
+   *
+   * @throws FacturapiException
+   */
+  public function updateDefaultSeries($id, $params): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeJsonPutRequest(
+          $this->getRequestUrl($id) . "/series-group/default-series",
+          $params
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
    * Delete a series group for an organization.
    *
    * @param string $id Organization ID.

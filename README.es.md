@@ -156,6 +156,18 @@ $results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
 ]);
 ```
 
+### Organizaciones: Definir Serie Por Defecto
+
+```php
+$result = $facturapi->Organizations->updateDefaultSeries(
+  'ORGANIZATION_ID',
+  [
+    'type' => 'I',
+    'series' => 'A',
+  ]
+);
+```
+
 ## Manejo de Errores ⚠️
 
 En respuestas no-2xx, el SDK lanza `Facturapi\Exceptions\FacturapiException`.
