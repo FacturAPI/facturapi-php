@@ -1,4 +1,8 @@
-4.2.0
-
+4.3.0
 ## Added
-- `organizations.updateDefaultSeries($id, $params)` method to update an organization's default series.
+- Added Carta Porte / Comercio Exterior constants classes:
+  - `CustomsRegimes`, `CveTransporteEnum`, `TipoEstacionEnum`, `PermisoSctEnum`, `SectorCofeprisEnum`
+  - `PharmaceuticalFormsEnum`, `SpecialConditionsEnum`, `MaterialTypeEnum`, `TypeOfCustomsDocumentEnum`
+  - `TransportTypeEnum`, `TransportFigureEnum`, `RegistroIstmoEnum`, `LoadingKey`, `ConfigMaritimaEnum`
+  - `RailTrafficTypeEnum`, `ContainerTypeEnum`, `MaritimeContainerTypeEnum`, `RailCarTypeEnum`, `RailServiceTypeEnum`
+  - `MotivoTrasladoEnum`, `IncotermEnum`, `UnidadAduanaEnum`
