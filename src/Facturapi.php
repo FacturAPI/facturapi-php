@@ -11,6 +11,7 @@ require_once __DIR__ . '/InvoiceRelation.php';
 require_once __DIR__ . '/InvoiceType.php';
 require_once __DIR__ . '/PaymentForm.php';
 require_once __DIR__ . '/TaxType.php';
+require_once __DIR__ . '/CartaPorteConstants.php';
 require_once __DIR__ . '/Resources/Customers.php';
 require_once __DIR__ . '/Resources/Organizations.php';
 require_once __DIR__ . '/Resources/Products.php';
