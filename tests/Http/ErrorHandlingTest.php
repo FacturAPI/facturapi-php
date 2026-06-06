@@ -17,6 +17,8 @@ final class ErrorHandlingTest extends TestCase
         $errorBody = [
             'message' => 'Request validation failed',
             'code' => 'validation_error',
+            'path' => 'customer.tax_id',
+            'location' => 'body',
             'details' => [
                 [
                     'path' => 'customer.tax_id',
@@ -24,10 +26,22 @@ final class ErrorHandlingTest extends TestCase
                     'code' => 'invalid_rfc',
                 ],
             ],
+            'errors' => [
+                [
+                    'path' => 'customer.tax_id',
+                    'location' => 'body',
+                    'message' => 'customer.tax_id must be a valid RFC',
+                    'code' => 'invalid_rfc',
+                ],
+            ],
         ];
 
         $httpClient = new FakeHttpClient(
-            new Response(422, ['Content-Type' => 'application/json'], json_encode($errorBody))
+            new Response(422, [
+                'Content-Type' => 'application/json',
+                'Retry-After' => '3',
+                'x-facturapi-log-id' => 'log_123',
+            ], json_encode($errorBody))
         );
 
         $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
@@ -43,6 +57,13 @@ final class ErrorHandlingTest extends TestCase
             self::assertSame(json_encode($errorBody), $exception->getRawBody());
 
             self::assertSame('validation_error', $exception->getErrorData()['code']);
+            self::assertSame('validation_error', $exception->getErrorCode());
+            self::assertSame('customer.tax_id', $exception->getErrorPath());
+            self::assertSame('body', $exception->getErrorLocation());
+            self::assertSame($errorBody['errors'], $exception->getErrors());
+            self::assertSame('log_123', $exception->getLogId());
+            self::assertSame('3', $exception->getResponseHeaders()['retry-after']);
+            self::assertSame('log_123', $exception->getResponseHeaders()['x-facturapi-log-id']);
             self::assertSame('customer.tax_id', $exception->getErrorData()['details'][0]['path']);
             self::assertSame('invalid_rfc', $exception->getErrorData()['details'][0]['code']);
         }
