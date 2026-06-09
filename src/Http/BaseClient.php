@@ -372,11 +372,21 @@ class BaseClient
 				null,
 				$errorData,
 				$this->lastStatus,
-				$output
+				$output,
+				$this->normalizeResponseHeaders($response->getHeaders())
 			);
 		}
 
 		return $output;
+	}
+
+	private function normalizeResponseHeaders(array $headers): array
+	{
+		$normalized = array();
+		foreach ($headers as $name => $values) {
+			$normalized[strtolower($name)] = is_array($values) ? implode(', ', $values) : (string) $values;
+		}
+		return $normalized;
 	}
 
 	/**

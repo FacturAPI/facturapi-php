@@ -98,12 +98,114 @@ jobs:
           git push origin "$TAG"
 
       - name: Create GitHub release
+        id: release
         if: steps.version.outputs.should_deploy == 'true'
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
           body_path: RELEASE_NOTES.md
+
+      - name: Notify Slack (success)
+        if: steps.version.outputs.should_deploy == 'true' && steps.release.outcome == 'success'
+        env:
+          SLACK_DEPLOY_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          VERSION: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_DEPLOY_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_DEPLOY_WEBHOOK_URL not set; skipping Slack notification"
+            exit 0
+          fi
+
+          node <<'JS'
+          const fs = require('node:fs');
+
+          const version = process.env.VERSION;
+          const releaseNotes = fs.existsSync('RELEASE_NOTES.md')
+            ? fs.readFileSync('RELEASE_NOTES.md', 'utf8').trim()
+            : 'See release notes for details.';
+
+          fs.writeFileSync('/tmp/slack_payload.json', JSON.stringify({
+            text: `Facturapi PHP SDK ${version} released`,
+            blocks: [
+              {
+                type: 'header',
+                text: {
+                  type: 'plain_text',
+                  text: `PHP SDK ${version} released`,
+                },
+              },
+              {
+                type: 'section',
+                fields: [
+                  { type: 'mrkdwn', text: `*Package:* \`facturapi/facturapi-php:${version}\`` },
+                  { type: 'mrkdwn', text: `*Branch:* \`${process.env.GITHUB_REF_NAME}\`` },
+                  { type: 'mrkdwn', text: `*Commit:* \`${process.env.GITHUB_SHA}\`` },
+                  { type: 'mrkdwn', text: `*Actor:* \`${process.env.GITHUB_ACTOR}\`` },
+                ],
+              },
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: [
+                    '*Useful links*',
+                    `• Packagist: <https://packagist.org/packages/facturapi/facturapi-php#${version}|View package>`,
+                    `• GitHub release: <${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/releases/tag/${version}|Open release>`,
+                    `• Workflow run: <${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}|Open run>`,
+                  ].join('\n'),
+                },
+              },
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: `*Latest changes*\n${releaseNotes}`,
+                },
+              },
+            ],
+          }));
+          JS
+
+          curl -sS -X POST -H "Content-type: application/json" --data "@/tmp/slack_payload.json" "$SLACK_DEPLOY_WEBHOOK_URL" || true
+
+      - name: Notify Slack (failure)
+        if: failure() && steps.version.outputs.should_deploy == 'true'
+        env:
+          SLACK_DEPLOY_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK_URL }}
+          VERSION: ${{ steps.version.outputs.tag }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${SLACK_DEPLOY_WEBHOOK_URL:-}" ]; then
+            echo "SLACK_DEPLOY_WEBHOOK_URL not set; skipping Slack notification"
+            exit 0
+          fi
+
+          node <<'JS'
+          const fs = require('node:fs');
+
+          fs.writeFileSync('/tmp/slack_payload_failure.json', JSON.stringify({
+            text: `Facturapi PHP SDK ${process.env.VERSION} release failed`,
+            blocks: [
+              {
+                type: 'section',
+                text: {
+                  type: 'mrkdwn',
+                  text: [
+                    `*PHP SDK ${process.env.VERSION} release failed*`,
+                    `• Workflow run: <${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}|Open run>`,
+                    `• Commit: \`${process.env.GITHUB_SHA}\``,
+                  ].join('\n'),
+                },
+              },
+            ],
+          }));
+          JS
+
+          curl -sS -X POST -H "Content-type: application/json" --data "@/tmp/slack_payload_failure.json" "$SLACK_DEPLOY_WEBHOOK_URL" || true
 
       - name: Deploy skipped
         if: steps.version.outputs.should_deploy != 'true'
