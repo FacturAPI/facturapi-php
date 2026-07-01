@@ -66,18 +66,97 @@ class Retentions extends BaseClient
 	 * Cancels a Retention
 	 *
 	 * @param string $id Retention ID.
-	 * @param array $query URL query parameters.
+	 * @param array|null $query URL query parameters.
 	 * @return mixed JSON-decoded response.
 	 *
 	 * @throws FacturapiException
 	 */
-	public function cancel($id, $query): mixed
+	public function cancel($id, $query = null): mixed
 	{
 		try {
 			return json_decode($this->executeDeleteRequest($this->getRequestUrl($id, $query), null));
 		} catch (FacturapiException $e) {
 			throw $e;
 		}
+	}
+
+	/**
+	 * Updates a Retention with "draft" status
+	 *
+	 * @param string $id Retention ID.
+	 * @param array $body Draft payload.
+	 * @return mixed JSON-decoded response.
+	 *
+	 * @throws FacturapiException
+	 */
+	public function updateDraft($id, $body): mixed
+	{
+		try {
+			return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id), $body));
+		} catch (FacturapiException $e) {
+			throw $e;
+		}
+	}
+
+	/**
+	 * @deprecated Use updateDraft() instead. Will be removed in v5.
+	 */
+	public function update_draft($id, $body): mixed
+	{
+		trigger_error('Retentions::update_draft() is deprecated and will be removed in v5. Use updateDraft() instead.', E_USER_DEPRECATED);
+		return $this->updateDraft($id, $body);
+	}
+
+	/**
+	 * Creates a new draft Retention copying the information from the specified Retention
+	 *
+	 * @param string $id Retention ID.
+	 * @return mixed JSON-decoded response.
+	 *
+	 * @throws FacturapiException
+	 */
+	public function copyToDraft($id): mixed
+	{
+		try {
+			return json_decode($this->executeJsonPostRequest($this->getRequestUrl($id . "/copy"), null));
+		} catch (FacturapiException $e) {
+			throw $e;
+		}
+	}
+
+	/**
+	 * @deprecated Use copyToDraft() instead. Will be removed in v5.
+	 */
+	public function copy_to_draft($id): mixed
+	{
+		trigger_error('Retentions::copy_to_draft() is deprecated and will be removed in v5. Use copyToDraft() instead.', E_USER_DEPRECATED);
+		return $this->copyToDraft($id);
+	}
+
+	/**
+	 * Stamps a draft Retention
+	 *
+	 * @param string $id Retention ID.
+	 * @return mixed JSON-decoded response.
+	 *
+	 * @throws FacturapiException
+	 */
+	public function stampDraft($id): mixed
+	{
+		try {
+			return json_decode($this->executeJsonPostRequest($this->getRequestUrl($id . "/stamp"), null));
+		} catch (FacturapiException $e) {
+			throw $e;
+		}
+	}
+
+	/**
+	 * @deprecated Use stampDraft() instead. Will be removed in v5.
+	 */
+	public function stamp_draft($id): mixed
+	{
+		trigger_error('Retentions::stamp_draft() is deprecated and will be removed in v5. Use stampDraft() instead.', E_USER_DEPRECATED);
+		return $this->stampDraft($id);
 	}
 
 	/**
