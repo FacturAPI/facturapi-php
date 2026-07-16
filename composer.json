@@ -40,7 +40,10 @@
   "autoload": {
     "psr-4": {
       "Facturapi\\": "src/"
-    }
+    },
+    "files": [
+      "src/ErrorCodes.php"
+    ]
   },
   "minimum-stability": "stable"
 }

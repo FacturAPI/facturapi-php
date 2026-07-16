@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Facturapi\Tests\Http;
 
 use Facturapi\Exceptions\FacturapiException;
+use Facturapi\RequestErrorCode;
 use Facturapi\Resources\Invoices;
 use Facturapi\Tests\Support\FakeHttpClient;
 use GuzzleHttp\Psr7\Response;
@@ -16,16 +17,9 @@ final class ErrorHandlingTest extends TestCase
     {
         $errorBody = [
             'message' => 'Request validation failed',
-            'code' => 'validation_error',
+            'code' => 'invalid_request',
             'path' => 'customer.tax_id',
             'location' => 'body',
-            'details' => [
-                [
-                    'path' => 'customer.tax_id',
-                    'message' => 'customer.tax_id must be a valid RFC',
-                    'code' => 'invalid_rfc',
-                ],
-            ],
             'errors' => [
                 [
                     'path' => 'customer.tax_id',
@@ -56,16 +50,15 @@ final class ErrorHandlingTest extends TestCase
             self::assertSame($errorBody, $exception->getResponseData());
             self::assertSame(json_encode($errorBody), $exception->getRawBody());
 
-            self::assertSame('validation_error', $exception->getErrorData()['code']);
-            self::assertSame('validation_error', $exception->getErrorCode());
+            self::assertSame(RequestErrorCode::INVALID_REQUEST, $exception->getErrorData()['code']);
+            self::assertSame(RequestErrorCode::INVALID_REQUEST, $exception->getErrorCode());
+            self::assertSame(RequestErrorCode::INVALID_REQUEST, $exception->getApiErrorCode());
             self::assertSame('customer.tax_id', $exception->getErrorPath());
             self::assertSame('body', $exception->getErrorLocation());
             self::assertSame($errorBody['errors'], $exception->getErrors());
             self::assertSame('log_123', $exception->getLogId());
             self::assertSame('3', $exception->getResponseHeaders()['retry-after']);
             self::assertSame('log_123', $exception->getResponseHeaders()['x-facturapi-log-id']);
-            self::assertSame('customer.tax_id', $exception->getErrorData()['details'][0]['path']);
-            self::assertSame('invalid_rfc', $exception->getErrorData()['details'][0]['code']);
         }
     }
 

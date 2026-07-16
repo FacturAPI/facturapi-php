@@ -53,6 +53,17 @@ class FacturapiException extends Exception
 		return is_array($this->errorData) ? ($this->errorData['code'] ?? null) : null;
 	}
 
+	/**
+	 * Returns the documented V2 API root error code when the response contains one.
+	 * getErrorCode() remains available for compatibility with older API responses.
+	 */
+	public function getApiErrorCode(): ?string
+	{
+		return is_array($this->errorData) && is_string($this->errorData['code'] ?? null)
+			? $this->errorData['code']
+			: null;
+	}
+
 	public function getErrorPath(): ?string
 	{
 		return is_array($this->errorData) && is_string($this->errorData['path'] ?? null)

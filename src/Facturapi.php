@@ -6,6 +6,7 @@ namespace Facturapi;
 // Composer/PSR-4 users can continue relying on autoloading.
 require_once __DIR__ . '/Http/BaseClient.php';
 require_once __DIR__ . '/Exceptions/FacturapiException.php';
+require_once __DIR__ . '/ErrorCodes.php';
 require_once __DIR__ . '/Exceptions/Facturapi_Exception.php';
 require_once __DIR__ . '/InvoiceRelation.php';
 require_once __DIR__ . '/InvoiceType.php';
