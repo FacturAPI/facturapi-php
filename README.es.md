@@ -175,7 +175,7 @@ En respuestas no-2xx, el SDK lanza `Facturapi\Exceptions\FacturapiException`.
 La excepción incluye:
 - `getMessage()`: mensaje del API cuando está disponible.
 - `getStatusCode()`: código HTTP.
-- `getApiErrorCode()`: código raíz documentado de V2 cuando está disponible.
+- `getErrorCode()`: código raíz documentado de V2 cuando está disponible.
 - `getErrorData()`: payload JSON decodificado del error (shape completo del API).
 - `getRawBody()`: cuerpo crudo de la respuesta.
 
@@ -189,7 +189,7 @@ try {
   $status = $e->getStatusCode();
   $error = $e->getErrorData(); // Shape completo del error del API cuando el body es JSON válido.
   $firstDetail = $error['errors'][0] ?? null; // p.ej. ['path' => 'items.0.quantity', 'message' => '...', 'code' => '...']
-  $retryAfter = $e->getApiErrorCode() === RequestErrorCode::RATE_LIMIT_EXCEEDED
+  $retryAfter = $e->getErrorCode() === RequestErrorCode::RATE_LIMIT_EXCEEDED
     ? ($e->getResponseHeaders()['retry-after'] ?? null)
     : null;
 }

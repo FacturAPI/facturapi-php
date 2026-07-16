@@ -52,7 +52,6 @@ final class ErrorHandlingTest extends TestCase
 
             self::assertSame(RequestErrorCode::INVALID_REQUEST, $exception->getErrorData()['code']);
             self::assertSame(RequestErrorCode::INVALID_REQUEST, $exception->getErrorCode());
-            self::assertSame(RequestErrorCode::INVALID_REQUEST, $exception->getApiErrorCode());
             self::assertSame('customer.tax_id', $exception->getErrorPath());
             self::assertSame('body', $exception->getErrorLocation());
             self::assertSame($errorBody['errors'], $exception->getErrors());
@@ -81,5 +80,12 @@ final class ErrorHandlingTest extends TestCase
             self::assertNull($exception->getErrorData());
             self::assertSame($rawBody, $exception->getRawBody());
         }
+    }
+
+    public function testNumericRootErrorCodeIsIgnored(): void
+    {
+        $exception = new FacturapiException(errorData: ['code' => 400]);
+
+        self::assertNull($exception->getErrorCode());
     }
 }

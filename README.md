@@ -175,7 +175,7 @@ On non-2xx responses, the SDK throws `Facturapi\Exceptions\FacturapiException`.
 The exception includes:
 - `getMessage()`: API error message when present.
 - `getStatusCode()`: HTTP status code.
-- `getApiErrorCode()`: documented V2 root error code when present.
+- `getErrorCode()`: documented V2 root error code when present.
 - `getErrorData()`: decoded JSON error payload (full API shape).
 - `getRawBody()`: raw response body string.
 
@@ -189,7 +189,7 @@ try {
   $status = $e->getStatusCode();
   $error = $e->getErrorData(); // Full API error shape when body is valid JSON.
   $firstDetail = $error['errors'][0] ?? null; // e.g. ['path' => 'items.0.quantity', 'message' => '...', 'code' => '...']
-  $retryAfter = $e->getApiErrorCode() === RequestErrorCode::RATE_LIMIT_EXCEEDED
+  $retryAfter = $e->getErrorCode() === RequestErrorCode::RATE_LIMIT_EXCEEDED
     ? ($e->getResponseHeaders()['retry-after'] ?? null)
     : null;
 }
