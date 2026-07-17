@@ -1,3 +1,8 @@
+4.7.1
+
+## Fixed
+- Return numeric API error codes as strings.
+
 4.7.0
 
 ## Added
