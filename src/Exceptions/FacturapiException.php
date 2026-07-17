@@ -63,8 +63,7 @@ class FacturapiException extends Exception
 			return $code;
 		}
 
-		$encoded = json_encode($code);
-		return $encoded === false ? null : $encoded;
+		return is_int($code) || is_float($code) ? (string) $code : null;
 	}
 
 	public function getErrorPath(): ?string
