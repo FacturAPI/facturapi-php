@@ -1,3 +1,9 @@
+4.6.0
+
+## Added
+- Add draft support methods for retentions: `updateDraft()`, `copyToDraft()`, and `stampDraft()`.
+- Allow `Retentions::cancel()` to be called without query parameters for deleting draft retentions.
+
 4.5.0
 
 ## Added
