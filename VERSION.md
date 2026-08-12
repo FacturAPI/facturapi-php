@@ -1,3 +1,8 @@
+4.7.0
+
+## Added
+- Add invoice ZIP request methods: `createZipRequest()`, `listZipRequests()`, `retrieveZipRequest()`, and `downloadZipRequest()`.
+
 4.6.0
 
 ## Added

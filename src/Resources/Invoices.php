@@ -123,6 +123,66 @@ class Invoices extends BaseClient {
 	}
 
 	/**
+	 * Creates or retrieves an invoice ZIP request
+	 *
+	 * @param array $body ZIP request payload.
+	 * @return mixed JSON-decoded response.
+	 * @throws FacturapiException
+	 */
+	public function createZipRequest( $body ): mixed {
+		try {
+			return json_decode( $this->executeJsonPostRequest( $this->getRequestUrl( "zip-requests" ), $body ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
+		}
+	}
+
+	/**
+	 * Lists invoice ZIP requests
+	 *
+	 * @param array|null $query Query parameters.
+	 * @return mixed JSON-decoded response.
+	 * @throws FacturapiException
+	 */
+	public function listZipRequests( $query = null ): mixed {
+		try {
+			return json_decode( $this->executeGetRequest( $this->getRequestUrl( "zip-requests", $query ) ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
+		}
+	}
+
+	/**
+	 * Retrieves an invoice ZIP request by ID
+	 *
+	 * @param string $id ZIP request ID.
+	 * @return mixed JSON-decoded response.
+	 * @throws FacturapiException
+	 */
+	public function retrieveZipRequest( $id ): mixed {
+		try {
+			return json_decode( $this->executeGetRequest( $this->getRequestUrl( "zip-requests/" . $id ) ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
+		}
+	}
+
+	/**
+	 * Downloads a completed invoice ZIP request
+	 *
+	 * @param string $id ZIP request ID.
+	 * @return string ZIP file contents.
+	 * @throws FacturapiException
+	 */
+	public function downloadZipRequest( $id ): string {
+		try {
+			return $this->executeGetRequest( $this->getRequestUrl( "zip-requests/" . $id . "/zip" ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
+		}
+	}
+
+	/**
 	 * Downloads the specified invoice in a PDF file
 	 *
 	 * @param string $id Invoice ID.

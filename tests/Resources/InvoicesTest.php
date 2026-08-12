@@ -72,4 +72,73 @@ final class InvoicesTest extends TestCase
             (string) $request->getUri()
         );
     }
+
+    public function testCreateZipRequestUsesExpectedPathAndJsonBody(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"id":"zip_123"}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $payload = [
+            'year' => 2025,
+            'month' => 3,
+            'issuer_type' => 'issuing',
+            'invoice_types' => ['I', 'E'],
+        ];
+
+        $result = $invoices->createZipRequest($payload);
+
+        self::assertSame('zip_123', $result->id);
+        $request = $httpClient->requests()[0];
+        self::assertSame('POST', $request->getMethod());
+        self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests', (string) $request->getUri());
+        self::assertSame('application/json', $request->getHeaderLine('Content-Type'));
+        self::assertSame($payload, json_decode((string) $request->getBody(), true));
+    }
+
+    public function testListZipRequestsUsesExpectedPathAndQuery(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $result = $invoices->listZipRequests([
+            'year' => 2025,
+            'month' => 3,
+            'status' => 'finished',
+            'limit' => 20,
+            'page' => 1,
+        ]);
+
+        self::assertSame([], $result->data);
+        $request = $httpClient->requests()[0];
+        self::assertSame('GET', $request->getMethod());
+        self::assertSame(
+            'https://www.facturapi.io/v2/invoices/zip-requests?year=2025&month=3&status=finished&limit=20&page=1',
+            (string) $request->getUri()
+        );
+    }
+
+    public function testRetrieveZipRequestUsesExpectedPath(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"id":"zip_123"}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $result = $invoices->retrieveZipRequest('zip_123');
+
+        self::assertSame('zip_123', $result->id);
+        $request = $httpClient->requests()[0];
+        self::assertSame('GET', $request->getMethod());
+        self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests/zip_123', (string) $request->getUri());
+    }
+
+    public function testDownloadZipRequestReturnsBinaryContentsFromExpectedPath(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], 'ZIP_BINARY_CONTENT'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $result = $invoices->downloadZipRequest('zip_123');
+
+        self::assertSame('ZIP_BINARY_CONTENT', $result);
+        $request = $httpClient->requests()[0];
+        self::assertSame('GET', $request->getMethod());
+        self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests/zip_123/zip', (string) $request->getUri());
+    }
 }
