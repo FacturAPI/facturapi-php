@@ -48,9 +48,22 @@ class FacturapiException extends Exception
 		return $this->rawBody;
 	}
 
-	public function getErrorCode(): mixed
+	public function getErrorCode(): ?string
 	{
-		return is_array($this->errorData) ? ($this->errorData['code'] ?? null) : null;
+		if (!is_array($this->errorData) || !array_key_exists('code', $this->errorData)) {
+			return null;
+		}
+
+		$code = $this->errorData['code'];
+		if ($code === null) {
+			return null;
+		}
+
+		if (is_string($code)) {
+			return $code;
+		}
+
+		return is_int($code) || is_float($code) ? (string) $code : null;
 	}
 
 	public function getErrorPath(): ?string

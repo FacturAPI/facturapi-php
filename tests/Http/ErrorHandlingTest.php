@@ -89,4 +89,20 @@ final class ErrorHandlingTest extends TestCase
             self::assertSame($rawBody, $exception->getRawBody());
         }
     }
+
+    public function testNumericApiErrorCodesAreConvertedToStrings(): void
+    {
+        $httpClient = new FakeHttpClient(
+            new Response(400, ['Content-Type' => 'application/json'], '{"code": 400}')
+        );
+
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        try {
+            $invoices->create(['customer' => []]);
+            self::fail('Expected FacturapiException to be thrown.');
+        } catch (FacturapiException $exception) {
+            self::assertSame('400', $exception->getErrorCode());
+        }
+    }
 }
