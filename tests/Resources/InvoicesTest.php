@@ -141,4 +141,32 @@ final class InvoicesTest extends TestCase
         self::assertSame('GET', $request->getMethod());
         self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests/zip_123/zip', (string) $request->getUri());
     }
+
+    public function testPaymentSummaryUsesExpectedPathAndQueryParameter(): void
+    {
+        $summary = [
+            'uuid' => '6CF6CE33-1BD2-4F88-A443-33013C069169',
+            'installment' => 1,
+            'last_balance' => 100.0,
+            'total' => 100.0,
+            'currency' => 'MXN',
+            'amount' => 58.0,
+            'taxes' => [
+                ['base' => 50.0, 'rate' => 0.16, 'type' => 'IVA', 'factor' => 'Tasa', 'withholding' => false],
+            ],
+        ];
+        $httpClient = new FakeHttpClient(new Response(200, [], json_encode($summary)));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $result = $invoices->paymentSummary('inv_123', 58.0);
+
+        self::assertSame('6CF6CE33-1BD2-4F88-A443-33013C069169', $result->uuid);
+        self::assertSame(1, $result->installment);
+        self::assertSame(50.0, (float) $result->taxes[0]->base);
+
+        $request = $httpClient->requests()[0];
+        self::assertSame('GET', $request->getMethod());
+        self::assertSame('https://www.facturapi.io/v2/invoices/inv_123/payment-summary?amount=58', (string) $request->getUri());
+        self::assertSame('Basic ' . base64_encode('sk_test_abc123:'), $request->getHeaderLine('Authorization'));
+    }
 }
