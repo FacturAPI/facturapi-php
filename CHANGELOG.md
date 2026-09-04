@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add `invoices.paymentSummary` to get the related-document object needed to build a payment complement (complemento de pago): installment number, previous balance, and taxes prorated to the paid amount.
 
+## [4.7.1] 2026-08-24
+
 ### Fixed
 
 - Return API error codes as strings and only normalize numeric API error codes.
