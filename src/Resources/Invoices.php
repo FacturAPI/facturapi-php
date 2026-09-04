@@ -40,6 +40,25 @@ class Invoices extends BaseClient {
 	}
 
 	/**
+	 * Gets the information needed to add this invoice as a related document in a
+	 * payment complement (complemento de pago): the installment number according
+	 * to the payment history, the previous balance, and the invoice tax breakdown
+	 * prorated to the amount being paid.
+	 *
+	 * @param string $id Invoice ID.
+	 * @param float $amount Amount being paid, expressed in the invoice currency. Cannot exceed the outstanding balance.
+	 * @return mixed JSON-decoded related document summary.
+	 * @throws FacturapiException
+	 */
+	public function paymentSummary( $id, $amount ): mixed {
+		try {
+			return json_decode( $this->executeGetRequest( $this->getRequestUrl( $id . '/payment-summary', array( 'amount' => $amount ) ) ) );
+		} catch ( FacturapiException $e ) {
+			throw $e;
+		}
+	}
+
+	/**
 	 * Create an Invoice in your organization
 	 *
 	 * @param array $body Invoice payload.
