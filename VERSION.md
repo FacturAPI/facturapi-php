@@ -1,3 +1,8 @@
+4.8.0
+
+## Added
+- Add `invoices.paymentSummary()` to get the related-document object needed to build a payment complement (complemento de pago): installment number, previous balance, and taxes prorated to the paid amount.
+
 4.7.1
 
 ## Fixed
@@ -7,14 +12,3 @@
 
 ## Added
 - Add invoice ZIP request methods: `createZipRequest()`, `listZipRequests()`, `retrieveZipRequest()`, and `downloadZipRequest()`.
-
-4.6.0
-
-## Added
-- Add draft support methods for retentions: `updateDraft()`, `copyToDraft()`, and `stampDraft()`.
-- Allow `Retentions::cancel()` to be called without query parameters for deleting draft retentions.
-
-4.5.0
-
-## Added
-- Expose structured API error metadata on `FacturapiException`, including `code`, `path`, `location`, `errors`, `logId`, and response headers.
