@@ -4,6 +4,11 @@ declare(strict_types=1);
 
 namespace Facturapi\Tests\Http;
 
+use Facturapi\Facturapi;
+use GuzzleHttp\Client;
+use GuzzleHttp\Handler\MockHandler;
+use GuzzleHttp\HandlerStack;
+use GuzzleHttp\Middleware;
 use Facturapi\Exceptions\FacturapiException;
 use Facturapi\Resources\Invoices;
 use Facturapi\Tests\Support\FakeHttpClient;
@@ -12,6 +17,37 @@ use PHPUnit\Framework\TestCase;
 
 final class ErrorHandlingTest extends TestCase
 {
+    public function testGuzzleDefaultLanguageHeaderIsSentWithSdkAuthentication(): void
+    {
+        $history = [];
+        $stack = HandlerStack::create(new MockHandler([
+            new Response(401, ['Content-Type' => 'application/json'], json_encode([
+                'message' => 'The provided API key is invalid.',
+                'code' => 'api_key_invalid',
+                'status' => 401,
+            ])),
+        ]));
+        $stack->push(Middleware::history($history));
+        $facturapi = new Facturapi('sk_test_123', [
+            'httpClient' => new Client([
+                'handler' => $stack,
+                'headers' => ['Accept-Language' => 'en-US'],
+                'timeout' => 360,
+                'connect_timeout' => 3,
+            ]),
+        ]);
+
+        try {
+            $facturapi->Invoices->retrieve('inv_123');
+            self::fail('Expected FacturapiException');
+        } catch (FacturapiException $exception) {
+            self::assertSame('The provided API key is invalid.', $exception->getMessage());
+            self::assertSame('api_key_invalid', $exception->getErrorCode());
+        }
+        self::assertSame('en-US', $history[0]['request']->getHeaderLine('Accept-Language'));
+        self::assertSame('Basic ' . base64_encode('sk_test_123:'), $history[0]['request']->getHeaderLine('Authorization'));
+    }
+
     public function testApiErrorShapeIsFullyAvailableOnException(): void
     {
         $errorBody = [

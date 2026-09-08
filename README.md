@@ -200,6 +200,25 @@ try {
 - `Facturapi\\Exceptions\\Facturapi_Exception` is deprecated in v4 and will be removed in v5.
 - Use `Facturapi\\Exceptions\\FacturapiException`.
 
+## API error language
+
+For API V2, request English error messages with `Accept-Language` using the existing client configuration:
+
+```php
+use Facturapi\Facturapi;
+use GuzzleHttp\Client;
+
+$facturapi = new Facturapi('YOUR_API_KEY', [
+    'httpClient' => new Client([
+        'headers' => ['Accept-Language' => 'en'],
+        'timeout' => 360,
+        'connect_timeout' => 3,
+    ]),
+]);
+```
+
+Use `es` for Spanish. Regional variants such as `en-US` and preferences such as `en;q=0.9, es;q=0.5` are also supported. Missing or unsupported language preferences fall back to Spanish. The setting applies to all requests from this instance; use separate instances for different languages. Codes remain unchanged, and external SAT/PAC messages and uncataloged legacy messages retain their original language. Localization requires server-side API V2 support; it does not translate local SDK errors.
+
 ## Documentation 📚
 
 Full docs: [https://docs.facturapi.io](https://docs.facturapi.io)
