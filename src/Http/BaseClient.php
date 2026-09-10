@@ -319,17 +319,51 @@ class BaseClient
 
 		$parts = array();
 		foreach ($params as $parameter => $value) {
-			if (is_array($value)) {
-				foreach ($value as $key => $sub_param) {
-					$parts[] = $parameter . '[' . $key . ']' . '=' . urlencode((string) $sub_param);
-				}
-			} else {
-				$param = is_bool($value) ? ($value ? 'true' : 'false') : urlencode((string) $value);
-				$parts[] = $parameter . '=' . $param;
-			}
+			$this->appendQueryParam($parts, (string) $parameter, $value);
 		}
 
 		return empty($parts) ? '' : '?' . implode('&', $parts);
+	}
+
+	/**
+	 * Appends one query parameter using the encoding the API documents and the
+	 * other SDKs send: lists repeat the key (`status=a&status=b`), associative
+	 * arrays use bracket notation (`date[gte]=...`) and `null` values are
+	 * omitted instead of being sent empty.
+	 *
+	 * @param array<int, string> $parts Accumulated `key=value` pairs.
+	 * @param string $parameter Query parameter name.
+	 * @param mixed $value Value to serialize.
+	 * @return void
+	 */
+	private function appendQueryParam(array &$parts, string $parameter, $value): void
+	{
+		if ($value === null) {
+			return;
+		}
+
+		if (is_array($value)) {
+			if (array_is_list($value)) {
+				foreach ($value as $item) {
+					$this->appendQueryParam($parts, $parameter, $item);
+				}
+
+				return;
+			}
+
+			foreach ($value as $key => $sub_param) {
+				$this->appendQueryParam($parts, $parameter . '[' . $key . ']', $sub_param);
+			}
+
+			return;
+		}
+
+		if (is_bool($value)) {
+			$parts[] = $parameter . '=' . ($value ? 'true' : 'false');
+			return;
+		}
+
+		$parts[] = $parameter . '=' . urlencode((string) $value);
 	}
 
 	/**

@@ -57,6 +57,49 @@ final class InvoicesTest extends TestCase
         );
     }
 
+    public function testAllRepeatsTheKeyForListQueryParameters(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $invoices->all([
+            'status' => ['valid', 'canceled'],
+        ]);
+
+        $request = $httpClient->requests()[0];
+        self::assertSame(
+            'status=valid&status=canceled',
+            urldecode($request->getUri()->getQuery())
+        );
+    }
+
+    public function testAllOmitsNullQueryParameters(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $invoices->all([
+            'q' => null,
+            'page' => 2,
+        ]);
+
+        $request = $httpClient->requests()[0];
+        self::assertSame('page=2', urldecode($request->getUri()->getQuery()));
+    }
+
+    public function testAllSendsExplicitEmptyQueryValues(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
+        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $invoices->all([
+            'q' => '',
+        ]);
+
+        $request = $httpClient->requests()[0];
+        self::assertSame('q=', urldecode($request->getUri()->getQuery()));
+    }
+
     public function testAllUrlEncodesScalarQueryValues(): void
     {
         $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
