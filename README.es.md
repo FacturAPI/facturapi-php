@@ -156,6 +156,13 @@ $results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
 ]);
 ```
 
+### Catálogos de Nómina
+
+```php
+$deductions = $facturapi->NominaCatalogs->searchDeductions(["q" => "001"]);
+$perceptions = $facturapi->NominaCatalogs->searchPerceptions(["q" => "001"]);
+```
+
 ### Organizaciones: Definir Serie Por Defecto
 
 ```php
