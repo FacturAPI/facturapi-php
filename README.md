@@ -156,6 +156,13 @@ $results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
 ]);
 ```
 
+### Payroll Catalogs
+
+```php
+$deductions = $facturapi->NominaCatalogs->searchDeductions(["q" => "001"]);
+$perceptions = $facturapi->NominaCatalogs->searchPerceptions(["q" => "001"]);
+```
+
 ### Organizations: Set Default Series
 
 ```php
