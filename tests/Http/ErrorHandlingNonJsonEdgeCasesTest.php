@@ -1,75 +1,51 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Facturapi\Tests\Http;
-
 use Facturapi\Exceptions\FacturapiException;
-use Facturapi\Resources\Invoices;
-use Facturapi\Tests\Support\FakeHttpClient;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 
-final class ErrorHandlingNonJsonEdgeCasesTest extends TestCase
-{
-    public function testInvalidJsonErrorBodyPreservesRawBody(): void
-    {
+describe('ErrorHandlingNonJsonEdgeCases', function () {
+    test('invalid json error body preserves raw body', function () {
         $rawBody = '{"message": "broken"';
 
-        $httpClient = new FakeHttpClient(
-            new Response(500, ['Content-Type' => 'application/json'], $rawBody)
-        );
+        mockResponse($rawBody, 500, ['Content-Type' => 'application/json']);
 
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $invoices = test()->facturapi->invoices();
 
-        try {
-            $invoices->create(['customer' => []]);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame(500, $exception->getStatusCode());
-            self::assertSame($rawBody, $exception->getMessage());
-            self::assertNull($exception->getErrorData());
-            self::assertSame($rawBody, $exception->getRawBody());
-        }
-    }
+        expect(fn () => $invoices->create(['customer' => []]))
+            ->toThrow(function (FacturapiException $exception) use ($rawBody) {
+                expect($exception->getStatusCode())->toBe(500);
+                expect($exception->getMessage())->toBe($rawBody);
+                expect($exception->getErrorData())->toBeNull();
+                expect($exception->getRawBody())->toBe($rawBody);
+            });
+    });
+    test('empty error body is exposed as empty string', function () {
+        mockResponse('', 500, ['Content-Type' => 'text/plain']);
 
-    public function testEmptyErrorBodyIsExposedAsEmptyString(): void
-    {
-        $httpClient = new FakeHttpClient(
-            new Response(500, ['Content-Type' => 'text/plain'], '')
-        );
+        $invoices = test()->facturapi->invoices();
 
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
-
-        try {
-            $invoices->create(['customer' => []]);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame(500, $exception->getStatusCode());
-            self::assertSame('', $exception->getMessage());
-            self::assertNull($exception->getErrorData());
-            self::assertSame('', $exception->getRawBody());
-        }
-    }
-
-    public function testPlainTextErrorBodyIsPreserved(): void
-    {
+        expect(fn () => $invoices->create(['customer' => []]))
+            ->toThrow(function (FacturapiException $exception) {
+                expect($exception->getStatusCode())->toBe(500);
+                expect($exception->getMessage())->toBe('');
+                expect($exception->getErrorData())->toBeNull();
+                expect($exception->getRawBody())->toBe('');
+            });
+    });
+    test('plain text error body is preserved', function () {
         $rawBody = 'gateway overloaded, retry later';
 
-        $httpClient = new FakeHttpClient(
-            new Response(503, ['Content-Type' => 'text/plain'], $rawBody)
-        );
+        mockResponse($rawBody, 503, ['Content-Type' => 'text/plain']);
 
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $invoices = test()->facturapi->invoices();
 
-        try {
-            $invoices->create(['customer' => []]);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame(503, $exception->getStatusCode());
-            self::assertSame($rawBody, $exception->getMessage());
-            self::assertNull($exception->getErrorData());
-            self::assertSame($rawBody, $exception->getRawBody());
-        }
-    }
-}
+        expect(fn () => $invoices->create(['customer' => []]))
+            ->toThrow(function (FacturapiException $exception) use ($rawBody) {
+                expect($exception->getStatusCode())->toBe(503);
+                expect($exception->getMessage())->toBe($rawBody);
+                expect($exception->getErrorData())->toBeNull();
+                expect($exception->getRawBody())->toBe($rawBody);
+            });
+    });
+
+});

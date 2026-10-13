@@ -97,6 +97,22 @@ jobs:
           git tag "$TAG"
           git push origin "$TAG"
 
+      - name: Build Standalone ZIP
+        if: steps.version.outputs.should_deploy == 'true'
+        run: |
+          mkdir -p build-standalone
+          cp -r src build-standalone/
+          cp composer.json build-standalone/
+          
+          cd build-standalone
+          composer require guzzlehttp/guzzle --no-interaction
+          composer install --no-dev --optimize-autoloader --no-interaction
+          
+          echo "<?php require_once __DIR__ . '/vendor/autoload.php';" > autoload.php
+          
+          zip -r ../facturapi-php-standalone.zip src vendor autoload.php
+          cd ..
+
       - name: Create GitHub release
         id: release
         if: steps.version.outputs.should_deploy == 'true'
@@ -105,6 +121,7 @@ jobs:
           tag_name: ${{ steps.version.outputs.tag }}
           name: ${{ steps.version.outputs.tag }}
           body_path: RELEASE_NOTES.md
+          files: facturapi-php-standalone.zip
 
       - name: Notify Slack (success)
         if: steps.version.outputs.should_deploy == 'true' && steps.release.outcome == 'success'

@@ -21,6 +21,9 @@
     },
     {
       "name": "Raúl Sánchez"
+    },
+    {
+      "name": "Arturo Ortega (macarthuror)"
     }
   ],
   "support": {
@@ -31,16 +34,45 @@
   },
   "require": {
     "php": ">=8.2",
-    "guzzlehttp/guzzle": "^7.9",
-    "psr/http-client": "^1.0"
+    "psr/http-client": "^1.0",
+    "psr/http-factory": "^1.0",
+    "php-http/discovery": "^1.19",
+    "php-http/multipart-stream-builder": "^1.4"
   },
   "require-dev": {
-    "phpunit/phpunit": "^11.5"
+    "guzzlehttp/guzzle": "^8.0",
+    "pestphp/pest": "^5.3",
+    "phpstan/phpstan": "^2.2",
+    "phpstan/phpstan-strict-rules": "^2.0",
+    "laravel/pint": "^1.13",
+    "rector/rector": "*",
+    "phpstan/phpstan-deprecation-rules": "^2.0"
   },
   "autoload": {
     "psr-4": {
       "Facturapi\\": "src/"
     }
   },
-  "minimum-stability": "stable"
+  "minimum-stability": "stable",
+  "scripts": {
+    "test": "pest",
+    "format": "pint",
+    "format:test": "pint --test",
+    "analyze": "phpstan analyse --memory-limit=2G --debug",
+    "lint": [
+        "@format:test",
+        "@analyze"
+    ]
+  },
+  "config": {
+    "allow-plugins": {
+      "php-http/discovery": true,
+      "pestphp/pest-plugin": true
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Facturapi\\Tests\\": "tests/"
+    }
+  }
 }

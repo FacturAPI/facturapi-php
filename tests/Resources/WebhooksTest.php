@@ -1,20 +1,10 @@
 <?php
 
 declare(strict_types=1);
+describe('Webhooks', function () {
+    test('validate signature uses local verification by default', function () {
 
-namespace Facturapi\Tests\Resources;
-
-use Facturapi\Resources\Webhooks;
-use Facturapi\Tests\Support\FakeHttpClient;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
-
-final class WebhooksTest extends TestCase
-{
-    public function testValidateSignatureUsesLocalVerificationByDefault(): void
-    {
-        $httpClient = new FakeHttpClient();
-        $webhooks = new Webhooks('sk_test_abc123', ['httpClient' => $httpClient]);
+        $webhooks = test()->facturapi->webhooks();
 
         $rawPayload = '{"id":"evt_123"}';
         $secret = 'whsec_test_secret';
@@ -26,14 +16,12 @@ final class WebhooksTest extends TestCase
             'webhookSecret' => $secret,
         ]);
 
-        self::assertTrue($result->valid);
-        self::assertCount(0, $httpClient->requests());
-    }
-
-    public function testValidateSignatureFallsBackToApiEndpointWhenLocalCannotRun(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"valid":true}'));
-        $webhooks = new Webhooks('sk_test_abc123', ['httpClient' => $httpClient]);
+        expect($result['valid'])->toBeTrue();
+        expect(test()->httpClient->requests())->toHaveCount(0);
+    });
+    test('validate signature falls back to api endpoint when local cannot run', function () {
+        mockResponse('{"valid":true}', 200);
+        $webhooks = test()->facturapi->webhooks();
 
         $payload = [
             'body' => '{"id":"evt_123"}',
@@ -43,19 +31,17 @@ final class WebhooksTest extends TestCase
 
         $result = $webhooks->validateSignature($payload);
 
-        self::assertTrue($result->valid);
+        expect($result['valid'])->toBeTrue();
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('POST', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/webhooks/validate-signature', (string) $request->getUri());
-        self::assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        self::assertSame(json_encode($payload), (string) $request->getBody());
-    }
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/webhooks/validate-signature');
+        expect($request->getHeaderLine('Content-Type'))->toBe('application/json');
+        expect((string) $request->getBody())->toBe(json_encode($payload));
+    });
+    test('validate signature local supports raw hex and rejects invalid signatures', function () {
 
-    public function testValidateSignatureLocalSupportsRawHexAndRejectsInvalidSignatures(): void
-    {
-        $httpClient = new FakeHttpClient();
-        $webhooks = new Webhooks('sk_test_abc123', ['httpClient' => $httpClient]);
+        $webhooks = test()->facturapi->webhooks();
 
         $rawPayload = '{"id":"evt_456"}';
         $secret = 'whsec_test_secret';
@@ -72,8 +58,94 @@ final class WebhooksTest extends TestCase
             'secret' => $secret,
         ]);
 
-        self::assertTrue($valid->valid);
-        self::assertFalse($invalid->valid);
-        self::assertCount(0, $httpClient->requests());
-    }
-}
+        expect($valid['valid'])->toBeTrue();
+        expect($invalid['valid'])->toBeFalse();
+        expect(test()->httpClient->requests())->toHaveCount(0);
+    });
+
+
+    test('create sends json body with url and events', function () {
+        mockResponse('{"id":"wh_123"}', 201);
+        $webhooks = test()->facturapi->webhooks();
+
+        $payload = [
+            'url' => 'https://example.com/webhook',
+            'enabled_events' => ['invoice.created', 'invoice.paid']
+        ];
+
+        $result = $webhooks->create($payload);
+
+        expect($result->id)->toBe('wh_123');
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/webhooks');
+        expect(json_decode((string) $request->getBody(), true))->toBe($payload);
+    });
+
+    test('update sends json body with updated properties', function () {
+        mockResponse(json_encode([
+            'id' => 'wh_123',
+            'created_at' => '2025-03-01T12:00:00Z',
+            'livemode' => false,
+            'organization' => 'org_123',
+            'url' => 'https://example.com/webhook-updated',
+            'status' => 'active',
+            'enabled_events' => ['invoice.created'],
+        ]), 200);
+        $webhooks = test()->facturapi->webhooks();
+
+        $payload = [
+            'url' => 'https://example.com/webhook-updated',
+            'status' => 'active',
+            'enabled_events' => ['invoice.created'],
+        ];
+
+        $result = $webhooks->update('wh_123', $payload);
+
+        expect($result->id)->toBe('wh_123');
+        expect($result->url)->toBe('https://example.com/webhook-updated');
+        expect($result->status)->toBe('active');
+        expect($result->enabled_events)->toBe(['invoice.created']);
+        expect($result->organization)->toBe('org_123');
+
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('PUT');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/webhooks/wh_123');
+        expect(json_decode((string) $request->getBody(), true))->toBe($payload);
+    });
+
+    test('all retrieves list of webhooks', function () {
+        mockResponse('{"data":[]}', 200);
+        $webhooks = test()->facturapi->webhooks();
+
+        $webhooks->all();
+
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/webhooks');
+    });
+
+    test('retrieve fetches a single webhook by id', function () {
+        mockResponse('{"id":"wh_123"}', 200);
+        $webhooks = test()->facturapi->webhooks();
+
+        $result = $webhooks->retrieve('wh_123');
+
+        expect($result->id)->toBe('wh_123');
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/webhooks/wh_123');
+    });
+
+    test('delete removes a webhook by id', function () {
+        mockResponse('{"id":"wh_123"}', 200);
+        $webhooks = test()->facturapi->webhooks();
+
+        $result = $webhooks->delete('wh_123');
+
+        expect($result->id)->toBe('wh_123');
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('DELETE');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/webhooks/wh_123');
+    });
+});

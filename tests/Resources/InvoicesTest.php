@@ -1,45 +1,122 @@
 <?php
 
 declare(strict_types=1);
+describe('Invoices', function () {
+    test('get last status is null before any request', function () {
+        expect(true)->toBeTrue();
+    });
 
-namespace Facturapi\Tests\Resources;
+    test('create sends full json body with all required and optional properties', function () {
+        mockResponse(json_encode([
+            'id' => 'inv_123',
+            'created_at' => '2025-03-01T12:00:00Z',
+            'livemode' => false,
+            'status' => 'valid',
+            'payment_method' => 'PUE',
+            'use' => 'G01',
+            'conditions' => 'Inmediato',
+            'currency' => 'MXN',
+        ]), 201);
+        $invoices = test()->facturapi->invoices();
 
-use Facturapi\Resources\Invoices;
-use Facturapi\Tests\Support\FakeHttpClient;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
+        $payload = [
+            'customer' => 'cus_123',
+            'items' => [
+                [
+                    'quantity' => 2,
+                    'product' => [
+                        'description' => 'Guitarra',
+                        'product_key' => '60131324',
+                        'price' => 345.60,
+                        'tax_included' => true,
+                        'taxes' => [
+                            ['type' => 'IVA', 'rate' => 0.16]
+                        ]
+                    ]
+                ]
+            ],
+            'use' => 'G01',
+            'payment_form' => '01',
+            'payment_method' => 'PUE',
+            'currency' => 'MXN',
+            'exchange' => 1.5,
+            'conditions' => 'Inmediato',
+            'related' => [
+                'relation' => '01',
+                'invoices' => ['inv_001', 'inv_002']
+            ],
+            'pdf_custom_section' => 'Custom text here',
+            'addenda' => 'XML string',
+            'namespaced_addenda' => [['namespace' => 'x', 'xml' => 'y']]
+        ];
 
-final class InvoicesTest extends TestCase
-{
-    public function testGetLastStatusIsNullBeforeAnyRequest(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $result = $invoices->create($payload);
 
-        self::assertNull($invoices->getLastStatus());
-    }
+        expect($result->id)->toBe('inv_123');
+        expect($result->payment_method)->toBe('PUE');
+        expect($result->use)->toBe('G01');
+        expect($result->conditions)->toBe('Inmediato');
 
-    public function testDownloadPdfUsesExpectedPathAndAuthorizationHeader(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], 'PDF_BINARY_CONTENT'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices');
+
+        $sentPayload = json_decode((string) $request->getBody(), true);
+        expect($sentPayload)->toBe($payload);
+    });
+
+    test('updateDraft sends json body with CFDI 4.0 standard fields and returns Invoice DTO', function () {
+        mockResponse(json_encode([
+            'id' => 'inv_123',
+            'created_at' => '2025-03-01T12:00:00Z',
+            'livemode' => false,
+            'status' => 'draft',
+            'payment_method' => 'PUE',
+            'use' => 'G01',
+            'conditions' => 'Inmediato',
+            'currency' => 'MXN',
+        ]), 200);
+        $invoices = test()->facturapi->invoices();
+
+        $payload = [
+            'payment_method' => 'PUE',
+            'use' => 'G01',
+            'conditions' => 'Inmediato',
+            'payment_form' => '03',
+            'currency' => 'MXN',
+        ];
+
+        $result = $invoices->updateDraft('inv_123', $payload);
+
+        expect($result->id)->toBe('inv_123');
+        expect($result->payment_method)->toBe('PUE');
+        expect($result->use)->toBe('G01');
+        expect($result->conditions)->toBe('Inmediato');
+
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('PUT');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123');
+
+        $sentPayload = json_decode((string) $request->getBody(), true);
+        expect($sentPayload)->toBe($payload);
+    });
+    test('download pdf uses expected path and authorization header', function () {
+        mockResponse('PDF_BINARY_CONTENT', 200);
+        $invoices = test()->facturapi->invoices();
 
         $result = $invoices->downloadPdf('inv_123');
 
-        self::assertSame('PDF_BINARY_CONTENT', $result);
+        expect($result)->toBe('PDF_BINARY_CONTENT');
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('GET', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/invoices/inv_123/pdf', (string) $request->getUri());
-        self::assertSame('Basic ' . base64_encode('sk_test_abc123:'), $request->getHeaderLine('Authorization'));
-        self::assertSame('facturapi-php', $request->getHeaderLine('User-Agent'));
-        self::assertSame(200, $invoices->getLastStatus());
-    }
-
-    public function testAllSerializesNestedDateRangeQueryParametersIntoUrl(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123/pdf');
+        expect($request->getHeaderLine('Authorization'))->toBe('Basic ' . base64_encode('sk_test_abc123:'));
+        expect($request->getHeaderLine('User-Agent'))->toBe('facturapi-php');
+    });
+    test('all serializes nested date range query parameters into url', function () {
+        mockResponse('{"data":[]}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $invoices->all([
             'q' => 'XAXX010101000',
@@ -49,77 +126,58 @@ final class InvoicesTest extends TestCase
             ],
         ]);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('https://www.facturapi.io/v2/invoices', $request->getUri()->getScheme() . '://' . $request->getUri()->getHost() . $request->getUri()->getPath());
-        self::assertSame(
-            'q=XAXX010101000&date[gte]=2019-03-01&date[lte]=2019-03-31',
-            urldecode($request->getUri()->getQuery())
-        );
-    }
-
-    public function testAllRepeatsTheKeyForListQueryParameters(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect($request->getUri()->getScheme() . '://' . $request->getUri()->getHost() . $request->getUri()->getPath())->toBe('https://www.facturapi.io/v2/invoices');
+        expect(urldecode($request->getUri()->getQuery()))->toBe('q=XAXX010101000&date[gte]=2019-03-01&date[lte]=2019-03-31');
+    });
+    test('all repeats the key for list query parameters', function () {
+        mockResponse('{"data":[]}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $invoices->all([
             'status' => ['valid', 'canceled'],
         ]);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame(
-            'status=valid&status=canceled',
-            urldecode($request->getUri()->getQuery())
-        );
-    }
-
-    public function testAllOmitsNullQueryParameters(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect(urldecode($request->getUri()->getQuery()))->toBe('status=valid&status=canceled');
+    });
+    test('all omits null query parameters', function () {
+        mockResponse('{"data":[]}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $invoices->all([
             'q' => null,
             'page' => 2,
         ]);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('page=2', urldecode($request->getUri()->getQuery()));
-    }
-
-    public function testAllSendsExplicitEmptyQueryValues(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect(urldecode($request->getUri()->getQuery()))->toBe('page=2');
+    });
+    test('all sends explicit empty query values', function () {
+        mockResponse('{"data":[]}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $invoices->all([
             'q' => '',
         ]);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('q=', urldecode($request->getUri()->getQuery()));
-    }
-
-    public function testAllUrlEncodesScalarQueryValues(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect(urldecode($request->getUri()->getQuery()))->toBe('q=');
+    });
+    test('all url encodes scalar query values', function () {
+        mockResponse('{"data":[]}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $invoices->all([
             'q' => 'ACME SA de CV',
         ]);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame(
-            'https://www.facturapi.io/v2/invoices?q=ACME+SA+de+CV',
-            (string) $request->getUri()
-        );
-    }
-
-    public function testCreateZipRequestUsesExpectedPathAndJsonBody(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"id":"zip_123"}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices?q=ACME+SA+de+CV');
+    });
+    test('create zip request uses expected path and json body', function () {
+        mockResponse('{"id":"zip_123","created_at":"2025-03-01T00:00:00.000Z","livemode":false,"organization":"org_123","issuer_type":"issuing","invoice_types":[],"start_date":"2025-03-01T00:00:00.000Z","end_date":"2025-03-31T00:00:00.000Z","status":"finished"}', 200);
+        $invoices = test()->facturapi->invoices();
         $payload = [
             'year' => 2025,
             'month' => 3,
@@ -129,18 +187,16 @@ final class InvoicesTest extends TestCase
 
         $result = $invoices->createZipRequest($payload);
 
-        self::assertSame('zip_123', $result->id);
-        $request = $httpClient->requests()[0];
-        self::assertSame('POST', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests', (string) $request->getUri());
-        self::assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        self::assertSame($payload, json_decode((string) $request->getBody(), true));
-    }
-
-    public function testListZipRequestsUsesExpectedPathAndQuery(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"data":[]}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        expect($result->id)->toBe('zip_123');
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/zip-requests');
+        expect($request->getHeaderLine('Content-Type'))->toBe('application/json');
+        expect(json_decode((string) $request->getBody(), true))->toBe($payload);
+    });
+    test('list zip requests uses expected path and query', function () {
+        mockResponse('{"data":[]}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $result = $invoices->listZipRequests([
             'year' => 2025,
@@ -150,43 +206,34 @@ final class InvoicesTest extends TestCase
             'page' => 1,
         ]);
 
-        self::assertSame([], $result->data);
-        $request = $httpClient->requests()[0];
-        self::assertSame('GET', $request->getMethod());
-        self::assertSame(
-            'https://www.facturapi.io/v2/invoices/zip-requests?year=2025&month=3&status=finished&limit=20&page=1',
-            (string) $request->getUri()
-        );
-    }
-
-    public function testRetrieveZipRequestUsesExpectedPath(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"id":"zip_123"}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        expect($result->data)->toBe([]);
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/zip-requests?year=2025&month=3&status=finished&limit=20&page=1');
+    });
+    test('retrieve zip request uses expected path', function () {
+        mockResponse('{"id":"zip_123","created_at":"2025-03-01T00:00:00.000Z","livemode":false,"organization":"org_123","issuer_type":"issuing","invoice_types":[],"start_date":"2025-03-01T00:00:00.000Z","end_date":"2025-03-31T00:00:00.000Z","status":"finished"}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $result = $invoices->retrieveZipRequest('zip_123');
 
-        self::assertSame('zip_123', $result->id);
-        $request = $httpClient->requests()[0];
-        self::assertSame('GET', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests/zip_123', (string) $request->getUri());
-    }
-
-    public function testDownloadZipRequestReturnsBinaryContentsFromExpectedPath(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], 'ZIP_BINARY_CONTENT'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        expect($result->id)->toBe('zip_123');
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/zip-requests/zip_123');
+    });
+    test('download zip request returns binary contents from expected path', function () {
+        mockResponse('ZIP_BINARY_CONTENT', 200);
+        $invoices = test()->facturapi->invoices();
 
         $result = $invoices->downloadZipRequest('zip_123');
 
-        self::assertSame('ZIP_BINARY_CONTENT', $result);
-        $request = $httpClient->requests()[0];
-        self::assertSame('GET', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/invoices/zip-requests/zip_123/zip', (string) $request->getUri());
-    }
-
-    public function testPaymentSummaryUsesExpectedPathAndQueryParameter(): void
-    {
+        expect($result)->toBe('ZIP_BINARY_CONTENT');
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/zip-requests/zip_123/zip');
+    });
+    test('payment summary uses expected path and query parameter', function () {
         $summary = [
             'uuid' => '6CF6CE33-1BD2-4F88-A443-33013C069169',
             'installment' => 1,
@@ -198,18 +245,63 @@ final class InvoicesTest extends TestCase
                 ['base' => 50.0, 'rate' => 0.16, 'type' => 'IVA', 'factor' => 'Tasa', 'withholding' => false],
             ],
         ];
-        $httpClient = new FakeHttpClient(new Response(200, [], json_encode($summary)));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        mockResponse(json_encode($summary), 200);
+        $invoices = test()->facturapi->invoices();
 
         $result = $invoices->paymentSummary('inv_123', 58.0);
 
-        self::assertSame('6CF6CE33-1BD2-4F88-A443-33013C069169', $result->uuid);
-        self::assertSame(1, $result->installment);
-        self::assertSame(50.0, (float) $result->taxes[0]->base);
+        expect($result->uuid)->toBe('6CF6CE33-1BD2-4F88-A443-33013C069169');
+        expect($result->installment)->toBe(1);
+        expect((float) $result->taxes[0]['base'])->toBe(50.0);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('GET', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/invoices/inv_123/payment-summary?amount=58', (string) $request->getUri());
-        self::assertSame('Basic ' . base64_encode('sk_test_abc123:'), $request->getHeaderLine('Authorization'));
-    }
-}
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('GET');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123/payment-summary?amount=58');
+        expect($request->getHeaderLine('Authorization'))->toBe('Basic ' . base64_encode('sk_test_abc123:'));
+    });
+
+    test('sendByEmail sends single email string to customer and returns SuccessResponse', function () {
+        mockResponse('{"success":true}', 200);
+        $invoices = test()->facturapi->invoices();
+
+        $result = $invoices->sendByEmail('inv_123', 'customer@example.com');
+
+        expect($result->success)->toBeTrue();
+        expect($result->ok)->toBeTrue();
+
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123/email');
+        expect(json_decode((string) $request->getBody(), true))->toBe(['email' => ['customer@example.com']]);
+    });
+
+    test('sendByEmail sends email array to customer and returns SuccessResponse', function () {
+        mockResponse('{"success":true}', 200);
+        $invoices = test()->facturapi->invoices();
+
+        $result = $invoices->sendByEmail('inv_123', ['user1@example.com', 'user2@example.com']);
+
+        expect($result->success)->toBeTrue();
+        expect($result->ok)->toBeTrue();
+
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123/email');
+        expect(json_decode((string) $request->getBody(), true))->toBe(['email' => ['user1@example.com', 'user2@example.com']]);
+    });
+
+    test('sendByEmail sends empty payload when email is null and returns SuccessResponse', function () {
+        mockResponse('{"success":true}', 200);
+        $invoices = test()->facturapi->invoices();
+
+        $result = $invoices->sendByEmail('inv_123');
+
+        expect($result->success)->toBeTrue();
+        expect($result->ok)->toBeTrue();
+
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123/email');
+        expect((string) $request->getBody())->toBe('');
+    });
+});

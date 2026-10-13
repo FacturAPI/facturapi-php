@@ -1,19 +1,10 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Facturapi\Tests\Http;
-
 use Facturapi\Exceptions\FacturapiException;
-use Facturapi\Resources\Invoices;
-use Facturapi\Tests\Support\FakeHttpClient;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 
-final class ErrorHandlingTest extends TestCase
-{
-    public function testApiErrorShapeIsFullyAvailableOnException(): void
-    {
+describe('ErrorHandling', function () {
+    test('api error shape is fully available on exception', function () {
         $errorBody = [
             'message' => 'Request validation failed',
             'code' => 'validation_error',
@@ -36,73 +27,58 @@ final class ErrorHandlingTest extends TestCase
             ],
         ];
 
-        $httpClient = new FakeHttpClient(
-            new Response(422, [
+        mockResponse(json_encode($errorBody), 422, [
                 'Content-Type' => 'application/json',
                 'Retry-After' => '3',
                 'x-facturapi-log-id' => 'log_123',
-            ], json_encode($errorBody))
-        );
+            ]);
 
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $invoices = test()->facturapi->invoices();
 
-        try {
-            $invoices->create(['customer' => []]);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame(422, $exception->getStatusCode());
-            self::assertSame('Request validation failed', $exception->getMessage());
-            self::assertSame($errorBody, $exception->getErrorData());
-            self::assertSame($errorBody, $exception->getResponseData());
-            self::assertSame(json_encode($errorBody), $exception->getRawBody());
+        expect(fn () => $invoices->create(['customer' => []]))
+            ->toThrow(function (FacturapiException $exception) use ($errorBody) {
+                expect($exception->getStatusCode())->toBe(422);
+                expect($exception->getMessage())->toBe('Request validation failed');
+                expect($exception->getErrorData())->toBe($errorBody);
+                expect($exception->getResponseData())->toBe($errorBody);
+                expect($exception->getRawBody())->toBe(json_encode($errorBody));
 
-            self::assertSame('validation_error', $exception->getErrorData()['code']);
-            self::assertSame('validation_error', $exception->getErrorCode());
-            self::assertSame('customer.tax_id', $exception->getErrorPath());
-            self::assertSame('body', $exception->getErrorLocation());
-            self::assertSame($errorBody['errors'], $exception->getErrors());
-            self::assertSame('log_123', $exception->getLogId());
-            self::assertSame('3', $exception->getResponseHeaders()['retry-after']);
-            self::assertSame('log_123', $exception->getResponseHeaders()['x-facturapi-log-id']);
-            self::assertSame('customer.tax_id', $exception->getErrorData()['details'][0]['path']);
-            self::assertSame('invalid_rfc', $exception->getErrorData()['details'][0]['code']);
-        }
-    }
-
-    public function testNonJsonErrorsStillExposeRawBody(): void
-    {
+                expect($exception->getErrorData()['code'])->toBe('validation_error');
+                expect($exception->getErrorCode())->toBe('validation_error');
+                expect($exception->getErrorPath())->toBe('customer.tax_id');
+                expect($exception->getErrorLocation())->toBe('body');
+                expect($exception->getErrors())->toBe($errorBody['errors']);
+                expect($exception->getLogId())->toBe('log_123');
+                expect($exception->getResponseHeaders()['retry-after'])->toBe('3');
+                expect($exception->getResponseHeaders()['x-facturapi-log-id'])->toBe('log_123');
+                expect($exception->getErrorData()['details'][0]['path'])->toBe('customer.tax_id');
+                expect($exception->getErrorData()['details'][0]['code'])->toBe('invalid_rfc');
+            });
+    });
+    test('non json errors still expose raw body', function () {
         $rawBody = '<html><body>502 Bad Gateway</body></html>';
 
-        $httpClient = new FakeHttpClient(
-            new Response(502, ['Content-Type' => 'text/html'], $rawBody)
-        );
+        mockResponse($rawBody, 502, ['Content-Type' => 'text/html']);
 
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $invoices = test()->facturapi->invoices();
 
-        try {
-            $invoices->create(['customer' => []]);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame(502, $exception->getStatusCode());
-            self::assertSame($rawBody, $exception->getMessage());
-            self::assertNull($exception->getErrorData());
-            self::assertSame($rawBody, $exception->getRawBody());
-        }
-    }
+        expect(fn () => $invoices->create(['customer' => []]))
+            ->toThrow(function (FacturapiException $exception) use ($rawBody) {
+                expect($exception->getStatusCode())->toBe(502);
+                expect($exception->getMessage())->toBe($rawBody);
+                expect($exception->getErrorData())->toBeNull();
+                expect($exception->getRawBody())->toBe($rawBody);
+            });
+    });
+    test('numeric api error codes are converted to strings', function () {
+        mockResponse('{"code": 400}', 400, ['Content-Type' => 'application/json']);
 
-    public function testNumericApiErrorCodesAreConvertedToStrings(): void
-    {
-        $httpClient = new FakeHttpClient(
-            new Response(400, ['Content-Type' => 'application/json'], '{"code": 400}')
-        );
+        $invoices = test()->facturapi->invoices();
 
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        expect(fn () => $invoices->create(['customer' => []]))
+            ->toThrow(function (FacturapiException $exception) {
+                expect($exception->getErrorCode())->toBe('400');
+            });
+    });
 
-        try {
-            $invoices->create(['customer' => []]);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame('400', $exception->getErrorCode());
-        }
-    }
-}
+});

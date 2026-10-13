@@ -1,814 +1,612 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Facturapi\Resources;
 
-use Facturapi\Http\BaseClient;
 use Facturapi\Exceptions\FacturapiException;
+use Facturapi\Http\FacturapiHttpClient;
+use Facturapi\Models\DomainAvailability;
+use Facturapi\Models\Organization;
+use Facturapi\Models\OrganizationSearchResult;
 
-class Organizations extends BaseClient
+class Organizations
 {
-  protected string $ENDPOINT = 'organizations';
-
-
-  /**
-   * Get all Organizations
-   *
-   * @param array|null $params Search parameters.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function all($params = null): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($params)));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Get an Organization by ID.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function retrieve($id): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($id)));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Create an Organization.
-   *
-   * @param array $params Organization payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function create($params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPostRequest($this->getRequestUrl(), $params));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Update an organization's legal information.
-   *
-   * @param string $id Organization ID.
-   * @param array $params Legal information payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateLegal($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/legal", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Update an organization's customization information.
-   *
-   * @param string $id Organization ID.
-   * @param array $params Customization payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateCustomization($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/customization", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Update an organization's receipt settings.
-   *
-   * @param string $id Organization ID.
-   * @param array $params Receipt settings payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateReceiptSettings($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/receipts", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Update an organization's domain.
-   *
-   * @param string $id Organization ID.
-   * @param array $params Domain payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateDomain($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/domain", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
-
-  /**
-   * Check domain availability.
-   *
-   * @param array $query Domain check query parameters.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function checkDomainAvailability($query): mixed
-  {
-    if (!is_array($query)) {
-      throw new FacturapiException('checkDomainAvailability expects $query to be an array.');
+    public function __construct(private readonly FacturapiHttpClient $client)
+    {
     }
 
-    try {
-      return json_decode(
-        $this->executeGetRequest(
-          $this->getRequestUrl("domain-check", $query)
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
 
-  /**
-   * @deprecated Use checkDomainAvailability($query) instead. This alias will be removed in v5.
-   *
-   * @param array|string $idOrQuery Domain check query parameters, or legacy organization ID.
-   * @param array|null $query Legacy query parameters when using historical signature.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function checkDomainIsAvailable($idOrQuery, $query = null): mixed
-  {
-    trigger_error(
-      'Organizations::checkDomainIsAvailable(...) is deprecated and will be removed in v5. Use checkDomainAvailability($query) instead.',
-      E_USER_DEPRECATED
-    );
-
-    $argsCount = func_num_args();
-    if ($argsCount === 1 && is_array($idOrQuery)) {
-      return $this->checkDomainAvailability($idOrQuery);
+    /**
+     * Get all Organizations
+     *
+     * @param array|null $params Search parameters.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function all(?array $params = null): OrganizationSearchResult
+    {
+        return OrganizationSearchResult::fromArray($this->client->get('organizations', $params));
     }
 
-    if ($argsCount >= 2 && is_array($query)) {
-      // Backward compatibility with historical signature: ($id, $params).
-      return $this->checkDomainAvailability($query);
+    /**
+     * Get an Organization by ID.
+     *
+     * @param string $id Organization ID.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function retrieve(string $id): Organization
+    {
+        return Organization::fromArray($this->client->get('organizations/' . $id));
     }
 
-    throw new FacturapiException('checkDomainIsAvailable expects either ($query) or ($id, $params).');
-  }
-
-  /**
-   * Uploads the organization's logo
-   *
-   * @param string $id Organization ID.
-   * @param string $params Logo file path.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function uploadLogo($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeDataPutRequest($this->getRequestUrl($id) . "/logo", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Create an Organization.
+     *
+     * @param array $params Organization payload.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function create(array $params): Organization
+    {
+        return Organization::fromArray($this->client->post('organizations', $params));
     }
-  }
 
-  /**
-   * Uploads the organization's certificate (CSD)
-   *
-   * @param string $id Organization ID.
-   * @param array $params Certificate payload (`cerFile`, `keyFile`, `password`).
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function uploadCertificate($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeDataPutRequest($this->getRequestUrl($id) . "/certificate", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update an organization's legal information.
+     *
+     * @param string $id Organization ID.
+     * @param array $params Legal information payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateLegal(string $id, array $params): Organization
+    {
+        return Organization::fromArray($this->client->put('organizations/' . $id . '/legal', $params));
     }
-  }
 
-  /**
-   * Get the test API key for an organization.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function getTestApiKey($id): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($id) . "/apikeys/test"));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update an organization's customization information.
+     *
+     * @param string $id Organization ID.
+     * @param array $params Customization payload.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateCustomization(string $id, array $params): Organization
+    {
+        return Organization::fromArray($this->client->put('organizations/' . $id . '/customization', $params));
     }
-  }
 
-  /**
-   * Renew the test API key for an organization.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function renewTestApiKey($id): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPutRequest(
-          $this->getRequestUrl($id) . "/apikeys/test",
-          []
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update an organization's receipt settings.
+     *
+     * @param string $id Organization ID.
+     * @param array $params Receipt settings payload.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateReceiptSettings(string $id, array $params): Organization
+    {
+        return Organization::fromArray($this->client->put('organizations/' . $id . '/receipts', $params));
     }
-  }
 
-  /**
-   * @deprecated Use listLiveApiKeys() instead. Will be removed in v5.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function lisLiveApiKeys($id): mixed
-  {
-    trigger_error('Organizations::lisLiveApiKeys() is deprecated and will be removed in v5. Use listLiveApiKeys() instead.', E_USER_DEPRECATED);
-    return $this->listLiveApiKeys($id);
-  }
-
-  /**
-   * List live API keys for an organization.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listLiveApiKeys($id): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeGetRequest(
-          $this->getRequestUrl($id) . "/apikeys/live"
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update an organization's domain.
+     *
+     * @param string $id Organization ID.
+     * @param array $params Domain payload.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateDomain(string $id, array $params): Organization
+    {
+        return Organization::fromArray($this->client->put('organizations/' . $id . '/domain', $params));
     }
-  }
 
-  /**
-   * Renew the live API key for an organization.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function renewLiveApiKey($id): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPutRequest(
-          $this->getRequestUrl($id) . "/apikeys/live",
-          []
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
+    /**
+     * Check domain availability.
+     *
+     * @param array $query Domain check query parameters.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function checkDomainAvailability($query): DomainAvailability
+    {
+        if (!is_array($query)) {
+            throw new FacturapiException('checkDomainAvailability expects $query to be an array.');
+        }
 
-  /**
-   * Delete one live API key for an organization.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $apiKeyId API key ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function deleteLiveApiKey($organizationId, $apiKeyId): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPutRequest(
-          $this->getRequestUrl($organizationId) . "/apikeys/live" . "/" . $apiKeyId,
-          []
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+        return DomainAvailability::fromArray($this->client->get('organizations/' . 'domain-check', $query));
     }
-  }
 
-  /**
-   * Delete an organization.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function delete($id): mixed
-  {
-    try {
-      return json_decode($this->executeDeleteRequest($this->getRequestUrl($id), null));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
+    /**
+     * @deprecated Use checkDomainAvailability($query) instead. This alias will be removed in v5.
+     *
+     * @param array|string $idOrQuery Domain check query parameters, or legacy organization ID.
+     * @param array|null $query Legacy query parameters when using historical signature.
+     * @return DomainAvailability JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function checkDomainIsAvailable($idOrQuery, ?array $query = null): DomainAvailability
+    {
+        trigger_error(
+            'Organizations::checkDomainIsAvailable(...) is deprecated and will be removed in v5. Use checkDomainAvailability($query) instead.',
+            E_USER_DEPRECATED
+        );
 
-  /**
-   * Delete an organization's certificate.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function deleteCertificate($id): mixed
-  {
-    try {
-      return json_decode($this->executeDeleteRequest($this->getRequestUrl($id) .  "/certificate", null));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
+        $argsCount = func_num_args();
+        if ($argsCount === 1 && is_array($idOrQuery)) {
+            return $this->checkDomainAvailability($idOrQuery);
+        }
 
-  /**
-   * Get series groups for an organization.
-   *
-   * @param string $id Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function getSeriesGroup($id): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($id) . "/series-group"));
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
+        if ($argsCount >= 2 && is_array($query)) {
+            // Backward compatibility with historical signature: ($id, $params).
+            return $this->checkDomainAvailability($query);
+        }
 
-  /**
-   * Create a series group for an organization.
-   *
-   * @param string $id Organization ID.
-   * @param array $params Series group payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function createSeriesGroup($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPostRequest($this->getRequestUrl($id) . "/series-group", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
+        throw new FacturapiException('checkDomainIsAvailable expects either ($query) or ($id, $params).');
     }
-  }
 
-  /**
-   * Update a series group for an organization.
-   *
-   * @param string $id Organization ID.
-   * @param string $series_name Series name.
-   * @param array $params Series group payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateSeriesGroup($id, $series_name, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/series-group" . "/" . $series_name, $params));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Uploads the organization's logo
+     *
+     * @param string $id Organization ID.
+     * @param string $params Logo file path.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function uploadLogo(string $id, string $file): Organization
+    {
+        return Organization::fromArray($this->client->multipartRequest('PUT', 'organizations/' . $id . '/logo', ['file' => $file]));
     }
-  }
 
-  /**
-   * Update default series for an organization.
-   *
-   * @param string $id Organization ID.
-   * @param array $params Default series payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateDefaultSeries($id, $params): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPutRequest(
-          $this->getRequestUrl($id) . "/series-group/default-series",
-          $params
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
-    }
-  }
+    /**
+     * Uploads the organization's certificate (CSD)
+     *
+     * @param string $id Organization ID.
+     * @param array $params Certificate payload (`cerFile`, `keyFile`, `password`).
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function uploadCertificate(string $id, array $params): Organization
+    {
+        $files = [];
+        $data = [];
+        if (!isset($params['cerFile']) || !isset($params['keyFile']) || !isset($params['password'])) {
+            throw new \Facturapi\Exceptions\FacturapiException('Invalid certificate payload. Expected cerFile, keyFile and password.');
+        }
+        if (isset($params['cerFile'])) {
+            $files['cer'] = $params['cerFile'];
+        }
+        if (isset($params['keyFile'])) {
+            $files['key'] = $params['keyFile'];
+        }
+        if (isset($params['password'])) {
+            $data['password'] = $params['password'];
+        }
 
-  /**
-   * Delete a series group for an organization.
-   *
-   * @param string $id Organization ID.
-   * @param string $series_name Series name.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function deleteSeriesGroup($id, $series_name): mixed
-  {
-    try {
-      return json_decode($this->executeDeleteRequest($this->getRequestUrl($id) . "/series-group" . "/" . $series_name, null));
-    } catch (FacturapiException $e) {
-      throw $e;
+        return Organization::fromArray($this->client->multipartRequest('PUT', 'organizations/' . $id . '/certificate', $files, $data));
     }
-  }
 
-  /**
-   * Update self-invoice settings for an Organization
-   *
-   * @param string $id Organization ID.
-   * @param array $params Self-invoice settings payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateSelfInvoiceSettings($id, $params): mixed
-  {
-    try {
-      return json_decode($this->executeJsonPutRequest($this->getRequestUrl($id) . "/self-invoice", $params));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Get the test API key for an organization.
+     *
+     * @param string $id Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function getTestApiKey($id): mixed
+    {
+        return $this->client->get('organizations/' . $id . '/apikeys/test');
     }
-  }
 
-  /**
-   * List users with access to an organization.
-   *
-   * @param string $organizationId Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listTeamAccess($organizationId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team"));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Renew the test API key for an organization.
+     *
+     * @param string $id Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function renewTestApiKey($id): mixed
+    {
+        return $this->client->put('organizations/' . $id . '/apikeys/test', []);
     }
-  }
 
-  /**
-   * Retrieve one user access entry within an organization.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $accessId Access ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function retrieveTeamAccess($organizationId, $accessId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/" . $accessId));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * @deprecated Use listLiveApiKeys() instead. Will be removed in v5.
+     *
+     * @param string $id Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function lisLiveApiKeys($id): mixed
+    {
+        trigger_error('Organizations::lisLiveApiKeys() is deprecated and will be removed in v5. Use listLiveApiKeys() instead.', E_USER_DEPRECATED);
+        return $this->listLiveApiKeys($id);
     }
-  }
 
-  /**
-   * Reassign a role to a user access entry.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $accessId Access ID.
-   * @param string $role Role ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateTeamAccessRole($organizationId, $accessId, $role): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPutRequest(
-          $this->getRequestUrl($organizationId) . "/team/" . $accessId . "/role",
-          ["role" => $role]
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * List live API keys for an organization.
+     *
+     * @param string $id Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listLiveApiKeys($id): mixed
+    {
+        return $this->client->get('organizations/' . $id . '/apikeys/live');
     }
-  }
 
-  /**
-   * Remove a user access entry from an organization.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $accessId Access ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function removeTeamAccess($organizationId, $accessId): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeDeleteRequest(
-          $this->getRequestUrl($organizationId) . "/team/" . $accessId,
-          null
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Renew the live API key for an organization.
+     *
+     * @param string $id Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function renewLiveApiKey($id): mixed
+    {
+        return $this->client->put('organizations/' . $id . '/apikeys/live', []);
     }
-  }
 
-  /**
-   * List sent team invites for an organization.
-   *
-   * @param string $organizationId Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listSentTeamInvites($organizationId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/invites"));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Delete one live API key for an organization.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $apiKeyId API key ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function deleteLiveApiKey($organizationId, $apiKeyId): mixed
+    {
+        return $this->client->delete('organizations/' . $organizationId . '/apikeys/live/' . $apiKeyId);
     }
-  }
 
-  /**
-   * Create or update a team invite for an organization.
-   *
-   * @param string $organizationId Organization ID.
-   * @param array $params Invite payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function inviteUserToTeam($organizationId, $params): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPostRequest(
-          $this->getRequestUrl($organizationId) . "/team/invites",
-          $params
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Delete an organization.
+     *
+     * @param string $id Organization ID.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function delete(string $id): Organization
+    {
+        return Organization::fromArray($this->client->delete('organizations/' . $id));
     }
-  }
 
-  /**
-   * Cancel a pending team invite.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $inviteKey Invite key.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function cancelTeamInvite($organizationId, $inviteKey): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeDeleteRequest(
-          $this->getRequestUrl($organizationId) . "/team/invites/" . $inviteKey,
-          null
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Delete an organization's certificate.
+     *
+     * @param string $id Organization ID.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function deleteCertificate(string $id): Organization
+    {
+        return Organization::fromArray($this->client->delete('organizations/' . $id . '/certificate'));
     }
-  }
 
-  /**
-   * List pending invites received by the authenticated user.
-   *
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listReceivedTeamInvites(): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl("invites/pending")));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Get series groups for an organization.
+     *
+     * @param string $id Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function getSeriesGroup($id): mixed
+    {
+        return $this->client->get('organizations/' . $id . '/series-group');
     }
-  }
 
-  /**
-   * Respond to a team invite.
-   *
-   * @param string $inviteKey Invite key.
-   * @param array $params Response payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function respondTeamInvite($inviteKey, $params): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPostRequest(
-          $this->getRequestUrl("invites/" . $inviteKey . "/response"),
-          $params
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Create a series group for an organization.
+     *
+     * @param string $id Organization ID.
+     * @param array $params Series group payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function createSeriesGroup($id, array $params): mixed
+    {
+        return $this->client->post('organizations/' . $id . '/series-group', $params);
     }
-  }
 
-  /**
-   * List organization team roles.
-   *
-   * @param string $organizationId Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listTeamRoles($organizationId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles"));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update a series group for an organization.
+     *
+     * @param string $id Organization ID.
+     * @param string $series_name Series name.
+     * @param array $params Series group payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateSeriesGroup(string $id, string $series_name, array $params): mixed
+    {
+        return $this->client->put('organizations/' . $id . '/series-group/' . $series_name, $params);
     }
-  }
 
-  /**
-   * List team role templates.
-   *
-   * @param string $organizationId Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listTeamRoleTemplates($organizationId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles/templates"));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update default series for an organization.
+     *
+     * @param string $id Organization ID.
+     * @param array $params Default series payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateDefaultSeries($id, array $params): mixed
+    {
+        return $this->client->put('organizations/' . $id . '/series-group/default-series', $params);
     }
-  }
 
-  /**
-   * List team role operations.
-   *
-   * @param string $organizationId Organization ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function listTeamRoleOperations($organizationId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles/operations"));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Delete a series group for an organization.
+     *
+     * @param string $id Organization ID.
+     * @param string $series_name Series name.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function deleteSeriesGroup(string $id, string $series_name): mixed
+    {
+        return $this->client->delete('organizations/' . $id . '/series-group/' . $series_name);
     }
-  }
 
-  /**
-   * Retrieve a team role by ID.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $roleId Role ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function retrieveTeamRole($organizationId, $roleId): mixed
-  {
-    try {
-      return json_decode($this->executeGetRequest($this->getRequestUrl($organizationId) . "/team/roles/" . $roleId));
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Update self-invoice settings for an Organization
+     *
+     * @param string $id Organization ID.
+     * @param array $params Self-invoice settings payload.
+     * @return Organization JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateSelfInvoiceSettings(string $id, array $params): Organization
+    {
+        return Organization::fromArray($this->client->put('organizations/' . $id . '/self-invoice', $params));
     }
-  }
 
-  /**
-   * Create a team role.
-   *
-   * @param string $organizationId Organization ID.
-   * @param array $params Role payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function createTeamRole($organizationId, $params): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPostRequest(
-          $this->getRequestUrl($organizationId) . "/team/roles",
-          $params
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * List users with access to an organization.
+     *
+     * @param string $organizationId Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listTeamAccess($organizationId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team');
     }
-  }
 
-  /**
-   * Update a team role.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $roleId Role ID.
-   * @param array $params Role payload.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function updateTeamRole($organizationId, $roleId, $params): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeJsonPutRequest(
-          $this->getRequestUrl($organizationId) . "/team/roles/" . $roleId,
-          $params
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Retrieve one user access entry within an organization.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $accessId Access ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function retrieveTeamAccess($organizationId, $accessId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team/' . $accessId);
     }
-  }
 
-  /**
-   * Delete a team role.
-   *
-   * @param string $organizationId Organization ID.
-   * @param string $roleId Role ID.
-   * @return mixed JSON-decoded response.
-   *
-   * @throws FacturapiException
-   */
-  public function deleteTeamRole($organizationId, $roleId): mixed
-  {
-    try {
-      return json_decode(
-        $this->executeDeleteRequest(
-          $this->getRequestUrl($organizationId) . "/team/roles/" . $roleId,
-          null
-        )
-      );
-    } catch (FacturapiException $e) {
-      throw $e;
+    /**
+     * Reassign a role to a user access entry.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $accessId Access ID.
+     * @param string $role Role ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateTeamAccessRole($organizationId, $accessId, $role): mixed
+    {
+        return $this->client->put('organizations/' . $organizationId . '/team/' . $accessId . '/role', ['role' => $role]);
     }
-  }
+
+    /**
+     * Remove a user access entry from an organization.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $accessId Access ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function removeTeamAccess($organizationId, $accessId): mixed
+    {
+        return $this->client->delete('organizations/' . $organizationId . '/team/' . $accessId);
+    }
+
+    /**
+     * List sent team invites for an organization.
+     *
+     * @param string $organizationId Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listSentTeamInvites($organizationId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team/invites');
+    }
+
+    /**
+     * Create or update a team invite for an organization.
+     *
+     * @param string $organizationId Organization ID.
+     * @param array $params Invite payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function inviteUserToTeam($organizationId, array $params): mixed
+    {
+        return $this->client->post('organizations/' . $organizationId . '/team/invites', $params);
+    }
+
+    /**
+     * Cancel a pending team invite.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $inviteKey Invite key.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function cancelTeamInvite($organizationId, $inviteKey): mixed
+    {
+        return $this->client->delete('organizations/' . $organizationId . '/team/invites/' . $inviteKey);
+    }
+
+    /**
+     * List pending invites received by the authenticated user.
+     *
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listReceivedTeamInvites(): mixed
+    {
+        return $this->client->get('organizations/' . 'invites/pending');
+    }
+
+    /**
+     * Respond to a team invite.
+     *
+     * @param string $inviteKey Invite key.
+     * @param array $params Response payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function respondTeamInvite($inviteKey, array $params): mixed
+    {
+        return $this->client->post('organizations/' . 'invites/' . $inviteKey . '/response', $params);
+    }
+
+    /**
+     * List organization team roles.
+     *
+     * @param string $organizationId Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listTeamRoles($organizationId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team/roles');
+    }
+
+    /**
+     * List team role templates.
+     *
+     * @param string $organizationId Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listTeamRoleTemplates($organizationId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team/roles/templates');
+    }
+
+    /**
+     * List team role operations.
+     *
+     * @param string $organizationId Organization ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function listTeamRoleOperations($organizationId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team/roles/operations');
+    }
+
+    /**
+     * Retrieve a team role by ID.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $roleId Role ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function retrieveTeamRole($organizationId, $roleId): mixed
+    {
+        return $this->client->get('organizations/' . $organizationId . '/team/roles/' . $roleId);
+    }
+
+    /**
+     * Create a team role.
+     *
+     * @param string $organizationId Organization ID.
+     * @param array $params Role payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function createTeamRole($organizationId, array $params): mixed
+    {
+        return $this->client->post('organizations/' . $organizationId . '/team/roles', $params);
+    }
+
+    /**
+     * Update a team role.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $roleId Role ID.
+     * @param array $params Role payload.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function updateTeamRole($organizationId, $roleId, array $params): mixed
+    {
+        return $this->client->put('organizations/' . $organizationId . '/team/roles/' . $roleId, $params);
+    }
+
+    /**
+     * Delete a team role.
+     *
+     * @param string $organizationId Organization ID.
+     * @param string $roleId Role ID.
+     * @return mixed JSON-decoded response.
+     *
+     * @throws FacturapiException
+     */
+    public function deleteTeamRole($organizationId, $roleId): mixed
+    {
+        return $this->client->delete('organizations/' . $organizationId . '/team/roles/' . $roleId);
+    }
 }

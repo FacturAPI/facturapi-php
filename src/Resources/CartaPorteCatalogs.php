@@ -1,13 +1,17 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Facturapi\Resources;
 
-use Facturapi\Http\BaseClient;
+use Facturapi\Http\FacturapiHttpClient;
 use Facturapi\Exceptions\FacturapiException;
 
-class CartaPorteCatalogs extends BaseClient
+class CartaPorteCatalogs
 {
-    protected string $ENDPOINT = 'catalogs/cartaporte/3.1';
+    public function __construct(private readonly FacturapiHttpClient $client)
+    {
+    }
 
     /**
      * Air transport codes (Carta Porte 3.1)
@@ -16,17 +20,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchAirTransportCodes($params = null): mixed
+    public function searchAirTransportCodes(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("air-transport-codes", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/air-transport-codes', $params);
     }
 
     /**
@@ -36,17 +32,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchTransportConfigs($params = null): mixed
+    public function searchTransportConfigs(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("transport-configs", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/transport-configs', $params);
     }
 
     /**
@@ -56,17 +44,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchRightsOfPassage($params = null): mixed
+    public function searchRightsOfPassage(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("rights-of-passage", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/rights-of-passage', $params);
     }
 
     /**
@@ -76,17 +56,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchCustomsDocuments($params = null): mixed
+    public function searchCustomsDocuments(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("customs-documents", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/customs-documents', $params);
     }
 
     /**
@@ -96,17 +68,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchPackagingTypes($params = null): mixed
+    public function searchPackagingTypes(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("packaging-types", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/packaging-types', $params);
     }
 
     /**
@@ -116,17 +80,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchTrailerTypes($params = null): mixed
+    public function searchTrailerTypes(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("trailer-types", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/trailer-types', $params);
     }
 
     /**
@@ -136,17 +92,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchHazardousMaterials($params = null): mixed
+    public function searchHazardousMaterials(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("hazardous-materials", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/hazardous-materials', $params);
     }
 
     /**
@@ -156,17 +104,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchNavalAuthorizations($params = null): mixed
+    public function searchNavalAuthorizations(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("naval-authorizations", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/naval-authorizations', $params);
     }
 
     /**
@@ -176,17 +116,9 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchPortStations($params = null): mixed
+    public function searchPortStations(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("port-stations", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/port-stations', $params);
     }
 
     /**
@@ -196,16 +128,8 @@ class CartaPorteCatalogs extends BaseClient
      * @return mixed JSON-decoded response.
      * @throws FacturapiException
      */
-    public function searchMarineContainers($params = null): mixed
+    public function searchMarineContainers(?array $params = null): mixed
     {
-        try {
-            return json_decode(
-                $this->executeGetRequest(
-                    $this->getRequestUrl("marine-containers", $params)
-                )
-            );
-        } catch (FacturapiException $e) {
-            throw $e;
-        }
+        return $this->client->get('catalogs/cartaporte/3.1/marine-containers', $params);
     }
 }

@@ -9,29 +9,55 @@ Idioma: Español | [English](./README.md)
 [![Descargas Totales](https://img.shields.io/packagist/dt/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 [![Licencia](https://img.shields.io/packagist/l/facturapi/facturapi-php?style=flat-square)](https://packagist.org/packages/facturapi/facturapi-php)
 
+## Compatibilidad ✅
+
+- **PHP**: `>= 8.2`
+- **Cliente HTTP PSR-18**: Totalmente compatible (se descubre automáticamente usando `php-http/discovery`).
+- **Procesos de Larga Duración**: 100% compatible con servidores de aplicaciones como **FrankenPHP**, **RoadRunner** y **Swoole** (ej. Laravel Octane). El SDK no mantiene estado, por lo que es seguro y no introduce memory leaks.
+
+## Experiencia de Desarrollo (DX) ✨
+
+La versión 5 introduce **DTOs (Data Transfer Objects) Estrictamente Tipados**.
+En lugar de tener que adivinar las llaves de un arreglo, tu IDE ahora te ofrecerá autocompletado total (IntelliSense) para todas las respuestas de la API, haciendo el desarrollo más rápido y reduciendo significativamente los errores tipográficos.
+
+```php
+// ❌ v4 (Arreglos Genéricos - Sin autocompletado)
+echo $customer['legal_name']; 
+
+// ✅ v5 (DTOs Tipados - Autocompletado total en el IDE)
+echo $customer->legal_name; 
+```
+
+### Soporte de Enums
+El SDK incluye PHP Enums para catálogos comunes (ej. `PaymentForm`, `TaxType`). **Su uso es completamente opcional** (puedes seguir pasando strings crudos como `'01'`), pero son altamente recomendados. Los Enums no solo habilitan el autocompletado en el IDE y previenen errores de escritura, sino que también le dan contexto claro a los asistentes de IA (LLMs) sobre qué valores son válidos para inyectar en las peticiones.
+
+```php
+// ✅ Opcional pero recomendado (Amigable para IDEs e IA)
+'payment_form' => \Facturapi\PaymentForm::EFECTIVO,
+
+// 🆗 También válido
+'payment_form' => '01',
+```
+
 ## Instalación ⚡
 
 ```bash
 composer require facturapi/facturapi-php
 ```
 
-Sin Composer (workaround soportado):
+Sin Composer:
+
+1. Descarga el archivo `facturapi-php-standalone.zip` desde el [Último Release](https://github.com/facturapi/facturapi-php/releases/latest).
+2. Extráelo en tu proyecto.
+3. Importa el autoloader incluido:
 
 ```php
-require_once __DIR__ . '/path/to/facturapi-php/src/Facturapi.php';
+require_once __DIR__ . '/ruta/a/la/carpeta/extraida/autoload.php';
 ```
 
-Requisitos:
-- PHP `>=8.2`
+## Configuración del Cliente ⚙️
 
-## Compatibilidad con Versiones Anteriores de PHP
-
-Desde la versión **4.0.0**, el SDK requiere **PHP >= 8.2**.
-
-- Si tu proyecto ya usa PHP 8.2+, no necesitas cambios adicionales.
-- Si tu proyecto está en PHP 8.1 o menor, fija la versión **3.7.0** (última release compatible antes del requisito de PHP 8.2).
-
-## Inicio Rápido 🚀
+Inicializa el SDK pasando tu API Key.
 
 ```php
 <?php
@@ -40,10 +66,83 @@ require_once __DIR__ . '/vendor/autoload.php';
 
 use Facturapi\Facturapi;
 
-$apiKey = getenv('FACTURAPI_KEY') ?: 'YOUR_API_KEY';
+$apiKey = getenv('FACTURAPI_KEY') ?: 'TU_API_KEY';
 $facturapi = new Facturapi($apiKey);
+```
 
-$customer = $facturapi->Customers->create([
+Opcionalmente, puedes pasar un arreglo de configuración como segundo argumento:
+
+```php
+$facturapi = new Facturapi($apiKey, [
+  'apiVersion' => 'v2',
+  'timeout' => 360, // segundos
+]);
+```
+
+### Cliente HTTP Personalizado (Avanzado)
+
+El SDK funciona directamente con su cliente interno basado en Guzzle. Si deseas proveer tu propio cliente compatible con PSR-18 (ej. para configurar proxies o timeouts personalizados):
+
+```php
+use Facturapi\Facturapi;
+use GuzzleHttp\Client;
+
+$httpClient = new Client(['timeout' => 420]);
+
+$facturapi = new Facturapi($apiKey, [
+  'httpClient' => $httpClient,
+]);
+```
+
+## Ejemplos de Integración con Frameworks 📚
+
+Revisa nuestras guías oficiales para integrar Facturapi con los frameworks de PHP más populares usando inyección de dependencias y las mejores prácticas:
+
+- [Integración con Laravel](./docs/laravel.md)
+- [Integración con Symfony](./docs/symfony.md)
+- [Integración con CodeIgniter 4](./docs/codeigniter.md)
+
+---
+
+## Uso Principal 🧾
+
+### 1. Facturas
+
+**Crear una Factura**
+```php
+$invoice = $facturapi->invoices()->create([
+  'customer' => 'ID_DE_TU_CLIENTE',
+  'items' => [[
+    'quantity' => 1,
+    'product' => 'ID_DE_TU_PRODUCTO',
+  ]],
+  'payment_form' => \Facturapi\PaymentForm::EFECTIVO,
+  'folio_number' => '581',
+  'series' => 'F',
+]);
+
+echo "Factura creada: " . $invoice->id;
+```
+
+**Descargar Archivos de la Factura**
+```php
+$zipBytes = $facturapi->invoices()->downloadZip('ID_DE_FACTURA');
+$pdfBytes = $facturapi->invoices()->downloadPdf('ID_DE_FACTURA'); // Devuelve bytes crudos
+$xmlBytes = $facturapi->invoices()->downloadXml('ID_DE_FACTURA');
+
+file_put_contents('factura.pdf', $pdfBytes);
+```
+
+**Enviar por Correo**
+```php
+$facturapi->invoices()->sendByEmail('ID_DE_FACTURA');
+```
+
+### 2. Clientes
+
+**Crear un Cliente**
+```php
+$customer = $facturapi->customers()->create([
   'email' => 'walterwhite@gmail.com',
   'legal_name' => 'Walter White',
   'tax_id' => 'WIWA761018',
@@ -56,118 +155,23 @@ $customer = $facturapi->Customers->create([
 ]);
 ```
 
-## Configuración del Cliente ⚙️
+### 3. Productos
 
-Firma del constructor:
-
+**Crear un Producto**
 ```php
-new Facturapi(string $apiKey, ?array $config = null)
-```
-
-Claves soportadas en `config`:
-- `apiVersion` (`string`, valor por defecto: `v2`)
-- `timeout` (`int|float`, valor por defecto: `360` segundos)
-- `httpClient` (`Psr\Http\Client\ClientInterface`, avanzado)
-
-Ejemplo:
-
-```php
-use Facturapi\Facturapi;
-
-$facturapi = new Facturapi($apiKey, [
-  'apiVersion' => 'v2',
-  'timeout' => 420,
-]);
-```
-
-### Cliente HTTP Personalizado (Avanzado)
-
-El SDK funciona sin configuración adicional con su cliente interno basado en Guzzle.
-
-Si proporcionas `httpClient`, puedes pasar cualquier cliente compatible con PSR-18 y configurar ahí mismo los timeouts:
-
-```php
-use Facturapi\Facturapi;
-use GuzzleHttp\Client;
-
-$httpClient = new Client([
-  'timeout' => 420,
-]);
-
-$facturapi = new Facturapi($apiKey, [
-  'httpClient' => $httpClient,
-]);
-```
-
-## Uso Común 🧾
-
-### Crear un Producto
-
-```php
-$product = $facturapi->Products->create([
+$product = $facturapi->products()->create([
   'product_key' => '4319150114',
   'description' => 'Apple iPhone 8',
   'price' => 345.60,
 ]);
 ```
 
-### Crear una Factura
+### 4. Organizaciones y Catálogos
 
+**Definir Serie por Defecto para una Organización**
 ```php
-$invoice = $facturapi->Invoices->create([
-  'customer' => 'YOUR_CUSTOMER_ID',
-  'items' => [[
-    'quantity' => 1,
-    'product' => 'YOUR_PRODUCT_ID',
-  ]],
-  'payment_form' => \Facturapi\PaymentForm::EFECTIVO,
-  'folio_number' => '581',
-  'series' => 'F',
-]);
-```
-
-### Descargar Archivos
-
-```php
-$zipBytes = $facturapi->Invoices->downloadZip('INVOICE_ID');
-$pdfBytes = $facturapi->Invoices->downloadPdf('INVOICE_ID');
-$xmlBytes = $facturapi->Invoices->downloadXml('INVOICE_ID');
-```
-
-`downloadPdf()` devuelve bytes crudos de PDF (cadena binaria), no base64.
-
-```php
-file_put_contents('invoice.pdf', $pdfBytes);
-```
-
-### Enviar por Correo
-
-```php
-$facturapi->Invoices->sendByEmail('INVOICE_ID');
-```
-
-### Catálogos de Comercio Exterior
-
-```php
-$results = $facturapi->ComercioExteriorCatalogs->searchTariffFractions([
-  'q' => '0101',
-  'page' => 0,
-  'limit' => 10,
-]);
-```
-
-### Catálogos de Nómina
-
-```php
-$deductions = $facturapi->NominaCatalogs->searchDeductions(["q" => "001"]);
-$perceptions = $facturapi->NominaCatalogs->searchPerceptions(["q" => "001"]);
-```
-
-### Organizaciones: Definir Serie Por Defecto
-
-```php
-$result = $facturapi->Organizations->updateDefaultSeries(
-  'ORGANIZATION_ID',
+$result = $facturapi->organizations()->updateDefaultSeries(
+  'ID_DE_LA_ORGANIZACION',
   [
     'type' => 'I',
     'series' => 'A',
@@ -175,37 +179,89 @@ $result = $facturapi->Organizations->updateDefaultSeries(
 );
 ```
 
+**Buscar en Catálogos**
+```php
+// Comercio Exterior
+$results = $facturapi->comercioExteriorCatalogs()->searchTariffFractions([
+  'q' => '0101',
+  'page' => 0,
+  'limit' => 10,
+]);
+
+// Nómina
+$deductions = $facturapi->nominaCatalogs()->searchDeductions(["q" => "001"]);
+$perceptions = $facturapi->nominaCatalogs()->searchPerceptions(["q" => "001"]);
+```
+
+### 5. Webhooks
+
+**Validar Firma**
+Para validar una firma de webhook entrante de manera local (sin llamar a la API), guarda tu secreto de webhook en tus variables de entorno (por ejemplo, `FACTURAPI_WEBHOOK_SECRET`) y pasa el cuerpo raw, el header de la firma y tu secreto al método `validateSignature`:
+
+```php
+$rawBody = file_get_contents('php://input');
+$signature = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
+$webhookSecret = getenv('FACTURAPI_WEBHOOK_SECRET');
+
+$result = $facturapi->webhooks()->validateSignature([
+  'body' => $rawBody,
+  'signature' => $signature,
+  'webhookSecret' => $webhookSecret,
+]);
+
+if (!$result['valid']) {
+    // Manejar firma inválida
+}
+```
+
+---
+
 ## Manejo de Errores ⚠️
 
 En respuestas no-2xx, el SDK lanza `Facturapi\Exceptions\FacturapiException`.
 
 La excepción incluye:
-- `getMessage()`: mensaje del API cuando está disponible.
-- `getStatusCode()`: código HTTP.
-- `getErrorData()`: payload JSON decodificado del error (shape completo del API).
-- `getRawBody()`: cuerpo crudo de la respuesta.
+- `getMessage()`: Mensaje de error de la API (si está presente).
+- `getStatusCode()`: Código de estado HTTP.
+- `getErrorData()`: Payload del error decodificado (con toda la estructura de la API).
+- `getRawBody()`: String crudo del body de la respuesta.
 
 ```php
 use Facturapi\Exceptions\FacturapiException;
 
 try {
-  $facturapi->Invoices->create($payload);
+  $facturapi->invoices()->create($payload);
 } catch (FacturapiException $e) {
   $status = $e->getStatusCode();
-  $error = $e->getErrorData(); // Shape completo del error del API cuando el body es JSON válido.
-  $firstDetail = $error['details'][0] ?? null; // p.ej. ['path' => 'items.0.quantity', 'message' => '...', 'code' => '...']
+  $error = $e->getErrorData(); // Shape completo del error de la API
+  $firstDetail = $error['details'][0] ?? null; // ej. ['path' => 'items.0.quantity', 'message' => '...', 'code' => '...']
 }
 ```
 
-## Notas de Migración (v4) 🔄
+---
 
-- La versión mínima de PHP ahora es `>=8.2`.
-- Se eliminó el soporte para el argumento posicional `apiVersion` en el constructor.
-- Proyectos con Composer: no requieren cambios de carga; continúen usando `vendor/autoload.php`.
-- Proyectos sin Composer pueden seguir usando el SDK cargando `src/Facturapi.php` directamente.
-- Los aliases snake_case están deprecados en v4 y se eliminarán en v5.
-- `Facturapi\\Exceptions\\Facturapi_Exception` está deprecada en v4 y se eliminará en v5.
-- Usa `Facturapi\\Exceptions\\FacturapiException`.
+## Migrando de v4 a v5 🔄
+
+La versión 5 introduce varios "breaking changes" diseñados para hacer el SDK más seguro y moderno:
+
+1. **DTOs Estrictamente Tipados**: Todos los recursos de la API devuelven Data Transfer Objects (DTOs) e instancian Enums en lugar de arreglos genéricos.
+    - **Sintaxis v4:** `$customer['legal_name']`
+    - **Sintaxis v5:** `$customer->legal_name`
+2. **Métodos de Recursos**: Los recursos de la API ahora se acceden mediante métodos en lugar de propiedades.
+    - **Sintaxis v4:** `$facturapi->Customers`
+    - **Sintaxis v5:** `$facturapi->customers()`
+3. **Requiere PHP 8.2+**: Asegúrate de que tu servidor esté ejecutando PHP 8.2 o superior.
+4. **Actualización del Cliente HTTP**: La implementación interna del cliente HTTP fue actualizada. El SDK se mantiene compatible con PSR-18 y descubrirá automáticamente los clientes instalados vía `php-http/discovery`.
+5. **Características Eliminadas**: 
+   - Se eliminó el soporte para el argumento posicional `apiVersion` en el constructor.
+   - Se eliminaron los alias de métodos en snake_case.
+   - `Facturapi\Exceptions\Facturapi_Exception` ha sido eliminado (Usa `Facturapi\Exceptions\FacturapiException`).
+
+*(Nota: Los proyectos con Composer no requieren cambios en el autoloader. Los proyectos sin Composer deben descargar el `.zip` de la versión 5 y requerir el `autoload.php` empaquetado como de costumbre).*
+
+Si aún no estás listo para actualizar, puedes fijar tu dependencia a la versión `^4.8`.
+
+---
 
 ## Documentación 📚
 
@@ -213,5 +269,5 @@ Documentación completa: [https://docs.facturapi.io](https://docs.facturapi.io)
 
 ## Soporte 💬
 
-- Issues: abre un issue en GitHub
-- Email: `contacto@facturapi.io`
+- Problemas (Issues): abre un issue en GitHub
+- Correo: `contacto@facturapi.io`

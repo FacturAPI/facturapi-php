@@ -1,4 +1,4 @@
-name: CI
+name: CI Strict Linter & Tests
 
 on:
   push:
@@ -7,18 +7,48 @@ on:
   pull_request:
   workflow_dispatch:
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
 jobs:
+  lint-and-analyze:
+    name: Lint & Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        uses: ramsey/composer-install@v3
+
+      - name: Audit dependencies
+        run: composer audit
+
+      - name: Check Code Style (Pint)
+        run: composer format:test
+
+      - name: Static Analysis (PHPStan)
+        run: composer analyze
+
   tests:
     name: PHP ${{ matrix.php-version }}
+    needs: lint-and-analyze
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php-version: ['8.2', '8.4']
-
+        php-version: ['8.2', '8.3', '8.4', '8.5']
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,7 +61,7 @@ jobs:
           tools: composer:v2
 
       - name: Install dependencies
-        run: composer install --no-interaction --prefer-dist
+        uses: ramsey/composer-install@v3
 
-      - name: Run test suite
-        run: ./vendor/bin/phpunit --configuration phpunit.xml
+      - name: Run test suite (Pest)
+        run: composer test

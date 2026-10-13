@@ -1,4 +1,4 @@
-4.8.1
+5.0.0
 
 ## Fixed
 - Serialize query parameters with the encoding the API documents and the other official SDKs send: lists repeat the key (`status=valid&status=canceled`) instead of using indexes, and `null` values are omitted instead of being sent empty. Associative arrays (`date[gte]=...`) and explicit empty strings (`q=`) keep working.

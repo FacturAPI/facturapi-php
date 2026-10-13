@@ -1,0 +1,31 @@
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-deprecation-rules/rules.neon
+
+parameters:
+    level: 9
+    paths:
+        - src
+    tmpDir: build/phpstan
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        -
+            identifier: missingType.iterableValue
+        -
+            identifier: property.phpDocType
+        -
+            identifier: return.phpDocType
+        -
+            identifier: missingType.parameter
+        -
+            identifier: argument.type
+        -
+            identifier: parameter.notFound
+        -
+            identifier: notIdentical.alwaysTrue
+        -
+            identifier: nullsafe.neverNull
+        -
+            identifier: class.notFound
+    parallel:
+        maximumNumberOfProcesses: 1

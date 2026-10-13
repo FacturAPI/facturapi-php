@@ -8,3 +8,8 @@ composer.lock
 /.idea/
 .DS_Store
 .phpunit.cache/
+
+# temporary files
+/tmp/
+/tmps/
+/build/

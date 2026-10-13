@@ -1,29 +1,8 @@
 <?php
 
-namespace Facturapi;
+declare(strict_types=1);
 
-// Backward-compatible loading path for projects that still include src/Facturapi.php directly.
-// Composer/PSR-4 users can continue relying on autoloading.
-require_once __DIR__ . '/Http/BaseClient.php';
-require_once __DIR__ . '/Exceptions/FacturapiException.php';
-require_once __DIR__ . '/Exceptions/Facturapi_Exception.php';
-require_once __DIR__ . '/InvoiceRelation.php';
-require_once __DIR__ . '/InvoiceType.php';
-require_once __DIR__ . '/PaymentForm.php';
-require_once __DIR__ . '/TaxType.php';
-require_once __DIR__ . '/CartaPorteConstants.php';
-require_once __DIR__ . '/Resources/Customers.php';
-require_once __DIR__ . '/Resources/Organizations.php';
-require_once __DIR__ . '/Resources/Products.php';
-require_once __DIR__ . '/Resources/Invoices.php';
-require_once __DIR__ . '/Resources/Receipts.php';
-require_once __DIR__ . '/Resources/Catalogs.php';
-require_once __DIR__ . '/Resources/CartaPorteCatalogs.php';
-require_once __DIR__ . '/Resources/ComercioExteriorCatalogs.php';
-require_once __DIR__ . '/Resources/NominaCatalogs.php';
-require_once __DIR__ . '/Resources/Retentions.php';
-require_once __DIR__ . '/Resources/Tools.php';
-require_once __DIR__ . '/Resources/Webhooks.php';
+namespace Facturapi;
 
 use Facturapi\Resources\Customers;
 use Facturapi\Resources\Organizations;
@@ -37,41 +16,94 @@ use Facturapi\Resources\NominaCatalogs;
 use Facturapi\Resources\Retentions;
 use Facturapi\Resources\Tools;
 use Facturapi\Resources\Webhooks;
-use Psr\Http\Client\ClientInterface;
+use Facturapi\Http\FacturapiHttpClient;
 
 class Facturapi
 {
-	public Customers $Customers;
-	public Organizations $Organizations;
-	public Products $Products;
-	public Invoices $Invoices;
-	public Receipts $Receipts;
-	public Catalogs $Catalogs;
-	public CartaPorteCatalogs $CartaPorteCatalogs;
-	public ComercioExteriorCatalogs $ComercioExteriorCatalogs;
-	public NominaCatalogs $NominaCatalogs;
-	public Retentions $Retentions;
-	public Tools $Tools;
-	public Webhooks $Webhooks;
+    private ?Customers $customers = null;
+    private ?Organizations $organizations = null;
+    private ?Products $products = null;
+    private ?Invoices $invoices = null;
+    private ?Receipts $receipts = null;
+    private ?Catalogs $catalogs = null;
+    private ?CartaPorteCatalogs $cartaPorteCatalogs = null;
+    private ?ComercioExteriorCatalogs $comercioExteriorCatalogs = null;
+    private ?NominaCatalogs $nominaCatalogs = null;
+    private ?Retentions $retentions = null;
+    private ?Tools $tools = null;
+    private ?Webhooks $webhooks = null;
 
-	/**
-	 * @param string $apiKey Facturapi API key.
-	 * @param array{apiVersion?:string,timeout?:int|float,httpClient?:ClientInterface}|null $config
-	 *        Optional SDK config. Supported keys: apiVersion, timeout, httpClient.
-	 */
-	public function __construct(string $apiKey, ?array $config = null)
-	{
-		$this->Customers = new Customers($apiKey, $config);
-		$this->Organizations = new Organizations($apiKey, $config);
-		$this->Products = new Products($apiKey, $config);
-		$this->Invoices = new Invoices($apiKey, $config);
-		$this->Receipts = new Receipts($apiKey, $config);
-		$this->Catalogs = new Catalogs($apiKey, $config);
-		$this->CartaPorteCatalogs = new CartaPorteCatalogs($apiKey, $config);
-		$this->ComercioExteriorCatalogs = new ComercioExteriorCatalogs($apiKey, $config);
-		$this->NominaCatalogs = new NominaCatalogs($apiKey, $config);
-		$this->Retentions = new Retentions($apiKey, $config);
-		$this->Tools = new Tools($apiKey, $config);
-		$this->Webhooks = new Webhooks($apiKey, $config);
-	}
+    private readonly FacturapiHttpClient $httpClient;
+
+    /**
+     * @param string $apiKey Facturapi API key.
+     * @param array{apiVersion?:string,httpClient?:\Psr\Http\Client\ClientInterface}|null $config
+     *        Optional SDK config.
+     */
+    public function __construct(
+        private readonly string $apiKey,
+        private readonly ?array $config = null
+    ) {
+        $this->httpClient = new FacturapiHttpClient($this->apiKey, $this->config);
+    }
+
+    public function customers(): Customers
+    {
+        return $this->customers ??= new Customers($this->httpClient);
+    }
+
+    public function organizations(): Organizations
+    {
+        return $this->organizations ??= new Organizations($this->httpClient);
+    }
+
+    public function products(): Products
+    {
+        return $this->products ??= new Products($this->httpClient);
+    }
+
+    public function invoices(): Invoices
+    {
+        return $this->invoices ??= new Invoices($this->httpClient);
+    }
+
+    public function receipts(): Receipts
+    {
+        return $this->receipts ??= new Receipts($this->httpClient);
+    }
+
+    public function catalogs(): Catalogs
+    {
+        return $this->catalogs ??= new Catalogs($this->httpClient);
+    }
+
+    public function cartaPorteCatalogs(): CartaPorteCatalogs
+    {
+        return $this->cartaPorteCatalogs ??= new CartaPorteCatalogs($this->httpClient);
+    }
+
+    public function comercioExteriorCatalogs(): ComercioExteriorCatalogs
+    {
+        return $this->comercioExteriorCatalogs ??= new ComercioExteriorCatalogs($this->httpClient);
+    }
+
+    public function nominaCatalogs(): NominaCatalogs
+    {
+        return $this->nominaCatalogs ??= new NominaCatalogs($this->httpClient);
+    }
+
+    public function retentions(): Retentions
+    {
+        return $this->retentions ??= new Retentions($this->httpClient);
+    }
+
+    public function tools(): Tools
+    {
+        return $this->tools ??= new Tools($this->httpClient);
+    }
+
+    public function webhooks(): Webhooks
+    {
+        return $this->webhooks ??= new Webhooks($this->httpClient);
+    }
 }

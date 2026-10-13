@@ -1,0 +1,12 @@
+{
+    "preset": "psr12",
+    "rules": {
+        "declare_strict_types": true,
+        "strict_param": true,
+        "array_syntax": {
+            "syntax": "short"
+        },
+        "no_unused_imports": true,
+        "single_quote": true
+    }
+}

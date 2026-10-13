@@ -1,22 +1,12 @@
 <?php
 
 declare(strict_types=1);
-
-namespace Facturapi\Tests\Resources;
-
 use Facturapi\Exceptions\FacturapiException;
-use Facturapi\Resources\Invoices;
-use Facturapi\Resources\Receipts;
-use Facturapi\Tests\Support\FakeHttpClient;
-use GuzzleHttp\Psr7\Response;
-use PHPUnit\Framework\TestCase;
 
-final class InvoiceReceiptCreationTest extends TestCase
-{
-    public function testInvoicesCreateSendsJsonBodyAndQueryParams(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(201, [], '{"id":"inv_123"}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+describe('InvoiceReceiptCreation', function () {
+    test('invoices create sends json body and query params', function () {
+        mockResponse('{"id":"inv_123"}', 201);
+        $invoices = test()->facturapi->invoices();
 
         $payload = [
             'customer' => 'cus_123',
@@ -25,19 +15,17 @@ final class InvoiceReceiptCreationTest extends TestCase
 
         $result = $invoices->create($payload, ['as' => 'draft', 'validate' => true]);
 
-        self::assertSame('inv_123', $result->id);
+        expect($result->id)->toBe('inv_123');
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('POST', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/invoices?as=draft&validate=true', (string) $request->getUri());
-        self::assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        self::assertSame(json_encode($payload), (string) $request->getBody());
-    }
-
-    public function testReceiptsCreateSendsJsonBodyToExpectedEndpoint(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(201, [], '{"id":"rec_123"}'));
-        $receipts = new Receipts('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices?as=draft&validate=true');
+        expect($request->getHeaderLine('Content-Type'))->toBe('application/json');
+        expect((string) $request->getBody())->toBe(json_encode($payload));
+    });
+    test('receipts create sends json body to expected endpoint', function () {
+        mockResponse('{"id":"rec_123"}', 201);
+        $receipts = test()->facturapi->receipts();
 
         $payload = [
             'customer' => 'cus_123',
@@ -46,31 +34,24 @@ final class InvoiceReceiptCreationTest extends TestCase
 
         $result = $receipts->create($payload);
 
-        self::assertSame('rec_123', $result->id);
+        expect($result->id)->toBe('rec_123');
 
-        $request = $httpClient->requests()[0];
-        self::assertSame('POST', $request->getMethod());
-        self::assertSame('https://www.facturapi.io/v2/receipts', (string) $request->getUri());
-        self::assertSame('application/json', $request->getHeaderLine('Content-Type'));
-        self::assertSame(json_encode($payload), (string) $request->getBody());
-    }
-
-    public function testInvoicesCancelSerializesQueryParamsWithoutExtraSlash(): void
-    {
-        $httpClient = new FakeHttpClient(new Response(200, [], '{"status":"canceled"}'));
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        $request = test()->httpClient->requests()[0];
+        expect($request->getMethod())->toBe('POST');
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/receipts');
+        expect($request->getHeaderLine('Content-Type'))->toBe('application/json');
+        expect((string) $request->getBody())->toBe(json_encode($payload));
+    });
+    test('invoices cancel serializes query params without extra slash', function () {
+        mockResponse('{"status":"canceled"}', 200);
+        $invoices = test()->facturapi->invoices();
 
         $invoices->cancel('inv_123', ['motive' => '01', 'substitution' => 'inv_456']);
 
-        $request = $httpClient->requests()[0];
-        self::assertSame(
-            'https://www.facturapi.io/v2/invoices/inv_123?motive=01&substitution=inv_456',
-            (string) $request->getUri()
-        );
-    }
-
-    public function testInvoicesCancelThrowsOnNon2xxAndPreservesErrorShape(): void
-    {
+        $request = test()->httpClient->requests()[0];
+        expect((string) $request->getUri())->toBe('https://www.facturapi.io/v2/invoices/inv_123?motive=01&substitution=inv_456');
+    });
+    test('invoices cancel throws on non2xx and preserves error shape', function () {
         $errorBody = [
             'message' => 'Cancellation rejected',
             'code' => 'cancel_error',
@@ -79,18 +60,15 @@ final class InvoiceReceiptCreationTest extends TestCase
             ],
         ];
 
-        $httpClient = new FakeHttpClient(
-            new Response(409, ['Content-Type' => 'application/json'], json_encode($errorBody))
-        );
-        $invoices = new Invoices('sk_test_abc123', ['httpClient' => $httpClient]);
+        mockResponse(json_encode($errorBody), 409, ['Content-Type' => 'application/json']);
+        $invoices = test()->facturapi->invoices();
 
-        try {
-            $invoices->cancel('inv_123', ['motive' => '99']);
-            self::fail('Expected FacturapiException to be thrown.');
-        } catch (FacturapiException $exception) {
-            self::assertSame(409, $exception->getStatusCode());
-            self::assertSame('Cancellation rejected', $exception->getMessage());
-            self::assertSame($errorBody, $exception->getErrorData());
-        }
-    }
-}
+        expect(fn () => $invoices->cancel('inv_123', ['motive' => '99']))
+            ->toThrow(function (FacturapiException $exception) use ($errorBody) {
+                expect($exception->getStatusCode())->toBe(409);
+                expect($exception->getMessage())->toBe('Cancellation rejected');
+                expect($exception->getErrorData())->toBe($errorBody);
+            });
+    });
+
+});

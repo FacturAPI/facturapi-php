@@ -37,6 +37,11 @@ final class FakeHttpClient implements ClientInterface
     }
 
     /** @return list<RequestInterface> */
+    public function addResponse(ResponseInterface $response): void
+    {
+        $this->responses[] = $response;
+    }
+
     public function requests(): array
     {
         return $this->requests;
