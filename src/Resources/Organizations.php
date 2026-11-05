@@ -224,6 +224,27 @@ class Organizations extends BaseClient
   }
 
   /**
+   * Get a temporary URL to download the signed Carta Manifiesto ZIP.
+   *
+   * @param string $id Organization ID. Use `me` with an organization API key.
+   * @return mixed JSON-decoded signed download URL metadata.
+   *
+   * @throws FacturapiException
+   */
+  public function downloadManifiestoZipUrl($id): mixed
+  {
+    try {
+      return json_decode(
+        $this->executeGetRequest(
+          $this->getRequestUrl($id) . "/manifiesto/download-url"
+        )
+      );
+    } catch (FacturapiException $e) {
+      throw $e;
+    }
+  }
+
+  /**
    * Get the test API key for an organization.
    *
    * @param string $id Organization ID.
