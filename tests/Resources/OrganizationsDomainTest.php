@@ -58,4 +58,25 @@ final class OrganizationsDomainTest extends TestCase
 
         $organizations->checkDomainAvailability('invalid');
     }
+
+    public function testDownloadManifiestoZipUrlUsesExpectedEndpoint(): void
+    {
+        $httpClient = new FakeHttpClient(new Response(
+            200,
+            [],
+            '{"url":"https://storage.googleapis.com/signed-download","expires_at":"2030-01-01T00:00:00.000Z","content_type":"application/zip","filename":"manifiesto_AAA010101AAA.zip"}'
+        ));
+        $organizations = new Organizations('sk_test_abc123', ['httpClient' => $httpClient]);
+
+        $result = $organizations->downloadManifiestoZipUrl('org_123');
+
+        self::assertSame('application/zip', $result->content_type);
+        self::assertSame('manifiesto_AAA010101AAA.zip', $result->filename);
+        $request = $httpClient->requests()[0];
+        self::assertSame('GET', $request->getMethod());
+        self::assertSame(
+            'https://www.facturapi.io/v2/organizations/org_123/manifiesto/download-url',
+            (string) $request->getUri()
+        );
+    }
 }
