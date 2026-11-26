@@ -1,3 +1,8 @@
+4.9.0
+
+## Added
+- Add `organizations.downloadManifiestoZipUrl()` to obtain a temporary URL for downloading the signed Carta Manifiesto ZIP associated with the organization's certificate RFC.
+
 4.8.1
 
 ## Fixed

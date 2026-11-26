@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.9.0] 2026-11-05
+
+### Added
+
+- Add `organizations.downloadManifiestoZipUrl()` to obtain a temporary URL for downloading the signed Carta Manifiesto ZIP associated with the organization's certificate RFC.
+
 ## [4.8.0] 2026-09-04
 
 ### Added
